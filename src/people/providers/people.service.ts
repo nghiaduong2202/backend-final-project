@@ -5,6 +5,8 @@ import { GetAllPeopleProvider } from './get-all-people.provider';
 import { GetPeopleByEmailProvider } from './get-people-by-email.provider';
 import { GetMyInfoProvider } from './get-my-info.provider';
 import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
+import { GetPeopleByIdProvider } from './get-people-by-id.provider';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class PeopleService {
@@ -25,6 +27,10 @@ export class PeopleService {
      * Inject GetMyInfoProvider
      */
     private readonly getMyInfoProvider: GetMyInfoProvider,
+    /**
+     * inject get people by id provider
+     */
+    private readonly getPeopleByIdProvider: GetPeopleByIdProvider,
   ) {}
 
   public async createUser(registerDto: RegisterDto) {
@@ -41,5 +47,9 @@ export class PeopleService {
 
   public async getMyInfo(activePeopleData: ActivePeopleData) {
     return await this.getMyInfoProvider.getMyInfo(activePeopleData.sub);
+  }
+
+  public async getPeopleById(peopleId: UUID) {
+    return await this.getPeopleByIdProvider.getPeopleById(peopleId);
   }
 }

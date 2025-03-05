@@ -1,7 +1,17 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { GenderEnum } from './enums/gender.enum';
 import { Role } from 'src/roles/role.entity';
 import { UUID } from 'crypto';
+import { Facility } from 'src/facilities/facility.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class People {
@@ -29,6 +39,7 @@ export class People {
     length: 255,
     nullable: false,
   })
+  @Exclude()
   password: string;
 
   @Column({
@@ -58,6 +69,15 @@ export class People {
   })
   bankAccount: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => Role)
   role: Role;
+
+  @OneToMany(() => Facility, (facility) => facility.owner)
+  facilities: Facility[];
 }

@@ -12,6 +12,9 @@ import { AdminGuard } from './auths/guards/admin.guard';
 import { PlayerGuard } from './auths/guards/player.guard';
 import { OwnerGuard } from './auths/guards/owner.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { FacilityModule } from './facilities/facility.module';
+import { SportModule } from './sports/sport.module';
+import { FieldModule } from './fields/field.module';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { JwtModule } from '@nestjs/jwt';
     AuthModule,
     PeopleModule,
     JwtModule,
+    FacilityModule,
+    SportModule,
+    FieldModule,
   ],
   controllers: [AppController],
   providers: [

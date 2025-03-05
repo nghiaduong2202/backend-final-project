@@ -33,7 +33,6 @@ export class AdminGuard implements CanActivate {
           secret: this.configService.get<string>('JWT_SECRET'),
         },
       );
-      console.log('🚀 ~ AdminGuard ~ canActivate ~ payload:', payload);
 
       if (payload.role !== String(RoleEnum.ADMIN)) {
         return false;

@@ -1,4 +1,10 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { PeopleService } from './providers/people.service';
 import { GetPeopleByEmailDto } from './dtos/get-people-by-email.dto';
@@ -8,6 +14,7 @@ import { RoleEnum } from 'src/auths/enums/role.enum';
 import { Roles } from 'src/auths/decorators/role.decorator';
 
 @Controller('people')
+@UseInterceptors(ClassSerializerInterceptor)
 export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 

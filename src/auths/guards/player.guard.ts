@@ -33,12 +33,7 @@ export class PlayerGuard implements CanActivate {
           secret: this.configService.get<string>('JWT_SECRET'),
         },
       );
-      console.log('🚀 ~ PlayerGuard ~ canActivate ~ payload:', payload);
 
-      console.log(
-        '🚀 ~ PlayerGuard ~ canActivate ~ String(RoleEnum.PLAYER):',
-        String(RoleEnum.PLAYER),
-      );
       if (payload.role !== String(RoleEnum.PLAYER)) {
         return false;
       }

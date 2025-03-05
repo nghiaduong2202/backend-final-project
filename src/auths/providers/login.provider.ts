@@ -56,6 +56,7 @@ export class LoginProvider {
 
     return {
       token,
+      user: existingUser,
     };
   }
 }

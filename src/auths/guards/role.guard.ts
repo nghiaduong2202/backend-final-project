@@ -45,10 +45,8 @@ export class RoleGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]) || [RoleGuard.defaultRole];
-    console.log('🚀 ~ RoleGuard ~ canActivate ~ roles:', roles);
 
     const guards = roles.map((role) => this.roleGuardMap[role]).flat();
-    console.log('🚀 ~ RoleGuard ~ canActivate ~ guards:', guards);
 
     for (const instance of guards) {
       const canActivate = await instance.canActivate(context);

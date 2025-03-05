@@ -33,7 +33,6 @@ export class OwnerGuard implements CanActivate {
           secret: this.configService.get<string>('JWT_SECRET'),
         },
       );
-      console.log('🚀 ~ OwnerGuard ~ canActivate ~ payload:', payload);
 
       if (payload.role !== String(RoleEnum.OWNER)) {
         return false;
