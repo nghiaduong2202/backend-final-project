@@ -4,21 +4,21 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RoleEnum } from '../enums/role.enum';
+import { AuthRoleEnum } from '../enums/auth-role.enum';
 import { AdminGuard } from './admin.guard';
 import { OwnerGuard } from './owner.guard';
 import { PlayerGuard } from './player.guard';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
-export class RoleGuard implements CanActivate {
-  private static readonly defaultRole = RoleEnum.ADMIN;
+export class AuthRoleGuard implements CanActivate {
+  private static readonly defaultRole = AuthRoleEnum.ADMIN;
 
-  private readonly roleGuardMap: Record<RoleEnum, CanActivate> = {
-    [RoleEnum.NONE]: { canActivate: () => true },
-    [RoleEnum.ADMIN]: this.adminGuard,
-    [RoleEnum.OWNER]: this.ownerGuard,
-    [RoleEnum.PLAYER]: this.playerGuard,
+  private readonly roleGuardMap: Record<AuthRoleEnum, CanActivate> = {
+    [AuthRoleEnum.NONE]: { canActivate: () => true },
+    [AuthRoleEnum.ADMIN]: this.adminGuard,
+    [AuthRoleEnum.OWNER]: this.ownerGuard,
+    [AuthRoleEnum.PLAYER]: this.playerGuard,
   };
 
   constructor(
@@ -41,12 +41,12 @@ export class RoleGuard implements CanActivate {
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
-    const roles = this.reflector.getAllAndOverride<RoleEnum[]>('roles', [
-      context.getHandler(),
-      context.getClass(),
-    ]) || [RoleGuard.defaultRole];
+    const roles = this.reflector.getAllAndOverride<AuthRoleEnum[]>(
+      'auth-roles',
+      [context.getHandler(), context.getClass()],
+    ) || [AuthRoleGuard.defaultRole];
 
-    const guards = roles.map((role) => this.roleGuardMap[role]).flat();
+    const guards = roles.map((authRole) => this.roleGuardMap[authRole]).flat();
 
     for (const instance of guards) {
       const canActivate = await instance.canActivate(context);

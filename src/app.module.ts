@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auths/auth.module';
 import { PeopleModule } from './people/people.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RoleGuard } from './auths/guards/role.guard';
+import { AuthRoleGuard } from './auths/guards/auth-role.guard';
 import { AdminGuard } from './auths/guards/admin.guard';
 import { PlayerGuard } from './auths/guards/player.guard';
 import { OwnerGuard } from './auths/guards/owner.guard';
@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FacilityModule } from './facilities/facility.module';
 import { SportModule } from './sports/sport.module';
 import { FieldModule } from './fields/field.module';
+import { FieldGroupModule } from './field-groups/field-gourp.module';
 import * as fs from 'fs';
 
 @Module({
@@ -45,13 +46,14 @@ import * as fs from 'fs';
     FacilityModule,
     SportModule,
     FieldModule,
+    FieldGroupModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     {
       provide: APP_GUARD,
-      useClass: RoleGuard,
+      useClass: AuthRoleGuard,
     },
     AdminGuard,
     PlayerGuard,

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SportController } from './sport.controller';
-import { SportService } from './providers/sport.service';
+import { SportService } from './sport.service';
 import { CreateSportProvider } from './providers/create-sport.provider';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sport } from './sport.entity';

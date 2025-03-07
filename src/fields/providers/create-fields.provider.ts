@@ -3,45 +3,38 @@ import {
   Injectable,
   NotAcceptableException,
 } from '@nestjs/common';
-import { DataSource, Repository, QueryRunner } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { Field } from '../field.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FacilityService } from 'src/facilities/providers/facility.service';
+import { FieldGroupService } from 'src/field-groups/field-group.service';
 import { CreateFieldsDto } from '../dtos/create-fields.dto';
-import { FacilityStatusEnum } from 'src/facilities/enums/facility-status.enum';
-import { Facility } from 'src/facilities/facility.entity';
-import { SportService } from 'src/sports/providers/sport.service';
-import { PeopleService } from 'src/people/providers/people.service';
 import { UUID } from 'crypto';
 
 @Injectable()
 export class CreateFieldsProvider {
   constructor(
     /**
-     * inject field repository
+     * inject field group service
      */
-    @InjectRepository(Field)
-    private readonly fieldRepository: Repository<Field>,
-    /**
-     * inject facility service
-     */
-    private readonly facilityService: FacilityService,
+    private readonly fieldGroupService: FieldGroupService,
     /**
      * inject data source
      */
     private readonly dataSource: DataSource,
-    /**
-     * inject sport service
-     */
-    private readonly sportService: SportService,
-    /**
-     * inject people service
-     */
-    private readonly peopleService: PeopleService,
   ) {}
 
-  public async createFields(createFieldsDto: CreateFieldsDto, ownerId: UUID) {
-    const owner = await this.peopleService.getPeopleById(ownerId);
+  public async createFields(
+    createFieldsDto: CreateFieldsDto,
+    fieldGroupId: UUID,
+    ownerId: UUID,
+  ) {
+    const fieldGroup =
+      await this.fieldGroupService.getFieldGroupById(fieldGroupId);
+
+    if (fieldGroup.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to craete files',
+      );
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -49,63 +42,24 @@ export class CreateFieldsProvider {
 
     await queryRunner.startTransaction();
 
-    const facility = await this.createFacility(
-      createFieldsDto.facilityId,
-      queryRunner,
-    );
-
-    if (facility.owner.id !== owner.id) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-
-      throw new NotAcceptableException(
-        'You are not have permisstion to create field in this facility',
-      );
-    }
-
     try {
       for (const createFieldDto of createFieldsDto.fields) {
-        const sports = await this.sportService.getSportByIds(
-          createFieldDto.sportIds,
-        );
+        const field = queryRunner.manager.create(Field, createFieldDto);
 
-        let field = queryRunner.manager.create(Field, {
-          ...createFieldDto,
-          sports,
-          facility,
+        await queryRunner.manager.save({
+          ...field,
+          fieldGroup,
         });
-
-        field = await queryRunner.manager.save(Field, field);
       }
 
       await queryRunner.commitTransaction();
-    } catch (error) {
+    } catch {
       await queryRunner.rollbackTransaction();
-
-      throw new BadRequestException('Error creating fields', {
-        description: String(error),
-      });
+      throw new BadRequestException();
     } finally {
       await queryRunner.release();
     }
 
-    return {
-      mesage: 'Fields created successfully',
-    };
-  }
-
-  private async createFacility(id: number, queryRunner: QueryRunner) {
-    const facility = await this.facilityService.getFacilityById(id);
-
-    if (!facility) {
-      throw new BadRequestException('Facility not found');
-    }
-
-    if (facility.status === FacilityStatusEnum.DRAFT) {
-      facility.status = FacilityStatusEnum.PENDING;
-      await queryRunner.manager.save(Facility, facility);
-    }
-
-    return facility;
+    return;
   }
 }

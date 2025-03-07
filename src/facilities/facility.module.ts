@@ -1,30 +1,21 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FacilityController } from './facility.controller';
-import { FacilityService } from './providers/facility.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Facility } from './facility.entity';
-import { CreateDraftProvider } from './providers/create-draft.provider';
-import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
 import { PeopleModule } from 'src/people/people.module';
-import { GetMyFacilityProvider } from './providers/get-my-facility.provider';
-import { ApproveFacilityProvider } from './providers/approve-facility.provider';
-import { RejectFacilityProvider } from './providers/reject-facility.provider';
-import { UpdateFacilityProvider } from './providers/update-facility.provider';
-import { DeleteFacilityProvider } from './providers/delete-facility.provider';
+import { FacilityService } from './facility.service';
+import { CreateFacilityProvider } from './providers/create-facility.provider';
+import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
+import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Facility]), PeopleModule],
-  controllers: [FacilityController],
-  providers: [
-    FacilityService,
-    CreateDraftProvider,
-    GetFacilityByIdProvider,
-    GetMyFacilityProvider,
-    ApproveFacilityProvider,
-    RejectFacilityProvider,
-    UpdateFacilityProvider,
-    DeleteFacilityProvider,
+  imports: [
+    TypeOrmModule.forFeature([Facility]),
+    PeopleModule,
+    forwardRef(() => FieldGroupModule),
   ],
+  controllers: [FacilityController],
+  providers: [FacilityService, CreateFacilityProvider, GetFacilityByIdProvider],
   exports: [FacilityService],
 })
 export class FacilityModule {}

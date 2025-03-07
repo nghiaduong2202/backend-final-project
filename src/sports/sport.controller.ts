@@ -6,10 +6,10 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { SportService } from './providers/sport.service';
+import { SportService } from './sport.service';
 import { CreateSportDto } from './dtos/create-sport.dto';
-import { Roles } from 'src/auths/decorators/role.decorator';
-import { RoleEnum } from 'src/auths/enums/role.enum';
+import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
+import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 
 @Controller('sport')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -22,13 +22,13 @@ export class SportController {
   ) {}
 
   @Post()
-  @Roles(RoleEnum.ADMIN)
+  @AuthRoles(AuthRoleEnum.ADMIN)
   public create(@Body() createSportDto: CreateSportDto) {
     return this.sportService.createSport(createSportDto);
   }
 
   @Get('/all')
-  @Roles(RoleEnum.NONE)
+  @AuthRoles(AuthRoleEnum.NONE)
   public getAll() {
     return this.sportService.getAllSport();
   }

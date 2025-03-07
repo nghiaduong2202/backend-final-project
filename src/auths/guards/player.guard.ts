@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ActivePeopleData } from '../interfaces/active-people-data.interface';
-import { RoleEnum } from '../enums/role.enum';
+import { AuthRoleEnum } from '../enums/auth-role.enum';
 
 @Injectable()
 export class PlayerGuard implements CanActivate {
@@ -34,7 +34,7 @@ export class PlayerGuard implements CanActivate {
         },
       );
 
-      if (payload.role !== String(RoleEnum.PLAYER)) {
+      if (payload.role !== String(AuthRoleEnum.PLAYER)) {
         return false;
       }
       request['people'] = payload;

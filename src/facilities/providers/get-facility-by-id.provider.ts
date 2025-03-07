@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Facility } from '../facility.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class GetFacilityByIdProvider {
@@ -13,21 +14,20 @@ export class GetFacilityByIdProvider {
     private readonly facilityRepository: Repository<Facility>,
   ) {}
 
-  public async getFacilityById(id: number) {
-    const existingFacility = await this.facilityRepository.findOne({
+  public async getFacilityById(facilityId: UUID) {
+    const facility = await this.facilityRepository.findOne({
       where: {
-        id,
+        id: facilityId,
       },
       relations: {
         owner: true,
-        fields: true,
       },
     });
 
-    if (!existingFacility) {
+    if (!facility) {
       throw new NotFoundException('Facility not found');
     }
 
-    return existingFacility;
+    return facility;
   }
 }

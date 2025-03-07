@@ -2,32 +2,34 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Param,
+  ParseUUIDPipe,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { FieldService } from './providers/field.service';
+import { FieldService } from './field.service';
 import { CreateFieldsDto } from './dtos/create-fields.dto';
-import { Roles } from 'src/auths/decorators/role.decorator';
-import { RoleEnum } from 'src/auths/enums/role.enum';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { UUID } from 'crypto';
+import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
+import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 
 @Controller('field')
 @UseInterceptors(ClassSerializerInterceptor)
 export class FieldController {
-  constructor(
-    /**
-     * inject field service
-     */
-    private readonly fieldService: FieldService,
-  ) {}
+  constructor(private readonly fieldService: FieldService) {}
 
-  @Post()
-  @Roles(RoleEnum.OWNER)
+  @Post(':fieldGroupId')
+  @AuthRoles(AuthRoleEnum.OWNER)
   public createFields(
     @Body() createFieldsDto: CreateFieldsDto,
+    @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.fieldService.createFields(createFieldsDto, ownerId);
+    return this.fieldService.createFields(
+      createFieldsDto,
+      fieldGroupId,
+      ownerId,
+    );
   }
 }

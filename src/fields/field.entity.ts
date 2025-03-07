@@ -1,14 +1,12 @@
 import {
   Column,
   Entity,
-  JoinTable,
-  ManyToMany,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { FieldStatusEnum } from './enums/field-status.entity';
-import { Facility } from 'src/facilities/facility.entity';
-import { Sport } from 'src/sports/sport.entity';
+import { FieldGroup } from 'src/field-groups/field-group.entity';
 
 @Entity()
 export class Field {
@@ -29,42 +27,9 @@ export class Field {
   })
   status: FieldStatusEnum;
 
-  @Column({
-    type: 'float',
-    nullable: false,
-    default: 0.0,
-  })
-  price: number;
-
-  @Column({
-    type: 'float',
-    nullable: false,
-    default: 0.0,
-  })
-  avgRating: number;
-
-  @Column({
-    type: 'integer',
-    nullable: false,
-    default: 0,
-  })
-  quantityRating: number;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-  })
-  demenstion: string;
-
-  @ManyToOne(() => Facility, (facility) => facility.fields)
-  facility: Facility;
-
-  @ManyToMany(() => Sport, {
+  @ManyToOne(() => FieldGroup, (fieldGroup) => fieldGroup.fields, {
     cascade: true,
   })
-  @JoinTable({
-    name: 'field_sport',
-  })
-  sports: Sport[];
+  @JoinColumn()
+  fieldGroup: FieldGroup;
 }

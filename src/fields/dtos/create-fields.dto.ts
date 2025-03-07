@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateFieldDto } from './create-field.dto';
-import { IsArray, IsNotEmpty, IsNumber, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateFieldsDto {
@@ -9,9 +9,6 @@ export class CreateFieldsDto {
     example: [
       {
         name: 'Field name',
-        price: 100000,
-        demenstion: '100x100',
-        sportIds: [1, 2],
       },
     ],
   })
@@ -20,12 +17,4 @@ export class CreateFieldsDto {
   @Type(() => CreateFieldDto)
   @IsNotEmpty()
   fields: CreateFieldDto[];
-
-  @ApiProperty({
-    type: 'number',
-    example: 1,
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  facilityId: number;
 }

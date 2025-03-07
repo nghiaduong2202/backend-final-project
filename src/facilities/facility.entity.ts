@@ -9,12 +9,13 @@ import {
 } from 'typeorm';
 import { FacilityStatusEnum } from './enums/facility-status.enum';
 import { People } from 'src/people/people.entity';
-import { Field } from 'src/fields/field.entity';
+import { FieldGroup } from 'src/field-groups/field-group.entity';
+import { UUID } from 'crypto';
 
 @Entity()
 export class Facility {
-  @PrimaryGeneratedColumn('identity')
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: UUID;
 
   @Column({
     type: 'varchar',
@@ -86,6 +87,6 @@ export class Facility {
   @ManyToOne(() => People, (people) => people.facilities)
   owner: People;
 
-  @OneToMany(() => Field, (field) => field.facility)
-  fields: Field[];
+  @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)
+  fieldGroups: FieldGroup[];
 }

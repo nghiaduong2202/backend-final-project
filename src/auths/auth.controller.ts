@@ -1,12 +1,12 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { AuthService } from './providers/auth.service';
+import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
-import { Roles } from './decorators/role.decorator';
-import { RoleEnum } from './enums/role.enum';
+import { AuthRoles } from './decorators/auth-role.decorator';
+import { AuthRoleEnum } from './enums/auth-role.enum';
 
 @Controller('auth')
-@Roles(RoleEnum.NONE)
+@AuthRoles(AuthRoleEnum.NONE)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

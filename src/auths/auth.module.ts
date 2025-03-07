@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { AuthService } from './providers/auth.service';
+import { AuthService } from './auth.service';
 import { HashProvider } from './providers/hash.provider';
 import { BcryptProvider } from './providers/bcrypt.provider';
 import { LoginProvider } from './providers/login.provider';

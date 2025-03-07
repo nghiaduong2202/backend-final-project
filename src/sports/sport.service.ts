@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSportProvider } from './create-sport.provider';
-import { CreateSportDto } from '../dtos/create-sport.dto';
-import { GetAllSportProvider } from './get-all-sport.provider';
-import { GetSportByIdsProvider } from './get-sport-by-ids.provider';
+import { CreateSportProvider } from './providers/create-sport.provider';
+import { CreateSportDto } from './dtos/create-sport.dto';
+import { GetAllSportProvider } from './providers/get-all-sport.provider';
+import { GetSportByIdsProvider } from './providers/get-sport-by-ids.provider';
 
 @Injectable()
 export class SportService {

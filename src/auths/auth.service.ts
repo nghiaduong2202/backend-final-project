@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { RegisterProvider } from './register.provider';
-import { RegisterDto } from '../dtos/register.dto';
-import { LoginProvider } from './login.provider';
-import { LoginDto } from '../dtos/login.dto';
+import { RegisterProvider } from './providers/register.provider';
+import { RegisterDto } from './dtos/register.dto';
+import { LoginProvider } from './providers/login.provider';
+import { LoginDto } from './dtos/login.dto';
 
 @Injectable()
 export class AuthService {
