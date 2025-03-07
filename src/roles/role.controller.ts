@@ -21,7 +21,7 @@ export class RoleController {
     summary: 'create a new role',
   })
   @Post()
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.NONE)
   public createRole(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.addRole(createRoleDto);
   }

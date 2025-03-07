@@ -15,6 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FacilityModule } from './facilities/facility.module';
 import { SportModule } from './sports/sport.module';
 import { FieldModule } from './fields/field.module';
+import * as fs from 'fs';
 
 @Module({
   imports: [
@@ -33,6 +34,10 @@ import { FieldModule } from './fields/field.module';
         password: configService.get<string>('DATABASE_PASSWORD'),
         host: configService.get<string>('DATABASE_HOST'),
         database: configService.get<string>('DATABASE_NAME'),
+        ssl: {
+          rejectUnauthorized: true,
+          ca: fs.readFileSync('./ca.pem').toString(),
+        },
       }),
     }),
     RoleModule,

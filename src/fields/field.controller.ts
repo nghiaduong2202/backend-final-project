@@ -28,7 +28,6 @@ export class FieldController {
     @Body() createFieldsDto: CreateFieldsDto,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    console.log(ownerId);
     return this.fieldService.createFields(createFieldsDto, ownerId);
   }
 }

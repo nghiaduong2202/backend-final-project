@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { DataSource, Repository, QueryRunner } from 'typeorm';
 import { Field } from '../field.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,8 +43,6 @@ export class CreateFieldsProvider {
   public async createFields(createFieldsDto: CreateFieldsDto, ownerId: UUID) {
     const owner = await this.peopleService.getPeopleById(ownerId);
 
-    console.log(owner.id);
-
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -52,13 +54,13 @@ export class CreateFieldsProvider {
       queryRunner,
     );
 
-    console.log(facility);
-
     if (facility.owner.id !== owner.id) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
 
-      throw new BadRequestException('You are not the owner of this facility');
+      throw new NotAcceptableException(
+        'You are not have permisstion to create field in this facility',
+      );
     }
 
     try {
