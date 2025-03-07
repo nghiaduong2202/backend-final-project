@@ -2,16 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { GenderEnum } from './enums/gender.enum';
-import { Role } from 'src/roles/role.entity';
 import { UUID } from 'crypto';
 import { Facility } from 'src/facilities/facility.entity';
 import { Exclude } from 'class-transformer';
+import { PeopleRoleEnum } from './enums/people-role.enum';
 
 @Entity()
 export class People {
@@ -69,14 +68,19 @@ export class People {
   })
   bankAccount: string;
 
+  @Column({
+    type: 'enum',
+    enum: PeopleRoleEnum,
+    nullable: false,
+    default: PeopleRoleEnum.PLAYER,
+  })
+  role: PeopleRoleEnum;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @ManyToOne(() => Role)
-  role: Role;
 
   @OneToMany(() => Facility, (facility) => facility.owner)
   facilities: Facility[];

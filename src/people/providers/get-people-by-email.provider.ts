@@ -11,17 +11,10 @@ export class GetPeopleByEmailProvider {
   ) {}
 
   public async getPeopleByEmail(email: string) {
-    const existingPeople = await this.peopleRepository.findOne({
-      where: {
-        email,
-      },
-      relations: {
-        role: true,
-      },
-    });
+    const existingPeople = await this.peopleRepository.findOneBy({ email });
 
     if (!existingPeople) {
-      throw new NotFoundException();
+      throw new NotFoundException('User not found');
     }
 
     return existingPeople;

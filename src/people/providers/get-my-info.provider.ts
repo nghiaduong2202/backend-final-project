@@ -15,14 +15,7 @@ export class GetMyInfoProvider {
   ) {}
 
   public async getMyInfo(id: UUID) {
-    const myInfo = await this.peopleRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        role: true,
-      },
-    });
+    const myInfo = await this.peopleRepository.findOneBy({ id });
 
     if (!myInfo) {
       throw new UnauthorizedException();

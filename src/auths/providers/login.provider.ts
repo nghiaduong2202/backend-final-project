@@ -47,7 +47,7 @@ export class LoginProvider {
 
     const payload = {
       sub: existingUser.id,
-      role: existingUser.role.roleName,
+      role: existingUser.role,
     };
 
     const token = await this.jwtService.signAsync(payload, {

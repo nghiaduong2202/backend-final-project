@@ -7,31 +7,26 @@ import { Repository } from 'typeorm';
 import { People } from '../people.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterDto } from 'src/auths/dtos/register.dto';
-import { RoleService } from 'src/roles/providers/role.service';
+import { PeopleRoleEnum } from '../enums/people-role.enum';
 
 @Injectable()
 export class CreateUserProvider {
   constructor(
     @InjectRepository(People)
     private readonly peopleRepository: Repository<People>,
-    /**
-     * Inject RoleService
-     */
-    private readonly roleService: RoleService,
   ) {}
 
   public async createUser(registerDto: RegisterDto) {
-    const role = await this.roleService.getRoleById(registerDto.roleId);
+    const role = registerDto.role;
 
-    if (role.roleName === 'admin') {
-      throw new NotFoundException('Not found any role with the id');
+    if (role === PeopleRoleEnum.ADMIN) {
+      throw new NotFoundException(
+        'You do not have permission to register admin account',
+      );
     }
 
     try {
-      const newPeople = this.peopleRepository.create({
-        ...registerDto,
-        role,
-      });
+      const newPeople = this.peopleRepository.create(registerDto);
 
       return await this.peopleRepository.save(newPeople);
     } catch (error) {

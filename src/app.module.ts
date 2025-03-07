@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoleModule } from './roles/role.module';
 import { AuthModule } from './auths/auth.module';
 import { PeopleModule } from './people/people.module';
 import { APP_GUARD } from '@nestjs/core';
@@ -40,7 +39,6 @@ import * as fs from 'fs';
         },
       }),
     }),
-    RoleModule,
     AuthModule,
     PeopleModule,
     JwtModule,

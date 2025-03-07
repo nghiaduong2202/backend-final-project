@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -10,6 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { PeopleRoleEnum } from 'src/people/enums/people-role.enum';
 
 export class RegisterDto {
   @ApiProperty({
@@ -61,10 +62,11 @@ export class RegisterDto {
   retypePassword: string;
 
   @ApiProperty({
-    type: 'number',
-    example: 1,
+    type: 'string',
+    enum: PeopleRoleEnum,
+    example: PeopleRoleEnum.PLAYER,
   })
+  @IsEnum(PeopleRoleEnum)
   @IsNotEmpty()
-  @IsNumber()
-  roleId: number;
+  role: PeopleRoleEnum;
 }

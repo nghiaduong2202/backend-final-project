@@ -14,10 +14,6 @@ export class GetAllPeopleProvider {
   ) {}
 
   public async getAllPeople() {
-    return await this.peopleRepository.find({
-      relations: {
-        role: true,
-      },
-    });
+    return await this.peopleRepository.find();
   }
 }
