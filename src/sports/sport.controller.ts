@@ -22,7 +22,7 @@ export class SportController {
   ) {}
 
   @Post()
-  @Roles(RoleEnum.NONE)
+  @Roles(RoleEnum.ADMIN)
   public create(@Body() createSportDto: CreateSportDto) {
     return this.sportService.createSport(createSportDto);
   }

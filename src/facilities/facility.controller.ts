@@ -69,7 +69,7 @@ export class FacilityController {
   }
 
   @Delete('/:id')
-  @Roles(RoleEnum.OWNER)
+  @Roles(RoleEnum.NONE)
   public deleteFacility(
     @Param('id', ParseIntPipe) facilityId: number,
     @ActivePeople('sub') ownerId: UUID,
