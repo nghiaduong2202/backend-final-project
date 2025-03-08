@@ -16,5 +16,5 @@ export class CreateFieldsDto {
   @ValidateNested({ each: true })
   @Type(() => CreateFieldDto)
   @IsNotEmpty()
-  fields: CreateFieldDto[];
+  fieldsData: CreateFieldDto[];
 }

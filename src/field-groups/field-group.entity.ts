@@ -58,6 +58,7 @@ export class FieldGroup {
 
   @ManyToOne(() => Facility, (facility) => facility.fieldGroups, {
     cascade: true,
+    nullable: false,
   })
   @JoinColumn()
   facility: Facility;

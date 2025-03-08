@@ -9,6 +9,7 @@ import { CreateFieldGroupsDto } from '../dtos/create-field-groups.dto';
 import { UUID } from 'crypto';
 import { FacilityService } from 'src/facilities/facility.service';
 import { Field } from 'src/fields/field.entity';
+import { SportService } from 'src/sports/sport.service';
 
 @Injectable()
 export class CreateFieldGroupProvider {
@@ -21,6 +22,10 @@ export class CreateFieldGroupProvider {
      * inject data source
      */
     private readonly dataSource: DataSource,
+    /**
+     * inject sport service
+     */
+    private readonly sportService: SportService,
   ) {}
 
   public async createFieldGroups(
@@ -28,10 +33,13 @@ export class CreateFieldGroupProvider {
     facilityId: UUID,
     ownerId: UUID,
   ) {
+    /**
+     * get facility
+     */
     const facility = await this.facilityService.getFacilityById(facilityId);
 
     if (facility.owner.id !== ownerId) {
-      throw new NotAcceptableException();
+      throw new NotAcceptableException('You do not have permission to create');
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -40,22 +48,31 @@ export class CreateFieldGroupProvider {
     await queryRunner.startTransaction();
 
     try {
-      for (const createFieldGroupDto of createFieldGroupsDto.fieldGroups) {
+      for (const fieldGroupData of createFieldGroupsDto.fieldGroupsData) {
+        /** get sports add to new field group */
+        const sports = await this.sportService.getSportByIds(
+          fieldGroupData.sportIds,
+        );
+
+        /**
+         * create new field group
+         */
         const fieldGroup = queryRunner.manager.create(FieldGroup, {
-          ...createFieldGroupDto,
+          ...fieldGroupData,
           facility,
+          sports,
         });
 
-        console.log('🚀 ~ CreateFieldGroupProvider ~ fieldGroup:', fieldGroup);
         await queryRunner.manager.save(fieldGroup);
-        console.log(
-          '-------------------------------------------------------------',
-        );
-        const createFieldsDto = createFieldGroupDto.createFieldsDto;
 
-        for (const createFieldDto of createFieldsDto) {
+        const fieldsData = fieldGroupData.fieldsData;
+
+        /**
+         * create fields into new field group
+         */
+        for (const fieldData of fieldsData) {
           const field = queryRunner.manager.create(Field, {
-            ...createFieldDto,
+            ...fieldData,
             fieldGroup,
           });
 
@@ -66,7 +83,7 @@ export class CreateFieldGroupProvider {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException('some thing wrong', {
+      throw new BadRequestException('Error create new field group', {
         description: String(error),
       });
     } finally {
@@ -74,7 +91,7 @@ export class CreateFieldGroupProvider {
     }
 
     return {
-      message: 'Create successful',
+      message: 'Create new field groups successful',
     };
   }
 }

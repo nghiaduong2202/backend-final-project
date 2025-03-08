@@ -15,12 +15,12 @@ export class CreateFieldGroupsDto {
         peakEndTime: '21:00',
         priceIncrease: 50000,
         sportIds: [1, 2],
-        createFieldsDto: [{ name: 'field name' }],
+        fieldsData: [{ name: 'field name' }],
       },
     ],
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateFieldGroupDto)
-  fieldGroups: CreateFieldGroupDto[];
+  fieldGroupsData: CreateFieldGroupDto[];
 }

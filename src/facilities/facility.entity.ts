@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -55,7 +56,7 @@ export class Facility {
     type: 'enum',
     enum: FacilityStatusEnum,
     nullable: false,
-    default: FacilityStatusEnum.DRAFT,
+    default: FacilityStatusEnum.PENDING,
   })
   status: FacilityStatusEnum;
 
@@ -84,7 +85,11 @@ export class Facility {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => People, (people) => people.facilities)
+  @ManyToOne(() => People, (people) => people.facilities, {
+    cascade: true,
+    nullable: false,
+  })
+  @JoinColumn()
   owner: People;
 
   @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)

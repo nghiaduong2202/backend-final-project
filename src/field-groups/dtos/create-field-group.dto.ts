@@ -87,5 +87,5 @@ export class CreateFieldGroupDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateFieldDto)
-  createFieldsDto: CreateFieldDto[];
+  fieldsData: CreateFieldDto[];
 }

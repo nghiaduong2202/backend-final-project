@@ -7,12 +7,14 @@ import { FacilityService } from './facility.service';
 import { CreateFacilityProvider } from './providers/create-facility.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
+import { SportModule } from 'src/sports/sport.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Facility]),
     PeopleModule,
     forwardRef(() => FieldGroupModule),
+    SportModule,
   ],
   controllers: [FacilityController],
   providers: [FacilityService, CreateFacilityProvider, GetFacilityByIdProvider],

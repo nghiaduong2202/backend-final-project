@@ -29,6 +29,7 @@ export class Field {
 
   @ManyToOne(() => FieldGroup, (fieldGroup) => fieldGroup.fields, {
     cascade: true,
+    nullable: false,
   })
   @JoinColumn()
   fieldGroup: FieldGroup;

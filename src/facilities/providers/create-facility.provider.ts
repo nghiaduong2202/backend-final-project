@@ -1,11 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { CreateFacilityDto } from '../dtos/create-facility.dto';
 import { Facility } from '../facility.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { Field } from 'src/fields/field.entity';
 import { PeopleService } from 'src/people/providers/people.service';
 import { UUID } from 'crypto';
+import { CreateFieldGroupDto } from 'src/field-groups/dtos/create-field-group.dto';
+import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';
+import { SportService } from 'src/sports/sport.service';
 
 @Injectable()
 export class CreateFacilityProvider {
@@ -18,6 +21,10 @@ export class CreateFacilityProvider {
      * inject people service
      */
     private readonly peopleService: PeopleService,
+    /**
+     * inject sport service
+     */
+    private readonly sportService: SportService,
   ) {}
 
   public async createFacility(
@@ -33,6 +40,9 @@ export class CreateFacilityProvider {
     await queryRunner.startTransaction();
 
     try {
+      /**
+       * create new facility
+       */
       const facility = queryRunner.manager.create(Facility, {
         ...createFacilityDto,
         owner,
@@ -40,32 +50,34 @@ export class CreateFacilityProvider {
 
       await queryRunner.manager.save(facility);
 
-      const createFieldGroupsDto = createFacilityDto.fieldGroups;
+      const fieldGroupsData = createFacilityDto.fieldGroupsData;
 
-      for (const createFieldGroupDto of createFieldGroupsDto) {
-        const fieldGroup = queryRunner.manager.create(FieldGroup, {
-          ...createFieldGroupDto,
+      /**
+       * create field groups in to facility
+       */
+      for (const fieldGroupData of fieldGroupsData) {
+        const fieldGroup = await this.createFieldGroup(
+          fieldGroupData,
           facility,
-        });
+          queryRunner,
+        );
 
-        await queryRunner.manager.save(fieldGroup);
+        /**
+         * create fields in field group
+         */
+        const fieldsData = fieldGroupData.fieldsData;
 
-        const createFieldsDto = createFieldGroupDto.createFieldsDto;
-
-        for (const createFieldDto of createFieldsDto) {
-          const field = queryRunner.manager.create(Field, {
-            ...createFieldDto,
-            fieldGroup,
-          });
-
-          await queryRunner.manager.save(field);
+        for (const fieldData of fieldsData) {
+          await this.createField(fieldData, fieldGroup, queryRunner);
         }
       }
 
       await queryRunner.commitTransaction();
-    } catch {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException();
+      throw new BadRequestException('Error create new facility', {
+        description: String(error),
+      });
     } finally {
       await queryRunner.release();
     }
@@ -73,5 +85,43 @@ export class CreateFacilityProvider {
     return {
       message: 'Create new facility successful',
     };
+  }
+
+  private async createFieldGroup(
+    createFieldGroupDto: CreateFieldGroupDto,
+    facility: Facility,
+    queryRunner: QueryRunner,
+  ) {
+    const sports = await this.sportService.getSportByIds(
+      createFieldGroupDto.sportIds,
+    );
+
+    const fieldGroup = queryRunner.manager.create(FieldGroup, {
+      ...createFieldGroupDto,
+      sports,
+      facility,
+    });
+
+    await queryRunner.manager.save(fieldGroup);
+
+    return fieldGroup;
+  }
+
+  private async createField(
+    createFieldDto: CreateFieldDto,
+    fieldGroup: FieldGroup,
+    queryRunner: QueryRunner,
+  ) {
+    // const fieldGroup =
+    //   await this.fieldGroupService.getFieldGroupById(fieldGroupId);
+
+    const newField = queryRunner.manager.create(Field, {
+      ...createFieldDto,
+      fieldGroup,
+    });
+
+    await queryRunner.manager.save(newField);
+
+    return newField;
   }
 }

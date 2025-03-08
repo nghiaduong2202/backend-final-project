@@ -43,8 +43,8 @@ export class CreateFieldsProvider {
     await queryRunner.startTransaction();
 
     try {
-      for (const createFieldDto of createFieldsDto.fields) {
-        const field = queryRunner.manager.create(Field, createFieldDto);
+      for (const fieldData of createFieldsDto.fieldsData) {
+        const field = queryRunner.manager.create(Field, fieldData);
 
         await queryRunner.manager.save({
           ...field,
@@ -53,13 +53,15 @@ export class CreateFieldsProvider {
       }
 
       await queryRunner.commitTransaction();
-    } catch {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException();
+      throw new BadRequestException('Error create new fields', {
+        description: String(error),
+      });
     } finally {
       await queryRunner.release();
     }
 
-    return;
+    return { message: 'create new fields successful' };
   }
 }

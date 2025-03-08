@@ -6,11 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FieldGroup } from './field-group.entity';
 import { FacilityModule } from 'src/facilities/facility.module';
 import { GetFieldGroupByIdProvider } from './providers/get-field-group-by-id.provider';
+import { SportModule } from 'src/sports/sport.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FieldGroup]),
     forwardRef(() => FacilityModule),
+    SportModule,
   ],
   controllers: [FieldGroupController],
   providers: [
