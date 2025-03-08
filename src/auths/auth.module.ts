@@ -8,6 +8,8 @@ import { PeopleModule } from 'src/people/people.module';
 import { RegisterProvider } from './providers/register.provider';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GenerateTokenProvider } from './providers/generate-token.provider';
+import { RefreshTokenProvider } from './providers/refresh-token.provider';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     },
     LoginProvider,
     RegisterProvider,
+    GenerateTokenProvider,
+    RefreshTokenProvider,
   ],
   exports: [AuthService],
 })
