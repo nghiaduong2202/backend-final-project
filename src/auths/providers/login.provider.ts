@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PeopleService } from 'src/people/providers/people.service';
 import { HashProvider } from './hash.provider';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from '../dtos/login.dto';
 import { People } from 'src/people/people.entity';
+import { GenerateTokenProvider } from './generate-token.provider';
 
 @Injectable()
 export class LoginProvider {
@@ -18,13 +18,13 @@ export class LoginProvider {
      */
     private readonly hashProvider: HashProvider,
     /**
-     * Inject JwtService
-     */
-    private readonly jwtService: JwtService,
-    /**
      * Inject ConfigService
      */
     private readonly configService: ConfigService,
+    /**
+     * inject generate toke provider
+     */
+    private readonly generateTokenProvider: GenerateTokenProvider,
   ) {}
 
   public async login(loginDto: LoginDto) {
@@ -46,17 +46,25 @@ export class LoginProvider {
     }
 
     const payload = {
-      sub: existingUser.id,
       role: existingUser.role,
     };
 
-    const token = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-    });
+    const acceptToken = await this.generateTokenProvider.generateToken(
+      existingUser.id,
+      this.configService.get<string>('JWT_SECRET')!,
+      this.configService.get<string>('JWT_EXPIRE')!,
+      payload,
+    );
+
+    const refreshToken = await this.generateTokenProvider.generateToken(
+      existingUser.id,
+      this.configService.get<string>('JWT_SECRET_REFRESH')!,
+      this.configService.get<string>('JWT_EXPIRE_REFRESH')!,
+    );
 
     return {
-      token,
-      user: existingUser,
+      acceptToken,
+      refreshToken,
     };
   }
 }
