@@ -50,9 +50,6 @@ export class FacilityController {
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const data: TestDto = JSON.parse(testDto);
-    console.log('🚀 ~ FacilityController ~ testDto:', typeof data);
-
-    console.log('🚀 ~ FacilityController ~ image:', image);
 
     return {
       message: 'see in the terminal',
