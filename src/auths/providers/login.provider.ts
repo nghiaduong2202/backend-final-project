@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PeopleService } from 'src/people/providers/people.service';
+import { PeopleService } from 'src/people/people.service';
 import { HashProvider } from './hash.provider';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from '../dtos/login.dto';

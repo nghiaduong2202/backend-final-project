@@ -8,10 +8,11 @@ import { CreateFacilityProvider } from './providers/create-facility.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
+import { FacilityImage } from './facility-image.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Facility]),
+    TypeOrmModule.forFeature([Facility, FacilityImage]),
     PeopleModule,
     forwardRef(() => FieldGroupModule),
     SportModule,

@@ -15,6 +15,7 @@ import { FacilityModule } from './facilities/facility.module';
 import { SportModule } from './sports/sport.module';
 import { FieldModule } from './fields/field.module';
 import { FieldGroupModule } from './field-groups/field-gourp.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import * as fs from 'fs';
 
 @Module({
@@ -47,6 +48,7 @@ import * as fs from 'fs';
     SportModule,
     FieldModule,
     FieldGroupModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [

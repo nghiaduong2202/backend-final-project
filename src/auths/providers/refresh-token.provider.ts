@@ -3,7 +3,7 @@ import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ActivePeopleData } from '../interfaces/active-people-data.interface';
-import { PeopleService } from 'src/people/providers/people.service';
+import { PeopleService } from 'src/people/people.service';
 import { GenerateTokenProvider } from './generate-token.provider';
 
 @Injectable()

@@ -5,11 +5,15 @@ import { UUID } from 'crypto';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('group-field')
 export class FieldGroupController {
   constructor(private readonly fieldGroupService: FieldGroupService) {}
 
+  @ApiOperation({
+    summary: 'Create field group and fields (role: owner)',
+  })
   @Post(':facilityId')
   @AuthRoles(AuthRoleEnum.OWNER)
   public create(

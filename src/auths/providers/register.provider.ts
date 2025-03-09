@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PeopleService } from 'src/people/providers/people.service';
+import { PeopleService } from 'src/people/people.service';
 import { RegisterDto } from '../dtos/register.dto';
 import { HashProvider } from './hash.provider';
 
