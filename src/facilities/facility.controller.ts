@@ -31,12 +31,20 @@ export class FacilityController {
     summary: 'create new facility and field groups and fields (role: owner)',
   })
   @Post('')
+  @UseInterceptors(FileInterceptor('image'))
   @AuthRoles(AuthRoleEnum.OWNER)
   public create(
     @Body() createFacilityDto: CreateFacilityDto,
+    @UploadedFile() image: Express.Multer.File,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.facilityService.createFacility(createFacilityDto, ownerId);
+    console.log('🚀 ~ FacilityController ~ ownerId:', ownerId);
+    console.log('🚀 ~ FacilityController ~ image:', image);
+    console.log(
+      '🚀 ~ FacilityController ~ createFacilityDto:',
+      createFacilityDto,
+    );
+    // return this.facilityService.createFacility(createFacilityDto, ownerId);
   }
 
   @ApiOperation({
