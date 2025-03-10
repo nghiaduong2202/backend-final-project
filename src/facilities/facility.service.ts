@@ -3,6 +3,8 @@ import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider
 import { UUID } from 'crypto';
 import { CreateFacilityProvider } from './providers/create-facility.provider';
 import { CreateFacilityDto } from './dtos/create-facility.dto';
+import { GetAllProvider } from './providers/get-all.provider';
+import { GetMyFacilitiesProvider } from './providers/get-my-facilities.provider';
 
 @Injectable()
 export class FacilityService {
@@ -15,6 +17,14 @@ export class FacilityService {
      * inject create facility provider
      */
     private readonly createFacilityProvider: CreateFacilityProvider,
+    /**
+     * inject get all provider
+     */
+    private readonly getAllProvider: GetAllProvider,
+    /**
+     * inject get my facilities provider
+     */
+    private readonly getMyFacilitiesProvider: GetMyFacilitiesProvider,
   ) {}
 
   public async getFacilityById(facilityId: UUID) {
@@ -31,5 +41,13 @@ export class FacilityService {
       images,
       ownerId,
     );
+  }
+
+  public async getAll() {
+    return await this.getAllProvider.getAll();
+  }
+
+  public async getMyFacilities(ownerId: UUID) {
+    return await this.getMyFacilitiesProvider.getMyFacilities(ownerId);
   }
 }

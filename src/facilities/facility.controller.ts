@@ -2,6 +2,10 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
+  NotAcceptableException,
+  Param,
+  ParseUUIDPipe,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -15,6 +19,7 @@ import { UUID } from 'crypto';
 import { ApiOperation } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateFacilityInterceptor } from './interceptors/create-facility.interceptor';
+import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
 
 @Controller('facility')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -42,5 +47,37 @@ export class FacilityController {
       images,
       ownerId,
     );
+  }
+
+  @ApiOperation({
+    summary: 'get all facility in database (role: none)',
+  })
+  @Get('all')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAll() {
+    return this.facilityService.getAll();
+  }
+
+  @ApiOperation({
+    summary: 'get my facilities (role: owner)',
+  })
+  @Get('my-facilities')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public getMyFacilities(@ActivePeople() activePeopleData: ActivePeopleData) {
+    if (activePeopleData.role !== 'owner') {
+      throw new NotAcceptableException(
+        'You do not have permission to get my facilities',
+      );
+    }
+    return this.facilityService.getMyFacilities(activePeopleData.sub);
+  }
+
+  @ApiOperation({
+    summary: 'get facility by id (role: none)',
+  })
+  @Get('/:facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getFacilityById(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.facilityService.getFacilityById(facilityId);
   }
 }
