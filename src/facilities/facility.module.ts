@@ -9,6 +9,8 @@ import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { GetAllProvider } from './providers/get-all.provider';
+import { GetMyFacilitiesProvider } from './providers/get-my-facilities.provider';
 
 @Module({
   imports: [
@@ -19,7 +21,13 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
     CloudinaryModule,
   ],
   controllers: [FacilityController],
-  providers: [FacilityService, CreateFacilityProvider, GetFacilityByIdProvider],
+  providers: [
+    FacilityService,
+    CreateFacilityProvider,
+    GetFacilityByIdProvider,
+    GetAllProvider,
+    GetMyFacilitiesProvider,
+  ],
   exports: [FacilityService],
 })
 export class FacilityModule {}

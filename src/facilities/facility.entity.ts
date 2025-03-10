@@ -20,6 +20,7 @@ export class Facility {
   @Column({
     type: 'varchar',
     length: 255,
+    unique: true,
     nullable: false,
   })
   name: string;
