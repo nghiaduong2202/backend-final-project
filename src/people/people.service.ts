@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserProvider } from './create-user.provider';
+import { CreateUserProvider } from './providers/create-user.provider';
 import { RegisterDto } from 'src/auths/dtos/register.dto';
-import { GetAllPeopleProvider } from './get-all-people.provider';
-import { GetPeopleByEmailProvider } from './get-people-by-email.provider';
-import { GetMyInfoProvider } from './get-my-info.provider';
+import { GetAllPeopleProvider } from './providers/get-all-people.provider';
+import { GetPeopleByEmailProvider } from './providers/get-people-by-email.provider';
+import { GetMyInfoProvider } from './providers/get-my-info.provider';
 import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
-import { GetPeopleByIdProvider } from './get-people-by-id.provider';
+import { GetPeopleByIdProvider } from './providers/get-people-by-id.provider';
 import { UUID } from 'crypto';
+import { UpdateAvatarProvider } from './providers/update-avatar.provider';
 
 @Injectable()
 export class PeopleService {
@@ -31,6 +32,10 @@ export class PeopleService {
      * inject get people by id provider
      */
     private readonly getPeopleByIdProvider: GetPeopleByIdProvider,
+    /**
+     * inject update avatar provider
+     */
+    private readonly updateAvatarProvider: UpdateAvatarProvider,
   ) {}
 
   public async createUser(registerDto: RegisterDto) {
@@ -51,5 +56,9 @@ export class PeopleService {
 
   public async getPeopleById(peopleId: UUID) {
     return await this.getPeopleByIdProvider.getPeopleById(peopleId);
+  }
+
+  public async updateAvatar(image: Express.Multer.File, peopleId: UUID) {
+    return await this.updateAvatarProvider.updateAvatar(image, peopleId);
   }
 }

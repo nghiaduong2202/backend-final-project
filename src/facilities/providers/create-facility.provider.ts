@@ -4,7 +4,7 @@ import { CreateFacilityDto } from '../dtos/create-facility.dto';
 import { Facility } from '../facility.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { Field } from 'src/fields/field.entity';
-import { PeopleService } from 'src/people/providers/people.service';
+import { PeopleService } from 'src/people/people.service';
 import { UUID } from 'crypto';
 import { CreateFieldGroupDto } from 'src/field-groups/dtos/create-field-group.dto';
 import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';

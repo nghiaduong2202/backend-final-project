@@ -13,12 +13,16 @@ import { UUID } from 'crypto';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('field')
 @UseInterceptors(ClassSerializerInterceptor)
 export class FieldController {
   constructor(private readonly fieldService: FieldService) {}
 
+  @ApiOperation({
+    summary: 'craete fields (role: owner)',
+  })
   @Post(':fieldGroupId')
   @AuthRoles(AuthRoleEnum.OWNER)
   public createFields(

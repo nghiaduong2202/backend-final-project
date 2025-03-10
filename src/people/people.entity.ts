@@ -50,6 +50,13 @@ export class People {
   phoneNumber?: string;
 
   @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  avatarUrl?: string;
+
+  @Column({
     type: 'enum',
     enum: GenderEnum,
     nullable: true,
@@ -60,13 +67,13 @@ export class People {
     type: 'timestamp',
     nullable: true,
   })
-  dob: Date;
+  dob?: Date;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  bankAccount: string;
+  bankAccount?: string;
 
   @Column({
     type: 'enum',
@@ -76,9 +83,11 @@ export class People {
   })
   role: PeopleRoleEnum;
 
+  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt: Date;
 
