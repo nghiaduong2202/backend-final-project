@@ -49,7 +49,7 @@ export class LoginProvider {
       role: existingUser.role,
     };
 
-    const acceptToken = await this.generateTokenProvider.generateToken(
+    const accessToken = await this.generateTokenProvider.generateToken(
       existingUser.id,
       this.configService.get<string>('JWT_SECRET')!,
       this.configService.get<string>('JWT_EXPIRE')!,
@@ -63,7 +63,7 @@ export class LoginProvider {
     );
 
     return {
-      acceptToken,
+      accessToken,
       refreshToken,
     };
   }
