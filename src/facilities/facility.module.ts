@@ -8,14 +8,15 @@ import { CreateFacilityProvider } from './providers/create-facility.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
-import { FacilityImage } from './facility-image.entity';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Facility, FacilityImage]),
+    TypeOrmModule.forFeature([Facility]),
     PeopleModule,
     forwardRef(() => FieldGroupModule),
     SportModule,
+    CloudinaryModule,
   ],
   controllers: [FacilityController],
   providers: [FacilityService, CreateFacilityProvider, GetFacilityByIdProvider],

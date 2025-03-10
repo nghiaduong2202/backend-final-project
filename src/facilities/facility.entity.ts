@@ -12,8 +12,6 @@ import { FacilityStatusEnum } from './enums/facility-status.enum';
 import { People } from 'src/people/people.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { UUID } from 'crypto';
-import { FacilityImage } from './facility-image.entity';
-
 @Entity()
 export class Facility {
   @PrimaryGeneratedColumn('uuid')
@@ -62,13 +60,6 @@ export class Facility {
   status: FacilityStatusEnum;
 
   @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  thumbnail?: string;
-
-  @Column({
     type: 'real',
     default: 0.0,
   })
@@ -79,6 +70,11 @@ export class Facility {
     default: 0,
   })
   quantityRating: number;
+
+  @Column('simple-json', {
+    nullable: true,
+  })
+  imagesUrl?: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -95,7 +91,4 @@ export class Facility {
 
   @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)
   fieldGroups: FieldGroup[];
-
-  @OneToMany(() => FacilityImage, (facilityImage) => facilityImage.facility)
-  facilityImages: FacilityImage[];
 }

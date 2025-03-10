@@ -9,6 +9,7 @@ import { UUID } from 'crypto';
 import { CreateFieldGroupDto } from 'src/field-groups/dtos/create-field-group.dto';
 import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';
 import { SportService } from 'src/sports/sport.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class CreateFacilityProvider {
@@ -25,13 +26,26 @@ export class CreateFacilityProvider {
      * inject sport service
      */
     private readonly sportService: SportService,
+    /**
+     * inject cloudinary service
+     */
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   public async createFacility(
     createFacilityDto: CreateFacilityDto,
+    images: Express.Multer.File[],
     ownerId: UUID,
   ) {
     const owner = await this.peopleService.getPeopleById(ownerId);
+
+    const imagesUrl: string[] = [];
+
+    for (const image of images) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { secure_url } = await this.cloudinaryService.uploadImage(image);
+      imagesUrl.push(String(secure_url));
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -45,6 +59,7 @@ export class CreateFacilityProvider {
        */
       const facility = queryRunner.manager.create(Facility, {
         ...createFacilityDto,
+        imagesUrl,
         owner,
       });
 

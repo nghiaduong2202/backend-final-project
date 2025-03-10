@@ -23,10 +23,12 @@ export class FacilityService {
 
   public async createFacility(
     createFacilityDto: CreateFacilityDto,
+    images: Express.Multer.File[],
     ownerId: UUID,
   ) {
     return await this.createFacilityProvider.createFacility(
       createFacilityDto,
+      images,
       ownerId,
     );
   }
