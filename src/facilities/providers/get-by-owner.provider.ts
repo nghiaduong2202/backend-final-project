@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { UUID } from 'crypto';
 
 @Injectable()
-export class GetMyFacilitiesProvider {
+export class GetByOwnerProvider {
   constructor(
     /**
      * inject facility repository
@@ -14,7 +14,7 @@ export class GetMyFacilitiesProvider {
     private readonly facilityRepository: Repository<Facility>,
   ) {}
 
-  public async getMyFacilities(ownerId: UUID) {
+  public async getByOwner(ownerId: UUID) {
     return await this.facilityRepository.find({
       where: {
         owner: {

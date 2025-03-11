@@ -12,6 +12,7 @@ import { FacilityStatusEnum } from './enums/facility-status.enum';
 import { People } from 'src/people/people.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { UUID } from 'crypto';
+import { Voucher } from 'src/vouchers/voucher.entity';
 @Entity()
 export class Facility {
   @PrimaryGeneratedColumn('uuid')
@@ -92,4 +93,7 @@ export class Facility {
 
   @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)
   fieldGroups: FieldGroup[];
+
+  @OneToMany(() => Voucher, (voucher) => voucher.facility)
+  vouchers: Voucher[];
 }

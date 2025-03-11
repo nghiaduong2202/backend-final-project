@@ -4,7 +4,7 @@ import { Sport } from '../sport.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class GetAllSportProvider {
+export class GetAllProvider {
   constructor(
     /**
      * inject sport repository
@@ -13,7 +13,7 @@ export class GetAllSportProvider {
     private readonly sportRepository: Repository<Sport>,
   ) {}
 
-  public async getAllSport() {
+  public async getAll() {
     try {
       return await this.sportRepository.find();
     } catch (error) {

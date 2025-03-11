@@ -15,10 +15,6 @@ export class CreateFacilityInterceptor implements NestInterceptor {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (request.body.data) {
-      console.log(
-        '🚀 ~ CreateFacilityInterceptor ~ intercept ~ request.body.data:',
-        request.body.data,
-      );
       try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         request.body = { ...request.body, ...JSON.parse(request.body.data) };

@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserProvider } from './providers/create-user.provider';
+import { CreateProvider } from './providers/create.provider';
 import { RegisterDto } from 'src/auths/dtos/register.dto';
-import { GetAllPeopleProvider } from './providers/get-all-people.provider';
-import { GetPeopleByEmailProvider } from './providers/get-people-by-email.provider';
-import { GetMyInfoProvider } from './providers/get-my-info.provider';
-import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
-import { GetPeopleByIdProvider } from './providers/get-people-by-id.provider';
+import { GetAllProvider } from './providers/get-all.provider';
+import { GetByEmailProvider } from './providers/get-by-email.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 import { UUID } from 'crypto';
 import { UpdateAvatarProvider } from './providers/update-avatar.provider';
 
@@ -15,47 +13,39 @@ export class PeopleService {
     /**
      * Inject createUserProvider
      */
-    private readonly createUserProvider: CreateUserProvider,
+    private readonly createProvider: CreateProvider,
     /**
      * Inject getAllPeopleProvider
      */
-    private readonly getAllPeopleProvider: GetAllPeopleProvider,
+    private readonly getAllProvider: GetAllProvider,
     /**
      * Inject getPeopleByEmailProvider
      */
-    private readonly getPeopleByEmailProvider: GetPeopleByEmailProvider,
-    /**
-     * Inject GetMyInfoProvider
-     */
-    private readonly getMyInfoProvider: GetMyInfoProvider,
+    private readonly getByEmailProvider: GetByEmailProvider,
     /**
      * inject get people by id provider
      */
-    private readonly getPeopleByIdProvider: GetPeopleByIdProvider,
+    private readonly getByIdProvider: GetByIdProvider,
     /**
      * inject update avatar provider
      */
     private readonly updateAvatarProvider: UpdateAvatarProvider,
   ) {}
 
-  public async createUser(registerDto: RegisterDto) {
-    return await this.createUserProvider.createUser(registerDto);
+  public async create(registerDto: RegisterDto) {
+    return await this.createProvider.create(registerDto);
   }
 
-  public async getAllPeople() {
-    return await this.getAllPeopleProvider.getAllPeople();
+  public async getAll() {
+    return await this.getAllProvider.getAll();
   }
 
-  public async getPeopleByEmail(email: string) {
-    return await this.getPeopleByEmailProvider.getPeopleByEmail(email);
+  public async getByEmail(email: string) {
+    return await this.getByEmailProvider.getByEmail(email);
   }
 
-  public async getMyInfo(activePeopleData: ActivePeopleData) {
-    return await this.getMyInfoProvider.getMyInfo(activePeopleData.sub);
-  }
-
-  public async getPeopleById(peopleId: UUID) {
-    return await this.getPeopleByIdProvider.getPeopleById(peopleId);
+  public async getById(peopleId: UUID) {
+    return await this.getByIdProvider.getById(peopleId);
   }
 
   public async updateAvatar(image: Express.Multer.File, peopleId: UUID) {

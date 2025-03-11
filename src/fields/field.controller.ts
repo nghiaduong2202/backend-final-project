@@ -30,10 +30,6 @@ export class FieldController {
     @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.fieldService.createFields(
-      createFieldsDto,
-      fieldGroupId,
-      ownerId,
-    );
+    return this.fieldService.createMany(createFieldsDto, fieldGroupId, ownerId);
   }
 }

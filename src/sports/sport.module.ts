@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
 import { SportController } from './sport.controller';
 import { SportService } from './sport.service';
-import { CreateSportProvider } from './providers/create-sport.provider';
+import { CreateProvider } from './providers/create.provider';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sport } from './sport.entity';
-import { GetAllSportProvider } from './providers/get-all-sport.provider';
-import { GetSportByIdsProvider } from './providers/get-sport-by-ids.provider';
+import { GetAllProvider } from './providers/get-all.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Sport])],
   controllers: [SportController],
-  providers: [
-    SportService,
-    CreateSportProvider,
-    GetAllSportProvider,
-    GetSportByIdsProvider,
-  ],
+  providers: [SportService, CreateProvider, GetAllProvider, GetByIdProvider],
   exports: [SportService],
 })
 export class SportModule {}

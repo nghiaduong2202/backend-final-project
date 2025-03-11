@@ -1,11 +1,11 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { FieldGroupController } from './field-group.controller';
 import { FieldGroupService } from './field-group.service';
-import { CreateFieldGroupProvider } from './providers/create-field-group.provider';
+import { CreateManyProvider } from './providers/create-many.provider';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FieldGroup } from './field-group.entity';
 import { FacilityModule } from 'src/facilities/facility.module';
-import { GetFieldGroupByIdProvider } from './providers/get-field-group-by-id.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
 
 @Module({
@@ -15,11 +15,7 @@ import { SportModule } from 'src/sports/sport.module';
     SportModule,
   ],
   controllers: [FieldGroupController],
-  providers: [
-    FieldGroupService,
-    CreateFieldGroupProvider,
-    GetFieldGroupByIdProvider,
-  ],
+  providers: [FieldGroupService, CreateManyProvider, GetByIdProvider],
   exports: [FieldGroupService],
 })
 export class FieldGroupModule {}

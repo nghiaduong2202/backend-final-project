@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSportDto } from '../dtos/create-sport.dto';
 
 @Injectable()
-export class CreateSportProvider {
+export class CreateProvider {
   constructor(
     /**
      * inject sport repository
@@ -14,7 +14,7 @@ export class CreateSportProvider {
     private readonly sportRepository: Repository<Sport>,
   ) {}
 
-  public async createSport(createSportDto: CreateSportDto) {
+  public async create(createSportDto: CreateSportDto) {
     let newSport: Sport;
     try {
       newSport = this.sportRepository.create(createSportDto);

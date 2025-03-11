@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'crypto';
 
 @Injectable()
-export class GetPeopleByIdProvider {
+export class GetByIdProvider {
   constructor(
     /**
      * inject people repository
@@ -14,7 +14,7 @@ export class GetPeopleByIdProvider {
     private readonly peopleRepository: Repository<People>,
   ) {}
 
-  public async getPeopleById(peopleId: UUID) {
+  public async getById(peopleId: UUID) {
     const people = await this.peopleRepository.findOneBy({ id: peopleId });
 
     if (!people) {

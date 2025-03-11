@@ -8,6 +8,7 @@ export class CreateFieldGroupsDto {
     type: 'array',
     example: [
       {
+        name: 'Field group name',
         dimension: '120x240',
         surface: 'mặt cỏ',
         basePrice: 100000,

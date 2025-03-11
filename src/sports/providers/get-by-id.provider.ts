@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Sport } from '../sport.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class GetSportByIdsProvider {
+export class GetByIdProvider {
   constructor(
     /**
      * inject sport repository
@@ -13,17 +13,17 @@ export class GetSportByIdsProvider {
     private readonly sportRepository: Repository<Sport>,
   ) {}
 
-  public async getSportByIds(ids: number[]) {
-    const sports = await this.sportRepository.find({
+  public async getById(sportId: number) {
+    const sport = await this.sportRepository.findOne({
       where: {
-        id: In(ids),
+        id: sportId,
       },
     });
 
-    if (sports.length !== ids.length) {
-      throw new NotFoundException('Not found sport');
+    if (!sport) {
+      throw new NotFoundException(`Sport id(${sportId}) not found`);
     }
 
-    return sports;
+    return sport;
   }
 }

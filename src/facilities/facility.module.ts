@@ -4,13 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Facility } from './facility.entity';
 import { PeopleModule } from 'src/people/people.module';
 import { FacilityService } from './facility.service';
-import { CreateFacilityProvider } from './providers/create-facility.provider';
+import { CreateProvider } from './providers/create.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
-import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { GetAllProvider } from './providers/get-all.provider';
-import { GetMyFacilitiesProvider } from './providers/get-my-facilities.provider';
+import { GetByOwnerProvider } from './providers/get-by-owner.provider';
 
 @Module({
   imports: [
@@ -23,10 +23,10 @@ import { GetMyFacilitiesProvider } from './providers/get-my-facilities.provider'
   controllers: [FacilityController],
   providers: [
     FacilityService,
-    CreateFacilityProvider,
-    GetFacilityByIdProvider,
+    CreateProvider,
+    GetByIdProvider,
     GetAllProvider,
-    GetMyFacilitiesProvider,
+    GetByOwnerProvider,
   ],
   exports: [FacilityService],
 })

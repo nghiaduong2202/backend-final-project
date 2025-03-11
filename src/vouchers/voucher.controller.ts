@@ -1,0 +1,56 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
+import { CreateVoucherDto } from './dtos/create-voucher.dto';
+import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { UUID } from 'crypto';
+import { VoucherService } from './voucher.service';
+import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
+import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
+import { ApiOperation } from '@nestjs/swagger';
+
+@Controller('voucher')
+export class VoucherController {
+  constructor(
+    /**
+     * inject voucher service
+     */
+    private readonly voucherService: VoucherService,
+  ) {}
+
+  @ApiOperation({
+    summary: 'create new voucher (role: owner)',
+  })
+  @Post()
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public create(
+    @Body() createVoucherDto: CreateVoucherDto,
+    @ActivePeople('sub') ownerId: UUID,
+  ) {
+    return this.voucherService.create(createVoucherDto, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'delete voucher (role: owner)',
+  })
+  @Delete(':id')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public delete(@Param('id') id: number, @ActivePeople('sub') ownerId: UUID) {
+    return this.voucherService.delete(id, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'get voucher by facility (role: none)',
+  })
+  @Get(':facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.voucherService.getByFacility(facilityId);
+  }
+}

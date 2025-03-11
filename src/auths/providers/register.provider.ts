@@ -27,7 +27,7 @@ export class RegisterProvider {
 
     registerDto.password = hashPassowrd;
 
-    await this.peopleService.createUser(registerDto);
+    await this.peopleService.create(registerDto);
 
     return {
       message: 'create successful',

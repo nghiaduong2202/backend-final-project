@@ -16,6 +16,7 @@ import { SportModule } from './sports/sport.module';
 import { FieldModule } from './fields/field.module';
 import { FieldGroupModule } from './field-groups/field-gourp.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { VoucherModule } from './vouchers/voucher.module';
 import * as fs from 'fs';
 
 @Module({
@@ -49,6 +50,7 @@ import * as fs from 'fs';
     FieldModule,
     FieldGroupModule,
     CloudinaryModule,
+    VoucherModule,
   ],
   controllers: [AppController],
   providers: [

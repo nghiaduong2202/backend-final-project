@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFieldsProvider } from './providers/create-fields.provider';
+import { CreateManyProvider } from './providers/create-many.provider';
 import { CreateFieldsDto } from './dtos/create-fields.dto';
 import { UUID } from 'crypto';
 
@@ -9,15 +9,15 @@ export class FieldService {
     /**
      * inject create fields provider
      */
-    private readonly createFieldsProvider: CreateFieldsProvider,
+    private readonly createManyProvider: CreateManyProvider,
   ) {}
 
-  public async createFields(
+  public async createMany(
     createFieldsDto: CreateFieldsDto,
     fieldGroupId: UUID,
     ownerId: UUID,
   ) {
-    return await this.createFieldsProvider.createFields(
+    return await this.createManyProvider.createMany(
       createFieldsDto,
       fieldGroupId,
       ownerId,

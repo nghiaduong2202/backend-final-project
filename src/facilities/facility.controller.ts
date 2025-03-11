@@ -42,11 +42,7 @@ export class FacilityController {
     @UploadedFiles() images: Express.Multer.File[],
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.facilityService.createFacility(
-      createFacilityDto,
-      images,
-      ownerId,
-    );
+    return this.facilityService.create(createFacilityDto, images, ownerId);
   }
 
   @ApiOperation({
@@ -69,7 +65,7 @@ export class FacilityController {
         'You do not have permission to get my facilities',
       );
     }
-    return this.facilityService.getMyFacilities(activePeopleData.sub);
+    return this.facilityService.getByOwner(activePeopleData.sub);
   }
 
   @ApiOperation({
@@ -77,7 +73,7 @@ export class FacilityController {
   })
   @Get('/:facilityId')
   @AuthRoles(AuthRoleEnum.NONE)
-  public getFacilityById(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
-    return this.facilityService.getFacilityById(facilityId);
+  public getById(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.facilityService.getById(facilityId);
   }
 }

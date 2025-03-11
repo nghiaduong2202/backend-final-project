@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'crypto';
 
 @Injectable()
-export class GetFieldGroupByIdProvider {
+export class GetByIdProvider {
   constructor(
     /**
      * inject field group repository
@@ -14,7 +14,7 @@ export class GetFieldGroupByIdProvider {
     private readonly fieldGroupRepository: Repository<FieldGroup>,
   ) {}
 
-  public async getFieldGroupById(id: UUID) {
+  public async getById(id: UUID) {
     const fieldGroup = await this.fieldGroupRepository.findOne({
       where: {
         id,
