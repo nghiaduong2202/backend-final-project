@@ -8,6 +8,7 @@ import { FacilityModule } from 'src/facilities/facility.module';
 import { SportModule } from 'src/sports/sport.module';
 import { DeleteProvider } from './providers/delete.provider';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
+import { UpdateProvider } from './providers/update.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Voucher]), FacilityModule, SportModule],
@@ -17,6 +18,7 @@ import { GetByFacilityProvider } from './providers/get-by-facility.provider';
     CreateProvider,
     DeleteProvider,
     GetByFacilityProvider,
+    UpdateProvider,
   ],
 })
 export class VoucherModule {}

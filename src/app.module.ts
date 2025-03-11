@@ -17,7 +17,7 @@ import { FieldModule } from './fields/field.module';
 import { FieldGroupModule } from './field-groups/field-gourp.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { VoucherModule } from './vouchers/voucher.module';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 
 @Module({
   imports: [
@@ -36,10 +36,10 @@ import * as fs from 'fs';
         password: configService.get<string>('DATABASE_PASSWORD'),
         host: configService.get<string>('DATABASE_HOST'),
         database: configService.get<string>('DATABASE_NAME'),
-        ssl: {
-          rejectUnauthorized: true,
-          ca: fs.readFileSync('./ca.pem').toString(),
-        },
+        // ssl: {
+        //   rejectUnauthorized: true,
+        //   ca: fs.readFileSync('./ca.pem').toString(),
+        // },
       }),
     }),
     AuthModule,

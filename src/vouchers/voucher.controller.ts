@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { CreateVoucherDto } from './dtos/create-voucher.dto';
@@ -14,6 +15,7 @@ import { VoucherService } from './voucher.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { ApiOperation } from '@nestjs/swagger';
+import { UpdateVoucherDto } from './dtos/update-voucher.dto';
 
 @Controller('voucher')
 export class VoucherController {
@@ -27,13 +29,14 @@ export class VoucherController {
   @ApiOperation({
     summary: 'create new voucher (role: owner)',
   })
-  @Post()
+  @Post(':facilityId')
   @AuthRoles(AuthRoleEnum.OWNER)
   public create(
     @Body() createVoucherDto: CreateVoucherDto,
+    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.voucherService.create(createVoucherDto, ownerId);
+    return this.voucherService.create(createVoucherDto, facilityId, ownerId);
   }
 
   @ApiOperation({
@@ -52,5 +55,17 @@ export class VoucherController {
   @AuthRoles(AuthRoleEnum.NONE)
   public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
     return this.voucherService.getByFacility(facilityId);
+  }
+
+  @ApiOperation({
+    summary: 'update voucher (role: owner)',
+  })
+  @Patch()
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public update(
+    @Body() updateVoucherDto: UpdateVoucherDto,
+    @ActivePeople('sub') ownerId: UUID,
+  ) {
+    return this.voucherService.update(updateVoucherDto, ownerId);
   }
 }

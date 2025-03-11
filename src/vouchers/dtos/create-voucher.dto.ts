@@ -1,4 +1,3 @@
-import { UUID } from 'crypto';
 import { VoucherTypeEnum } from '../enums/voucher-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -7,28 +6,11 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
 export class CreateVoucherDto {
-  @ApiProperty({
-    type: 'string',
-    example: '4d5a3210-5ad4-46a7-903f-a34c6267c665',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  facilityId: UUID;
-
-  @ApiProperty({
-    type: 'number',
-    example: 2,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  sportId: number;
-
   @ApiProperty({
     type: 'string',
     example: 'KHAI TRUONG CS 1',
