@@ -10,13 +10,13 @@ import { RegisterDto } from 'src/auths/dtos/register.dto';
 import { PeopleRoleEnum } from '../enums/people-role.enum';
 
 @Injectable()
-export class CreateUserProvider {
+export class CreateProvider {
   constructor(
     @InjectRepository(People)
     private readonly peopleRepository: Repository<People>,
   ) {}
 
-  public async createUser(registerDto: RegisterDto) {
+  public async create(registerDto: RegisterDto) {
     const role = registerDto.role;
 
     if (role === PeopleRoleEnum.ADMIN) {

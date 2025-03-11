@@ -4,13 +4,13 @@ import { People } from '../people.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class GetPeopleByEmailProvider {
+export class GetByEmailProvider {
   constructor(
     @InjectRepository(People)
     private readonly peopleRepository: Repository<People>,
   ) {}
 
-  public async getPeopleByEmail(email: string) {
+  public async getByEmail(email: string) {
     const existingPeople = await this.peopleRepository.findOneBy({ email });
 
     if (!existingPeople) {

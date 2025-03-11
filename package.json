@@ -1,8 +1,8 @@
 {
   "name": "backend",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "backend project of sport booking system",
+  "author": "nghia.duong2202",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

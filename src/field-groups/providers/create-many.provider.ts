@@ -12,7 +12,7 @@ import { Field } from 'src/fields/field.entity';
 import { SportService } from 'src/sports/sport.service';
 
 @Injectable()
-export class CreateFieldGroupProvider {
+export class CreateManyProvider {
   constructor(
     /**
      * inject facility service
@@ -28,7 +28,7 @@ export class CreateFieldGroupProvider {
     private readonly sportService: SportService,
   ) {}
 
-  public async createFieldGroups(
+  public async createMany(
     createFieldGroupsDto: CreateFieldGroupsDto,
     facilityId: UUID,
     ownerId: UUID,
@@ -36,7 +36,7 @@ export class CreateFieldGroupProvider {
     /**
      * get facility
      */
-    const facility = await this.facilityService.getFacilityById(facilityId);
+    const facility = await this.facilityService.getById(facilityId);
 
     if (facility.owner.id !== ownerId) {
       throw new NotAcceptableException('You do not have permission to create');
@@ -50,7 +50,7 @@ export class CreateFieldGroupProvider {
     try {
       for (const fieldGroupData of createFieldGroupsDto.fieldGroupsData) {
         /** get sports add to new field group */
-        const sports = await this.sportService.getSportByIds(
+        const sports = await this.sportService.getByManyId(
           fieldGroupData.sportIds,
         );
 

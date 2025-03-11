@@ -17,6 +17,16 @@ import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';
 export class CreateFieldGroupDto {
   @ApiProperty({
     type: 'string',
+    example: 'Field group name',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(255)
+  name: string;
+
+  @ApiProperty({
+    type: 'string',
     example: '120x240',
   })
   @IsNotEmpty()

@@ -28,7 +28,7 @@ export class SportController {
   @Post()
   @AuthRoles(AuthRoleEnum.ADMIN)
   public create(@Body() createSportDto: CreateSportDto) {
-    return this.sportService.createSport(createSportDto);
+    return this.sportService.create(createSportDto);
   }
 
   @ApiOperation({
@@ -37,6 +37,6 @@ export class SportController {
   @Get('/all')
   @AuthRoles(AuthRoleEnum.NONE)
   public getAll() {
-    return this.sportService.getAllSport();
+    return this.sportService.getAll();
   }
 }

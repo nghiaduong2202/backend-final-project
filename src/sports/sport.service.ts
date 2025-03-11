@@ -1,35 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSportProvider } from './providers/create-sport.provider';
+import { CreateProvider } from './providers/create.provider';
 import { CreateSportDto } from './dtos/create-sport.dto';
-import { GetAllSportProvider } from './providers/get-all-sport.provider';
-import { GetSportByIdsProvider } from './providers/get-sport-by-ids.provider';
+import { GetAllProvider } from './providers/get-all.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
+import { Sport } from './sport.entity';
 
 @Injectable()
 export class SportService {
   constructor(
     /**
-     * inject create sport provider
+     * inject create provider
      */
-    private readonly createSportProvider: CreateSportProvider,
+    private readonly createProvider: CreateProvider,
     /**
-     * inject get all sport provider
+     * inject get all provider
      */
-    private readonly getAllSportProvider: GetAllSportProvider,
+    private readonly getAllProvider: GetAllProvider,
     /**
-     * inject get sport by ids provider
+     * inject get by ids provider
      */
-    private readonly getSportByIdsProvider: GetSportByIdsProvider,
+    private readonly getByIdProvider: GetByIdProvider,
   ) {}
 
-  public async createSport(createSportDto: CreateSportDto) {
-    return await this.createSportProvider.createSport(createSportDto);
+  public async create(createSportDto: CreateSportDto) {
+    return await this.createProvider.create(createSportDto);
   }
 
-  public async getAllSport() {
-    return await this.getAllSportProvider.getAllSport();
+  public async getAll() {
+    return await this.getAllProvider.getAll();
   }
 
-  public async getSportByIds(ids: number[]) {
-    return await this.getSportByIdsProvider.getSportByIds(ids);
+  public async getById(sportId: number) {
+    return await this.getByIdProvider.getById(sportId);
+  }
+
+  public async getByManyId(ids: number[]) {
+    const sports: Sport[] = [];
+
+    for (const id of ids) {
+      const sport = await this.getByIdProvider.getById(id);
+
+      sports.push(sport);
+    }
+
+    return sports;
   }
 }

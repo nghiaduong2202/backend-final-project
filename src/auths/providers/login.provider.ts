@@ -31,7 +31,7 @@ export class LoginProvider {
     let existingUser: People;
 
     try {
-      existingUser = await this.peopleService.getPeopleByEmail(loginDto.email);
+      existingUser = await this.peopleService.getByEmail(loginDto.email);
     } catch {
       throw new UnauthorizedException('Wrong email or password');
     }

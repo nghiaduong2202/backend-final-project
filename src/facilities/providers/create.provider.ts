@@ -12,7 +12,7 @@ import { SportService } from 'src/sports/sport.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
-export class CreateFacilityProvider {
+export class CreateProvider {
   constructor(
     /**
      * inject data source
@@ -32,12 +32,12 @@ export class CreateFacilityProvider {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  public async createFacility(
+  public async create(
     createFacilityDto: CreateFacilityDto,
     images: Express.Multer.File[],
     ownerId: UUID,
   ) {
-    const owner = await this.peopleService.getPeopleById(ownerId);
+    const owner = await this.peopleService.getById(ownerId);
 
     const imagesUrl: string[] = [];
 
@@ -107,7 +107,7 @@ export class CreateFacilityProvider {
     facility: Facility,
     queryRunner: QueryRunner,
   ) {
-    const sports = await this.sportService.getSportByIds(
+    const sports = await this.sportService.getByManyId(
       createFieldGroupDto.sportIds,
     );
 

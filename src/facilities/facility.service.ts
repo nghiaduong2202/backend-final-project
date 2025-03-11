@@ -1,53 +1,49 @@
 import { Injectable } from '@nestjs/common';
-import { GetFacilityByIdProvider } from './providers/get-facility-by-id.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 import { UUID } from 'crypto';
-import { CreateFacilityProvider } from './providers/create-facility.provider';
+import { CreateProvider } from './providers/create.provider';
 import { CreateFacilityDto } from './dtos/create-facility.dto';
 import { GetAllProvider } from './providers/get-all.provider';
-import { GetMyFacilitiesProvider } from './providers/get-my-facilities.provider';
+import { GetByOwnerProvider } from './providers/get-by-owner.provider';
 
 @Injectable()
 export class FacilityService {
   constructor(
     /**
-     * inject get facility by id provider
+     * inject get by id provider
      */
-    private readonly getFacilityByIdProvider: GetFacilityByIdProvider,
+    private readonly getByIdProvider: GetByIdProvider,
     /**
-     * inject create facility provider
+     * inject create provider
      */
-    private readonly createFacilityProvider: CreateFacilityProvider,
+    private readonly createProvider: CreateProvider,
     /**
      * inject get all provider
      */
     private readonly getAllProvider: GetAllProvider,
     /**
-     * inject get my facilities provider
+     * inject get by owner provider
      */
-    private readonly getMyFacilitiesProvider: GetMyFacilitiesProvider,
+    private readonly getByOwnerProvider: GetByOwnerProvider,
   ) {}
 
-  public async getFacilityById(facilityId: UUID) {
-    return await this.getFacilityByIdProvider.getFacilityById(facilityId);
+  public async getById(facilityId: UUID) {
+    return await this.getByIdProvider.getById(facilityId);
   }
 
-  public async createFacility(
+  public async create(
     createFacilityDto: CreateFacilityDto,
     images: Express.Multer.File[],
     ownerId: UUID,
   ) {
-    return await this.createFacilityProvider.createFacility(
-      createFacilityDto,
-      images,
-      ownerId,
-    );
+    return await this.createProvider.create(createFacilityDto, images, ownerId);
   }
 
   public async getAll() {
     return await this.getAllProvider.getAll();
   }
 
-  public async getMyFacilities(ownerId: UUID) {
-    return await this.getMyFacilitiesProvider.getMyFacilities(ownerId);
+  public async getByOwner(ownerId: UUID) {
+    return await this.getByOwnerProvider.getByOwner(ownerId);
   }
 }

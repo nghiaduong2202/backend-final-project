@@ -10,7 +10,7 @@ import { CreateFieldsDto } from '../dtos/create-fields.dto';
 import { UUID } from 'crypto';
 
 @Injectable()
-export class CreateFieldsProvider {
+export class CreateManyProvider {
   constructor(
     /**
      * inject field group service
@@ -22,13 +22,12 @@ export class CreateFieldsProvider {
     private readonly dataSource: DataSource,
   ) {}
 
-  public async createFields(
+  public async createMany(
     createFieldsDto: CreateFieldsDto,
     fieldGroupId: UUID,
     ownerId: UUID,
   ) {
-    const fieldGroup =
-      await this.fieldGroupService.getFieldGroupById(fieldGroupId);
+    const fieldGroup = await this.fieldGroupService.getById(fieldGroupId);
 
     if (fieldGroup.facility.owner.id !== ownerId) {
       throw new NotAcceptableException(

@@ -37,7 +37,7 @@ export class RefreshTokenProvider {
       });
 
       // get people id from refresh token
-      const people = await this.peopleService.getPeopleById(sub);
+      const people = await this.peopleService.getById(sub);
 
       // generate new access token
       const payload = { role: people.role };

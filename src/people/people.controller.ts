@@ -11,7 +11,6 @@ import { ApiOperation } from '@nestjs/swagger';
 import { PeopleService } from './people.service';
 import { GetPeopleByEmailDto } from './dtos/get-people-by-email.dto';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
-import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -27,8 +26,8 @@ export class PeopleController {
   })
   @AuthRoles(AuthRoleEnum.ADMIN)
   @Get('all')
-  public getAllPeople() {
-    return this.peopleService.getAllPeople();
+  public getAll() {
+    return this.peopleService.getAll();
   }
 
   @ApiOperation({
@@ -36,8 +35,8 @@ export class PeopleController {
   })
   @Get('/email')
   @AuthRoles(AuthRoleEnum.ADMIN)
-  public getPeopleByEmail(@Body() getPeopleByEmailDto: GetPeopleByEmailDto) {
-    return this.peopleService.getPeopleByEmail(getPeopleByEmailDto.email);
+  public getByEmail(@Body() getPeopleByEmailDto: GetPeopleByEmailDto) {
+    return this.peopleService.getByEmail(getPeopleByEmailDto.email);
   }
 
   @ApiOperation({
@@ -45,8 +44,8 @@ export class PeopleController {
   })
   @Get('my-info')
   @AuthRoles(AuthRoleEnum.ADMIN, AuthRoleEnum.OWNER, AuthRoleEnum.PLAYER)
-  public getMyInfor(@ActivePeople() activePeopleData: ActivePeopleData) {
-    return this.peopleService.getMyInfo(activePeopleData);
+  public getMyInfor(@ActivePeople('sub') peopleId: UUID) {
+    return this.peopleService.getById(peopleId);
   }
 
   @ApiOperation({

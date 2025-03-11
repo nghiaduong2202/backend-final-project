@@ -4,7 +4,7 @@ import { People } from '../people.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class GetAllPeopleProvider {
+export class GetAllProvider {
   constructor(
     /**
      * Inject peopleRepository
@@ -13,7 +13,7 @@ export class GetAllPeopleProvider {
     private readonly peopleRepository: Repository<People>,
   ) {}
 
-  public async getAllPeople() {
+  public async getAll() {
     return await this.peopleRepository.find();
   }
 }

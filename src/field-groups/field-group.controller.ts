@@ -21,7 +21,7 @@ export class FieldGroupController {
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.fieldGroupService.createFieldGroup(
+    return this.fieldGroupService.createMany(
       createFieldGroupsDto,
       facilityId,
       ownerId,
