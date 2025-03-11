@@ -11,6 +11,9 @@ import { SportModule } from 'src/sports/sport.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { GetAllProvider } from './providers/get-all.provider';
 import { GetByOwnerProvider } from './providers/get-by-owner.provider';
+import { UpdateImagesProvider } from './providers/update-images.provider';
+import { DeleteImageProviver } from './providers/delete-image.proviver';
+import { UpdateProvider } from './providers/update.provider';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { GetByOwnerProvider } from './providers/get-by-owner.provider';
     GetByIdProvider,
     GetAllProvider,
     GetByOwnerProvider,
+    UpdateImagesProvider,
+    DeleteImageProviver,
+    UpdateProvider,
   ],
   exports: [FacilityService],
 })

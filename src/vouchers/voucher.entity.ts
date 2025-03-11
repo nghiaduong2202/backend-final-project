@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { VoucherTypeEnum } from './enums/voucher-type.enum';
 import { Facility } from 'src/facilities/facility.entity';
-import { Sport } from 'src/sports/sport.entity';
 
 @Entity()
 export class Voucher {
@@ -93,9 +92,4 @@ export class Voucher {
   })
   @JoinColumn()
   facility: Facility;
-
-  @ManyToOne(() => Sport, {
-    cascade: true,
-  })
-  sport: Sport;
 }
