@@ -91,6 +91,8 @@ export class Voucher {
 
   @ManyToOne(() => Facility, (facility) => facility.vouchers, {
     cascade: true,
+    nullable: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   facility: Facility;

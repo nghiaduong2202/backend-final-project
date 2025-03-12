@@ -32,6 +32,7 @@ export class Field {
   @ManyToOne(() => FieldGroup, (fieldGroup) => fieldGroup.fields, {
     cascade: true,
     nullable: false,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   fieldGroup: FieldGroup;
