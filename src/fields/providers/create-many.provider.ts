@@ -43,12 +43,12 @@ export class CreateManyProvider {
 
     try {
       for (const fieldData of createFieldsDto.fieldsData) {
-        const field = queryRunner.manager.create(Field, fieldData);
-
-        await queryRunner.manager.save({
-          ...field,
+        const field = queryRunner.manager.create(Field, {
+          ...fieldData,
           fieldGroup,
         });
+
+        await queryRunner.manager.save(field);
       }
 
       await queryRunner.commitTransaction();

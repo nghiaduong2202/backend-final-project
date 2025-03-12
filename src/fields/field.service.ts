@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { CreateManyProvider } from './providers/create-many.provider';
 import { CreateFieldsDto } from './dtos/create-fields.dto';
 import { UUID } from 'crypto';
+import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider';
+import { UpdateProvider } from './providers/update.provider';
+import { UpdateFieldDto } from './dtos/update-field.dto';
 
 @Injectable()
 export class FieldService {
@@ -10,6 +13,14 @@ export class FieldService {
      * inject create fields provider
      */
     private readonly createManyProvider: CreateManyProvider,
+    /**
+     * inject get by field group provider
+     */
+    private readonly getByFieldGroupProvider: GetByFieldGroupProvider,
+    /**
+     * inject update provider
+     */
+    private readonly updateProvider: UpdateProvider,
   ) {}
 
   public async createMany(
@@ -22,5 +33,17 @@ export class FieldService {
       fieldGroupId,
       ownerId,
     );
+  }
+
+  public async getByFieldGroup(fieldGroupId: UUID) {
+    return await this.getByFieldGroupProvider.getByFieldGroup(fieldGroupId);
+  }
+
+  public async update(
+    updateFieldDto: UpdateFieldDto,
+    fieldId: number,
+    ownerId: UUID,
+  ) {
+    return this.updateProvider.update(updateFieldDto, fieldId, ownerId);
   }
 }

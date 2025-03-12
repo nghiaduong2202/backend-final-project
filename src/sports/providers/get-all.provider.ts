@@ -15,7 +15,11 @@ export class GetAllProvider {
 
   public async getAll() {
     try {
-      return await this.sportRepository.find();
+      return await this.sportRepository.find({
+        order: {
+          id: 'asc',
+        },
+      });
     } catch (error) {
       throw new RequestTimeoutException('Error get all sport', {
         description: String(error),

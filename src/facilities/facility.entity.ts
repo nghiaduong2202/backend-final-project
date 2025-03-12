@@ -92,6 +92,7 @@ export class Facility {
   @ManyToOne(() => People, (people) => people.facilities, {
     cascade: true,
     nullable: false,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   owner: People;

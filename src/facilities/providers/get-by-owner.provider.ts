@@ -21,11 +21,6 @@ export class GetByOwnerProvider {
           id: ownerId,
         },
       },
-      relations: {
-        fieldGroups: {
-          facility: true,
-        },
-      },
     });
   }
 }
