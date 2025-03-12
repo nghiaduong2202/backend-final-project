@@ -10,12 +10,14 @@ import { SportModule } from 'src/sports/sport.module';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { DeleteProvider } from './providers/delete.provider';
+import { FieldModule } from 'src/fields/field.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FieldGroup]),
     forwardRef(() => FacilityModule),
     SportModule,
+    forwardRef(() => FieldModule),
   ],
   controllers: [FieldGroupController],
   providers: [

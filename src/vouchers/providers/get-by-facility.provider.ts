@@ -3,7 +3,6 @@ import { Repository } from 'typeorm';
 import { Voucher } from '../voucher.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'crypto';
-import { FacilityService } from 'src/facilities/facility.service';
 
 @Injectable()
 export class GetByFacilityProvider {
@@ -13,18 +12,14 @@ export class GetByFacilityProvider {
      */
     @InjectRepository(Voucher)
     private readonly voucherRepository: Repository<Voucher>,
-    /**
-     * inject facility service
-     */
-    private readonly facilityService: FacilityService,
   ) {}
 
   public async getByFacility(facilityId: UUID) {
-    const facility = await this.facilityService.getById(facilityId);
-
     const vouchers = await this.voucherRepository.find({
       where: {
-        facility: facility,
+        facility: {
+          id: facilityId,
+        },
       },
     });
 
