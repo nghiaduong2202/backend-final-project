@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { CreateVoucherDto } from '../dtos/create-voucher.dto';
 import { UUID } from 'crypto';
 import { Repository } from 'typeorm';
@@ -25,23 +29,30 @@ export class CreateProvider {
     facilityId: UUID,
     ownerId: UUID,
   ) {
+    if (createVoucherDto.startTime > createVoucherDto.endTime) {
+      throw new BadRequestException('Start time must be before end time');
+    }
+
     // lấy thông tin facility
     const facility = await this.facilityService.getById(facilityId);
     // kiểm tra facility có phải của owner hay không
     if (facility.owner.id !== ownerId) {
-      throw new BadRequestException(
+      throw new NotAcceptableException(
         'You do not have permission to create new voucher in this facility',
       );
     }
     // lưu vào cơ sở dữ liệu
-    const voucher = this.voucherRepository.create({
-      ...createVoucherDto,
-      facility,
-      remain: createVoucherDto.amount,
-    });
+    try {
+      const voucher = this.voucherRepository.create({
+        ...createVoucherDto,
+        facility,
+        remain: createVoucherDto.amount,
+      });
 
-    await this.voucherRepository.save(voucher);
-
+      await this.voucherRepository.save(voucher);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
     return {
       message: 'create voucher successfull',
     };

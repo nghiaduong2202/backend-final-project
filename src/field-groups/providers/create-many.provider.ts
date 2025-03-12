@@ -10,6 +10,7 @@ import { UUID } from 'crypto';
 import { FacilityService } from 'src/facilities/facility.service';
 import { Field } from 'src/fields/field.entity';
 import { SportService } from 'src/sports/sport.service';
+import { isBefore } from 'src/utils/isBefore';
 
 @Injectable()
 export class CreateManyProvider {
@@ -49,6 +50,16 @@ export class CreateManyProvider {
 
     try {
       for (const fieldGroupData of createFieldGroupsDto.fieldGroupsData) {
+        if (
+          fieldGroupData.peakStartTime &&
+          fieldGroupData.peakEndTime &&
+          !isBefore(fieldGroupData.peakStartTime, fieldGroupData.peakEndTime)
+        ) {
+          throw new BadRequestException(
+            'Peak start time must be before peak end time',
+          );
+        }
+
         /** get sports add to new field group */
         const sports = await this.sportService.getByManyId(
           fieldGroupData.sportIds,

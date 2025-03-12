@@ -4,11 +4,13 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { FieldStatusEnum } from './enums/field-status.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 
 @Entity()
+@Unique(['name', 'fieldGroup'])
 export class Field {
   @PrimaryGeneratedColumn('identity')
   id: number;

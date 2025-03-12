@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,6 +12,7 @@ import { VoucherTypeEnum } from './enums/voucher-type.enum';
 import { Facility } from 'src/facilities/facility.entity';
 
 @Entity()
+@Check('"endTime" > "startTime"')
 export class Voucher {
   @PrimaryGeneratedColumn()
   id: number;
@@ -81,10 +83,10 @@ export class Voucher {
   })
   remain: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @ManyToOne(() => Facility, (facility) => facility.vouchers, {

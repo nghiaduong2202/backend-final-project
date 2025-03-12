@@ -21,7 +21,9 @@ export class CreateFacilityInterceptor implements NestInterceptor {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete request.body.data;
       } catch (error) {
-        throw new BadRequestException(error);
+        throw new BadRequestException('Invalid data', {
+          description: String(error),
+        });
       }
     }
 
