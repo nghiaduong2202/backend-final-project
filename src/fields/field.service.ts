@@ -5,6 +5,8 @@ import { UUID } from 'crypto';
 import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateFieldDto } from './dtos/update-field.dto';
+import { UpdateStatusProvider } from './providers/update-status.provider';
+import { FieldStatusEnum } from './enums/field-status.entity';
 
 @Injectable()
 export class FieldService {
@@ -21,6 +23,10 @@ export class FieldService {
      * inject update provider
      */
     private readonly updateProvider: UpdateProvider,
+    /**
+     * inject update status provider
+     */
+    private readonly updateStatusProvider: UpdateStatusProvider,
   ) {}
 
   public async createMany(
@@ -45,5 +51,17 @@ export class FieldService {
     ownerId: UUID,
   ) {
     return this.updateProvider.update(updateFieldDto, fieldId, ownerId);
+  }
+
+  public async updateStatus(
+    fieldId: number,
+    fieldStatus: FieldStatusEnum,
+    ownerId: UUID,
+  ) {
+    return await this.updateStatusProvider.updateStatus(
+      fieldId,
+      fieldStatus,
+      ownerId,
+    );
   }
 }

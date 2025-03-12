@@ -23,6 +23,7 @@ export class GetByFacilityProvider {
       },
       relations: {
         sports: true,
+        fields: true,
       },
     });
   }

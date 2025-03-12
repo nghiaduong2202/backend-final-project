@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ export class CreateManyProvider {
     /**
      * inject field group service
      */
+    @Inject(forwardRef(() => FieldGroupService))
     private readonly fieldGroupService: FieldGroupService,
     /**
      * inject data source
