@@ -10,6 +10,7 @@ import { CreateFieldGroupDto } from 'src/field-groups/dtos/create-field-group.dt
 import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';
 import { SportService } from 'src/sports/sport.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { isBefore } from 'src/utils/isBefore';
 
 @Injectable()
 export class CreateProvider {
@@ -37,6 +38,10 @@ export class CreateProvider {
     images: Express.Multer.File[],
     ownerId: UUID,
   ) {
+    if (!isBefore(createFacilityDto.openTime, createFacilityDto.closeTime)) {
+      throw new BadRequestException('Open time must be before close time');
+    }
+
     const owner = await this.peopleService.getById(ownerId);
 
     const imagesUrl: string[] = [];
@@ -107,6 +112,19 @@ export class CreateProvider {
     facility: Facility,
     queryRunner: QueryRunner,
   ) {
+    if (
+      createFieldGroupDto.peakStartTime &&
+      createFieldGroupDto.peakEndTime &&
+      !isBefore(
+        createFieldGroupDto.peakStartTime,
+        createFieldGroupDto.peakEndTime,
+      )
+    ) {
+      throw new BadRequestException(
+        'Peak start time must be before peak end time',
+      );
+    }
+
     const sports = await this.sportService.getByManyId(
       createFieldGroupDto.sportIds,
     );
@@ -127,9 +145,6 @@ export class CreateProvider {
     fieldGroup: FieldGroup,
     queryRunner: QueryRunner,
   ) {
-    // const fieldGroup =
-    //   await this.fieldGroupService.getFieldGroupById(fieldGroupId);
-
     const newField = queryRunner.manager.create(Field, {
       ...createFieldDto,
       fieldGroup,

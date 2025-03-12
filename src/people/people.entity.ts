@@ -84,11 +84,11 @@ export class People {
   role: PeopleRoleEnum;
 
   @Exclude()
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @Exclude()
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @OneToMany(() => Facility, (facility) => facility.owner)

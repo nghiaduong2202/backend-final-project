@@ -3,6 +3,7 @@ import { Facility } from 'src/facilities/facility.entity';
 import { Field } from 'src/fields/field.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -11,9 +12,12 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity()
+@Unique(['name', 'facility'])
+@Check('"peakStartTime" < "peakEndTime"')
 export class FieldGroup {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;

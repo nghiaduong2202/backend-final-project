@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsMilitaryTime,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -36,12 +37,14 @@ export class CreateFacilityDto {
   })
   @IsString()
   @IsNotEmpty()
+  @IsMilitaryTime()
   openTime: string;
 
   @ApiProperty({
     type: 'string',
     example: '22:00',
   })
+  @IsMilitaryTime()
   @IsString()
   @IsNotEmpty()
   closeTime: string;

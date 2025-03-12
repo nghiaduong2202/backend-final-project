@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -13,7 +14,9 @@ import { People } from 'src/people/people.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { UUID } from 'crypto';
 import { Voucher } from 'src/vouchers/voucher.entity';
+import { Exclude } from 'class-transformer';
 @Entity()
+@Check('"openTime" < "closeTime"')
 export class Facility {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
@@ -78,10 +81,12 @@ export class Facility {
   })
   imagesUrl?: string[];
 
-  @CreateDateColumn()
+  @Exclude()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Exclude()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @ManyToOne(() => People, (people) => people.facilities, {
