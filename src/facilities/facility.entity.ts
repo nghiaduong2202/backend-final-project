@@ -15,6 +15,7 @@ import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { UUID } from 'crypto';
 import { Voucher } from 'src/vouchers/voucher.entity';
 import { Exclude } from 'class-transformer';
+import { Service } from 'src/services/service.entiry';
 @Entity()
 @Check('"openTime" < "closeTime"')
 export class Facility {
@@ -102,4 +103,7 @@ export class Facility {
 
   @OneToMany(() => Voucher, (voucher) => voucher.facility)
   vouchers: Voucher[];
+
+  @OneToMany(() => Service, (service) => service.facility)
+  services: Service[];
 }
