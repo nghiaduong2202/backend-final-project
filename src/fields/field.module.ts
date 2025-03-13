@@ -8,6 +8,7 @@ import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateStatusProvider } from './providers/update-status.provider';
+import { DeleteProvider } from './providers/delete.provider';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UpdateStatusProvider } from './providers/update-status.provider';
     GetByFieldGroupProvider,
     UpdateProvider,
     UpdateStatusProvider,
+    DeleteProvider,
   ],
   exports: [FieldService],
 })

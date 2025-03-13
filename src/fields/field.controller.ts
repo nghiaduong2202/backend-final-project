@@ -2,12 +2,13 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   ParseUUIDPipe,
   Patch,
-  Post,
+  Put,
   UseInterceptors,
 } from '@nestjs/common';
 import { FieldService } from './field.service';
@@ -27,7 +28,7 @@ export class FieldController {
   @ApiOperation({
     summary: 'craete fields (role: owner)',
   })
-  @Post(':fieldGroupId')
+  @Put(':fieldGroupId')
   @AuthRoles(AuthRoleEnum.OWNER)
   public createFields(
     @Body() createFieldsDto: CreateFieldsDto,
@@ -59,5 +60,17 @@ export class FieldController {
     @ActivePeople('sub') ownerId: UUID,
   ) {
     return this.fieldService.update(updateFieldDto, fieldId, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'delete field (role: owner)',
+  })
+  @Delete(':fieldId')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public delete(
+    @Param('fieldId', ParseIntPipe) fieldId: number,
+    @ActivePeople('sub') ownerId: UUID,
+  ) {
+    return this.fieldService.delete(fieldId, ownerId);
   }
 }
