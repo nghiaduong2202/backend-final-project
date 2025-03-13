@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -12,6 +14,7 @@ import { FieldGroup } from '../field-group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SportService } from 'src/sports/sport.service';
 import { FieldStatusEnum } from 'src/fields/enums/field-status.entity';
+import { FieldService } from 'src/fields/field.service';
 
 @Injectable()
 export class UpdateProvider {
@@ -25,6 +28,11 @@ export class UpdateProvider {
      * inject sport service
      */
     private readonly sportService: SportService,
+    /**
+     * inject field service
+     */
+    @Inject(forwardRef(() => FieldService))
+    private readonly fieldService: FieldService,
   ) {}
 
   public async update(
@@ -93,6 +101,9 @@ export class UpdateProvider {
         fieldGroup.sports = sports;
       }
       // update status
+      for (const field of fieldGroup.fields) {
+        await this.fieldService.updateStatus(field.id, FieldStatusEnum.PENDING);
+      }
       // save
       await this.fieldGroupRepository.save(fieldGroup);
     } catch (error) {
