@@ -17,6 +17,7 @@ import { FieldModule } from './fields/field.module';
 import { FieldGroupModule } from './field-groups/field-gourp.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { VoucherModule } from './vouchers/voucher.module';
+import { ServiceModule } from './services/service.module';
 import * as fs from 'fs';
 
 @Module({
@@ -51,6 +52,7 @@ import * as fs from 'fs';
     FieldGroupModule,
     CloudinaryModule,
     VoucherModule,
+    ServiceModule,
   ],
   controllers: [AppController],
   providers: [
