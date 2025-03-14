@@ -51,7 +51,7 @@ export class CreateProvider {
 
       await this.voucherRepository.save(voucher);
     } catch (error) {
-      throw new BadRequestException(error);
+      throw new BadRequestException(String(error));
     }
     return {
       message: 'create voucher successfull',
