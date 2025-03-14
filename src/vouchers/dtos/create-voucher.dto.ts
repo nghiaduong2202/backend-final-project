@@ -1,7 +1,8 @@
 import { VoucherTypeEnum } from '../enums/voucher-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
-  IsDateString,
+  IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -32,17 +33,19 @@ export class CreateVoucherDto {
 
   @ApiProperty({
     type: 'string',
-    example: '2025-03-11 01:07:06.642',
+    example: '2025-03-12T00:00:00.000Z',
   })
-  @IsDateString()
+  @IsDate()
+  @Type(() => Date)
   @IsNotEmpty()
   startTime: Date;
 
   @ApiProperty({
     type: 'string',
-    example: '2025-03-11 01:07:06.642',
+    example: '2025-04-12T00:00:00.000Z',
   })
-  @IsDateString()
+  @IsDate()
+  @Type(() => Date)
   @IsNotEmpty()
   endTime: Date;
 

@@ -35,7 +35,6 @@ export class CreateServiceDto {
   })
   @IsOptional()
   @IsString()
-  @MinLength(3)
   description?: string;
 
   @ApiProperty({
