@@ -15,7 +15,7 @@ import { Voucher } from 'src/vouchers/voucher.entity';
 import { BookingService } from '../booking-service.entity';
 import { Service } from 'src/services/service.entiry';
 import { duration } from 'src/utils/duration';
-import { durationPeakTime } from 'src/utils/duration-peak-time';
+import { durationOverlapTime } from 'src/utils/duration-overlap-time';
 import { VoucherTypeEnum } from 'src/vouchers/enums/voucher-type.enum';
 import { isBetweenTime } from 'src/utils/is-between-time';
 
@@ -83,7 +83,7 @@ export class CreateProvider {
         fieldGroup.peakStartTime &&
         fieldGroup.priceIncrease
       ) {
-        const overlapPeak = durationPeakTime(
+        const overlapPeak = durationOverlapTime(
           fieldGroup.peakStartTime,
           fieldGroup.peakStartTime,
           createBookingDto.startTime,

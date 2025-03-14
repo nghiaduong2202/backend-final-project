@@ -12,7 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FacilityService } from 'src/facilities/facility.service';
 import { isBetweenTime } from 'src/utils/is-between-time';
 import { isBefore } from 'src/utils/isBefore';
-import { durationPeakTime } from 'src/utils/duration-peak-time';
+import { durationOverlapTime } from 'src/utils/duration-overlap-time';
 
 @Injectable()
 export class GetAvailabilityFieldInFacilityProvider {
@@ -61,42 +61,54 @@ export class GetAvailabilityFieldInFacilityProvider {
           facility: {
             id: facilityId,
           },
-          sports: {
-            id: getAvailabilityFieldInFacilityDto.sportId,
-          },
+          // sports: {
+          //   id: getAvailabilityFieldInFacilityDto.sportId,
+          // },
         },
         relations: {
           fields: {
             bookings: true,
           },
+          sports: true,
         },
       });
 
       const startTime = getAvailabilityFieldInFacilityDto.startTime;
       const endTime = getAvailabilityFieldInFacilityDto.endTime;
 
-      const availableFieldGroups = fieldGroups.map((fieldGroup) => ({
-        ...fieldGroup,
-        fields: fieldGroup.fields
-          .filter((field) => {
-            for (const booking of field.bookings) {
-              if (
-                durationPeakTime(
-                  startTime,
-                  endTime,
-                  booking.startTime,
-                  booking.endTime,
-                ) !== 0
-              ) {
-                return false;
-              }
+      const availableFieldGroups = fieldGroups
+        .filter((fieldGroup) => {
+          for (const sport of fieldGroup.sports) {
+            if (sport.id === getAvailabilityFieldInFacilityDto.sportId) {
+              return true;
             }
+          }
 
-            return true;
-          })
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ bookings, ...field }) => field),
-      }));
+          return false;
+        })
+        .map((fieldGroup) => ({
+          ...fieldGroup,
+          fields: fieldGroup.fields
+            .filter((field) => {
+              for (const booking of field.bookings) {
+                if (
+                  booking.date === getAvailabilityFieldInFacilityDto.date &&
+                  durationOverlapTime(
+                    startTime,
+                    endTime,
+                    booking.startTime,
+                    booking.endTime,
+                  ) !== 0
+                ) {
+                  return false;
+                }
+              }
+
+              return true;
+            })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            .map(({ bookings, ...field }) => field),
+        }));
 
       return availableFieldGroups.filter(
         (fieldGroup) => fieldGroup.fields.length,
