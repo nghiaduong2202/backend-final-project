@@ -44,7 +44,7 @@ export class UpdateProvider {
       if (updateVoucherDto.name) voucher.name = updateVoucherDto.name;
       if (updateVoucherDto.code) voucher.code = updateVoucherDto.code;
       if (updateVoucherDto.voucherType)
-        voucher.vourcherType = updateVoucherDto.voucherType;
+        voucher.voucherType = updateVoucherDto.voucherType;
       if (updateVoucherDto.startTime)
         voucher.startTime = updateVoucherDto.startTime;
       if (updateVoucherDto.endTime) voucher.endTime = updateVoucherDto.endTime;

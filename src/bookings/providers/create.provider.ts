@@ -273,7 +273,7 @@ export class CreateProvider {
 
           let discount = 0;
 
-          if (voucher.vourcherType === VoucherTypeEnum.CASH) {
+          if (voucher.voucherType === VoucherTypeEnum.CASH) {
             discount = voucher.value;
           } else {
             discount = (finalPrice * voucher.value) / 100;
