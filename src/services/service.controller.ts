@@ -18,6 +18,7 @@ import { CreateServicesDto } from './dtos/create-services.dto';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { ServiceService } from './service.service';
 import { UpdateServiceDto } from './dtos/update-service.dto';
+import { GetAvailabilityServiceInFacilityDto } from './dtos/get-availability-service-in-facility.dto';
 
 @Controller('service')
 export class ServiceController {
@@ -85,5 +86,33 @@ export class ServiceController {
     @ActivePeople('sub') ownerId: UUID,
   ) {
     return this.serviceService.delete(serviceId, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get availability service in facility (role: none)',
+  })
+  @ApiQuery({
+    name: 'sportId',
+    type: 'number',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'startTime',
+    type: 'string',
+    example: '08:00',
+  })
+  @ApiQuery({
+    name: 'endTime',
+    type: 'string',
+    example: '10:00',
+  })
+  @Get(':facilityId/availability')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAvailabilityServiceInFacility(
+    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
+    @Query()
+    getAvailabilityServiceInFacility: GetAvailabilityServiceInFacilityDto,
+  ) {
+    return { message: 'ok' };
   }
 }

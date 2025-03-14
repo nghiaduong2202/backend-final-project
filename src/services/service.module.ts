@@ -9,10 +9,11 @@ import { SportModule } from 'src/sports/sport.module';
 import { UpdateProvider } from './providers/update.provider';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { DeleteProvider } from './providers/delete.provider';
+import { GetAvailabilityServiceInFacilityProvider } from './providers/get-availability-service-in-facility.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Service]), FacilityModule, SportModule],
   controllers: [ServiceController],
-  providers: [ServiceService, CreateManyProvider, UpdateProvider, GetByFacilityProvider, DeleteProvider],
+  providers: [ServiceService, CreateManyProvider, UpdateProvider, GetByFacilityProvider, DeleteProvider, GetAvailabilityServiceInFacilityProvider],
 })
 export class ServiceModule {}

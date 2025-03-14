@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FieldGroupService } from './field-group.service';
 import { CreateFieldGroupsDto } from './dtos/create-field-groups.dto';
@@ -14,10 +15,9 @@ import { UUID } from 'crypto';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { UpdateFieldGroupDto } from './dtos/update-field-group.dto';
 import { GetAvailabilityFieldInFacilityDto } from './dtos/get-availability-field-in-facility.dto';
-import { Facility } from 'src/facilities/facility.entity';
 
 @Controller('field-group')
 export class FieldGroupController {
@@ -81,11 +81,26 @@ export class FieldGroupController {
   @ApiOperation({
     summary: 'Get availability field in facility (role: none)',
   })
+  @ApiQuery({
+    name: 'startTime',
+    type: 'string',
+    example: '08:00',
+  })
+  @ApiQuery({
+    name: 'endTime',
+    type: 'string',
+    example: '10:00',
+  })
+  @ApiQuery({
+    name: 'sportId',
+    type: 'number',
+    example: 1,
+  })
   @Get(':facilityId/availability-field')
   @AuthRoles(AuthRoleEnum.NONE)
   public getAvailabilityFieldInFacility(
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @Body() getAvailabilityFieldInFacility: GetAvailabilityFieldInFacilityDto,
+    @Query() getAvailabilityFieldInFacility: GetAvailabilityFieldInFacilityDto,
   ) {
     return this.fieldGroupService.getAvailabilityFieldInFacility(
       getAvailabilityFieldInFacility,

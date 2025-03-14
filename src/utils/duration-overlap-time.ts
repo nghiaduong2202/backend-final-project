@@ -1,4 +1,4 @@
-export function durationPeakTime(
+export function durationOverlapTime(
   startPeakTime: string,
   endPeakTime: string,
   startTime: string,
