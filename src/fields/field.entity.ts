@@ -3,11 +3,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { FieldStatusEnum } from './enums/field-status.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
+import { Booking } from 'src/bookings/booking.entity';
 
 @Entity()
 @Unique(['name', 'fieldGroup'])
@@ -36,4 +38,7 @@ export class Field {
   })
   @JoinColumn()
   fieldGroup: FieldGroup;
+
+  @OneToMany(() => Booking, (booking) => booking.field)
+  bookings: Booking[];
 }

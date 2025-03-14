@@ -11,6 +11,7 @@ import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { DeleteProvider } from './providers/delete.provider';
 import { FieldModule } from 'src/fields/field.module';
+import { GetAvailabilityFieldInFacilityProvider } from './providers/get-availability-field-in-facility.provider';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FieldModule } from 'src/fields/field.module';
     GetByFacilityProvider,
     UpdateProvider,
     DeleteProvider,
+    GetAvailabilityFieldInFacilityProvider,
   ],
   exports: [FieldGroupService],
 })
