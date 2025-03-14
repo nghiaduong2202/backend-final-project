@@ -48,7 +48,7 @@ export class Voucher {
     type: 'enum',
     enum: VoucherTypeEnum,
   })
-  vourcherType: VoucherTypeEnum;
+  voucherType: VoucherTypeEnum;
 
   @Column({
     type: 'real',
