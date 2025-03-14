@@ -47,7 +47,6 @@ export class Voucher {
   @Column({
     type: 'enum',
     enum: VoucherTypeEnum,
-    default: VoucherTypeEnum.CASH,
   })
   vourcherType: VoucherTypeEnum;
 
