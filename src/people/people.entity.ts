@@ -11,6 +11,7 @@ import { UUID } from 'crypto';
 import { Facility } from 'src/facilities/facility.entity';
 import { Exclude } from 'class-transformer';
 import { PeopleRoleEnum } from './enums/people-role.enum';
+import { Booking } from 'src/bookings/booking.entity';
 
 @Entity()
 export class People {
@@ -93,4 +94,7 @@ export class People {
 
   @OneToMany(() => Facility, (facility) => facility.owner)
   facilities: Facility[];
+
+  @OneToMany(() => Booking, (booking) => booking.player)
+  bookings: Booking[];
 }

@@ -7,6 +7,8 @@ import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateFieldGroupDto } from './dtos/update-field-group.dto';
 import { DeleteProvider } from './providers/delete.provider';
+import { GetAvailabilityFieldInFacilityDto } from './dtos/get-availability-field-in-facility.dto';
+import { GetAvailabilityFieldInFacilityProvider } from './providers/get-availability-field-in-facility.provider';
 
 @Injectable()
 export class FieldGroupService {
@@ -31,6 +33,10 @@ export class FieldGroupService {
      * inject delete provider
      */
     private readonly deleteProvider: DeleteProvider,
+    /**
+     * inject get availability field in facility provider
+     */
+    private readonly getAvailabilityFieldInFacilityProvider: GetAvailabilityFieldInFacilityProvider,
   ) {}
 
   public async getById(id: UUID) {
@@ -67,5 +73,15 @@ export class FieldGroupService {
 
   public async delete(fieldGroupId: UUID, ownerId: UUID) {
     return await this.deleteProvider.delete(fieldGroupId, ownerId);
+  }
+
+  public async getAvailabilityFieldInFacility(
+    getAvailabilityFieldInFacilityDto: GetAvailabilityFieldInFacilityDto,
+    facilityId: UUID,
+  ) {
+    return await this.getAvailabilityFieldInFacilityProvider.getAvailabilityFieldInFacility(
+      getAvailabilityFieldInFacilityDto,
+      facilityId,
+    );
   }
 }

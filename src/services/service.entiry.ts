@@ -1,3 +1,4 @@
+import { BookingService } from 'src/bookings/booking-service.entity';
 import { Facility } from 'src/facilities/facility.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -56,4 +58,7 @@ export class Service {
   })
   @JoinColumn()
   facility: Facility;
+
+  @OneToMany(() => BookingService, (bookingService) => bookingService.service)
+  bookingServices: BookingService[];
 }

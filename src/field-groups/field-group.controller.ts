@@ -16,6 +16,8 @@ import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { ApiOperation } from '@nestjs/swagger';
 import { UpdateFieldGroupDto } from './dtos/update-field-group.dto';
+import { GetAvailabilityFieldInFacilityDto } from './dtos/get-availability-field-in-facility.dto';
+import { Facility } from 'src/facilities/facility.entity';
 
 @Controller('field-group')
 export class FieldGroupController {
@@ -74,5 +76,20 @@ export class FieldGroupController {
     @ActivePeople('sub') ownerId: UUID,
   ) {
     return this.fieldGroupService.delete(fieldGroupId, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get availability field in facility (role: none)',
+  })
+  @Get(':facilityId/availability-field')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAvailabilityFieldInFacility(
+    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
+    @Body() getAvailabilityFieldInFacility: GetAvailabilityFieldInFacilityDto,
+  ) {
+    return this.fieldGroupService.getAvailabilityFieldInFacility(
+      getAvailabilityFieldInFacility,
+      facilityId,
+    );
   }
 }

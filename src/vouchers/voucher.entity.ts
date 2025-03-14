@@ -33,13 +33,13 @@ export class Voucher {
   code: string;
 
   @Column({
-    type: 'timestamp',
+    type: 'date',
     nullable: false,
   })
   startTime: Date;
 
   @Column({
-    type: 'timestamp',
+    type: 'date',
     nullable: false,
   })
   endTime: Date;
