@@ -14,10 +14,24 @@ export class GetAllProvider {
   ) {}
 
   public async getAll() {
-    return await this.facilityRepository.find({
+    const facilities = await this.facilityRepository.find({
       relations: {
         owner: true,
+        fieldGroups: {
+          sports: true,
+        },
       },
     });
+
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    }));
   }
 }

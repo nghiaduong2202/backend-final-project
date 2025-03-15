@@ -6,10 +6,12 @@ import { BookingServiceDto } from './booking-service.dto';
 export class UpdateServiceBookingDto {
   @ApiProperty({
     type: 'array',
-    example: {
-      serviceId: 1,
-      quantity: 2,
-    },
+    example: [
+      {
+        serviceId: 1,
+        quantity: 2,
+      },
+    ],
   })
   @IsNotEmpty()
   @IsArray()
