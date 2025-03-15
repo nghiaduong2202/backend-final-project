@@ -11,6 +11,7 @@ import { UpdateServiceBookingDto } from './dtos/upadte-services-booking.dto';
 import { PaymentProvider } from './providers/payment.provider';
 import { Request } from 'express';
 import { PaymentDto } from './dtos/payment.dto';
+import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 
 @Injectable()
 export class BookingService {
@@ -39,6 +40,10 @@ export class BookingService {
      * inject payment provider
      */
     private readonly paymentProvider: PaymentProvider,
+    /**
+     * inject vnpay inp provider
+     */
+    private readonly vnpayIpnProvider: VnpayIpnProvider,
   ) {}
 
   public async createDraft(
@@ -95,5 +100,9 @@ export class BookingService {
       playerId,
       req,
     );
+  }
+
+  public async vnpayIpn(req: Request) {
+    return await this.vnpayIpnProvider.vnpayIpn(req);
   }
 }

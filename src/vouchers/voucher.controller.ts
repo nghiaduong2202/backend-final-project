@@ -51,7 +51,7 @@ export class VoucherController {
   @ApiOperation({
     summary: 'get voucher by facility (role: none)',
   })
-  @Get(':facilityId')
+  @Get(':facilityId/booking')
   @AuthRoles(AuthRoleEnum.NONE)
   public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
     return this.voucherService.getByFacility(facilityId);
@@ -66,7 +66,18 @@ export class VoucherController {
     @Body() updateVoucherDto: UpdateVoucherDto,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return { message: 'xem xet lai viec update voucher' };
-    // return this.voucherService.update(updateVoucherDto, ownerId);
+    // return { message: 'xem xet lai viec update voucher' };
+    return this.voucherService.update(updateVoucherDto, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'get all voucher by facility (role: none)',
+  })
+  @Get(':facilityId/all')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAllByFacility(
+    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
+  ) {
+    return this.voucherService.getAllByFacility(facilityId);
   }
 }

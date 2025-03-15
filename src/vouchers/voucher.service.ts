@@ -7,6 +7,7 @@ import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateVoucherDto } from './dtos/update-voucher.dto';
 import { GetByIdProvider } from './providers/get-by-id.provider';
+import { GetAllByFacilityProvider } from './providers/get-all-by-facility.provider';
 
 @Injectable()
 export class VoucherService {
@@ -31,6 +32,10 @@ export class VoucherService {
      * inject get by id provider
      */
     private readonly getByIdProvider: GetByIdProvider,
+    /**
+     * inject get all by facility provider
+     */
+    private readonly getAllByFacilityProvider: GetAllByFacilityProvider,
   ) {}
 
   public async create(
@@ -59,5 +64,9 @@ export class VoucherService {
 
   public async getById(voucherId: number) {
     return await this.getByIdProvider.getById(voucherId);
+  }
+
+  public async getAllByFacility(facilityId: UUID) {
+    return await this.getAllByFacilityProvider.getAllByfacility(facilityId);
   }
 }

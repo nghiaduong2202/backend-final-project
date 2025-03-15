@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -96,5 +97,11 @@ export class BookingController {
     @Req() req: Request,
   ) {
     return this.bookingService.payment(paymentDto, bookingId, playerId, req);
+  }
+
+  @Get('/vnpay-ipn')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public inpVnpay(@Req() req: Request) {
+    return this.bookingService.vnpayIpn(req);
   }
 }
