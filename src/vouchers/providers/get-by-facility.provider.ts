@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Voucher } from '../voucher.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'crypto';
@@ -15,11 +15,15 @@ export class GetByFacilityProvider {
   ) {}
 
   public async getByFacility(facilityId: UUID) {
+    const today = new Date();
+
     const vouchers = await this.voucherRepository.find({
       where: {
         facility: {
           id: facilityId,
         },
+        startDate: LessThanOrEqual(today),
+        endDate: MoreThanOrEqual(today),
       },
     });
 

@@ -8,6 +8,9 @@ import { UpdateFieldProvider } from './providers/update-field.provider';
 import { UpdateServiceProvider } from './providers/update-service.provider';
 import { UpdateFieldBookingDto } from './dtos/update-field-booking.dto';
 import { UpdateServiceBookingDto } from './dtos/upadte-services-booking.dto';
+import { PaymentProvider } from './providers/payment.provider';
+import { Request } from 'express';
+import { PaymentDto } from './dtos/payment.dto';
 
 @Injectable()
 export class BookingService {
@@ -32,6 +35,10 @@ export class BookingService {
      * inject update service provider
      */
     private readonly updateServiceProvider: UpdateServiceProvider,
+    /**
+     * inject payment provider
+     */
+    private readonly paymentProvider: PaymentProvider,
   ) {}
 
   public async createDraft(
@@ -73,6 +80,20 @@ export class BookingService {
       updateServiceBookingDto,
       bookingId,
       playerId,
+    );
+  }
+
+  public async payment(
+    paymentDto: PaymentDto,
+    bookingId: UUID,
+    playerId: UUID,
+    req: Request,
+  ) {
+    return await this.paymentProvider.payment(
+      paymentDto,
+      bookingId,
+      playerId,
+      req,
     );
   }
 }
