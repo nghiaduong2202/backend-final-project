@@ -21,6 +21,9 @@ export class GetByIdProvider {
       },
       relations: {
         owner: true,
+        fieldGroups: {
+          sports: true,
+        },
       },
     });
 
@@ -28,6 +31,17 @@ export class GetByIdProvider {
       throw new NotFoundException('Facility not found');
     }
 
-    return facility;
+    const { fieldGroups, ...rest } = facility;
+
+    return {
+      ...rest,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    };
   }
 }
