@@ -9,7 +9,7 @@ export class UpdateServiceBookingDto {
     example: [
       {
         serviceId: 1,
-        quantity: 2,
+        amount: 2,
       },
     ],
   })

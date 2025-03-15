@@ -65,8 +65,10 @@ export class UpdateServiceProvider {
           await queryRunner.manager.delete(BookingService, oldService);
         }
       }
+      delete booking.bookingServices;
 
       let servicePrice = 0;
+      const newBookingServices: BookingService[] = [];
       // check overlap and save new services
       for (const newService of updateServiceBookingDto.bookingServicesData) {
         // get service
@@ -153,23 +155,28 @@ export class UpdateServiceProvider {
         servicePrice += service.price * newService.amount;
 
         const newBookingService = queryRunner.manager.create(BookingService, {
-          booking,
-          service,
+          bookingId: booking.id,
+          serviceId: service.id,
           quantity: newService.amount,
         });
-
         await queryRunner.manager.save(newBookingService);
+
+        newBookingServices.push(newBookingService);
       }
 
       // update price
       booking.servicePrice = servicePrice;
+      // delete booking.bookingServices;
 
       // commit transaction
       await queryRunner.manager.save(booking);
       await queryRunner.commitTransaction();
+
+      booking.bookingServices = newBookingServices;
+      return booking;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException(String(error));
+      throw new BadRequestException(error);
     } finally {
       await queryRunner.release();
     }

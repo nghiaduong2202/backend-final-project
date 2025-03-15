@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Req,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
@@ -16,6 +17,8 @@ import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { UUID } from 'crypto';
 import { UpdateFieldBookingDto } from './dtos/update-field-booking.dto';
 import { UpdateServiceBookingDto } from './dtos/upadte-services-booking.dto';
+import { PaymentDto } from './dtos/payment.dto';
+import { Request } from 'express';
 
 @Controller('booking')
 export class BookingController {
@@ -68,6 +71,7 @@ export class BookingController {
   }
 
   @Put(':bookingId/service')
+  @AuthRoles(AuthRoleEnum.PLAYER)
   public updateService(
     @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
     @Body() updateServiceBookingDto: UpdateServiceBookingDto,
@@ -78,5 +82,19 @@ export class BookingController {
       bookingId,
       playerId,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Payment (role: player)',
+  })
+  @Put(':bookingId/payment')
+  @AuthRoles(AuthRoleEnum.PLAYER)
+  public payment(
+    @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
+    @Body() paymentDto: PaymentDto,
+    @ActivePeople('sub') playerId: UUID,
+    @Req() req: Request,
+  ) {
+    return this.bookingService.payment(paymentDto, bookingId, playerId, req);
   }
 }

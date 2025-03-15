@@ -6,6 +6,7 @@ import { DeleteProvider } from './providers/delete.provider';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateVoucherDto } from './dtos/update-voucher.dto';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 
 @Injectable()
 export class VoucherService {
@@ -26,6 +27,10 @@ export class VoucherService {
      * inject update provider
      */
     private readonly updateProvider: UpdateProvider,
+    /**
+     * inject get by id provider
+     */
+    private readonly getByIdProvider: GetByIdProvider,
   ) {}
 
   public async create(
@@ -50,5 +55,9 @@ export class VoucherService {
 
   public async update(updateVoucherDto: UpdateVoucherDto, ownerId: UUID) {
     return await this.updateProvider.update(updateVoucherDto, ownerId);
+  }
+
+  public async getById(voucherId: number) {
+    return await this.getByIdProvider.getById(voucherId);
   }
 }
