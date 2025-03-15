@@ -6,6 +6,8 @@ import { UpdateProvider } from './providers/update.provider';
 import { UpdateServiceDto } from './dtos/update-service.dto';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { DeleteProvider } from './providers/delete.provider';
+import { GetAvailabilityServiceInFacilityProvider } from './providers/get-availability-service-in-facility.provider';
+import { GetAvailabilityServiceInFacilityDto } from './dtos/get-availability-service-in-facility.dto';
 
 @Injectable()
 export class ServiceService {
@@ -26,6 +28,10 @@ export class ServiceService {
      * inject delete provider
      */
     private readonly deleteProvider: DeleteProvider,
+    /**
+     * get availability service in facility
+     */
+    private readonly getAvailabilityServiceInFacilityProvider: GetAvailabilityServiceInFacilityProvider,
   ) {}
 
   public async createMany(
@@ -58,5 +64,15 @@ export class ServiceService {
 
   public async delete(serviceId: number, ownerId: UUID) {
     return await this.deleteProvider.delete(serviceId, ownerId);
+  }
+
+  public async getAvailabilityServiceInFacility(
+    getAvailabilityServiceInFacility: GetAvailabilityServiceInFacilityDto,
+    facilityId: UUID,
+  ) {
+    return await this.getAvailabilityServiceInFacilityProvider.getAvailabilityServiceInFacility(
+      getAvailabilityServiceInFacility,
+      facilityId,
+    );
   }
 }

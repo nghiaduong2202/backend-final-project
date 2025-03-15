@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -24,21 +25,12 @@ export class CreateVoucherDto {
 
   @ApiProperty({
     type: 'string',
-    example: 'obxmd',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
-  code: string;
-
-  @ApiProperty({
-    type: 'string',
     example: '2025-03-12T00:00:00.000Z',
   })
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  startTime: Date;
+  startDate: Date;
 
   @ApiProperty({
     type: 'string',
@@ -47,7 +39,7 @@ export class CreateVoucherDto {
   @IsDate()
   @Type(() => Date)
   @IsNotEmpty()
-  endTime: Date;
+  endDate: Date;
 
   @ApiProperty({
     type: 'string',
@@ -64,7 +56,8 @@ export class CreateVoucherDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  value: number;
+  @IsPositive()
+  discount: number;
 
   @ApiProperty({
     type: 'number',
@@ -72,6 +65,7 @@ export class CreateVoucherDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   minPrice: number;
 
   @ApiProperty({
@@ -80,6 +74,7 @@ export class CreateVoucherDto {
   })
   @IsNumber()
   @IsNotEmpty()
+  @IsPositive()
   maxDiscount: number;
 
   @ApiProperty({
@@ -88,5 +83,6 @@ export class CreateVoucherDto {
   })
   @IsNumber()
   @IsNotEmpty()
+  @IsPositive()
   amount: number;
 }

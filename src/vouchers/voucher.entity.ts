@@ -12,7 +12,7 @@ import { VoucherTypeEnum } from './enums/voucher-type.enum';
 import { Facility } from 'src/facilities/facility.entity';
 
 @Entity()
-@Check('"endTime" > "startTime"')
+@Check('"endDate" >= "startDate"')
 export class Voucher {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,24 +25,16 @@ export class Voucher {
   name: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-    unique: true,
+    type: 'date',
+    nullable: false,
   })
-  code: string;
+  startDate: Date;
 
   @Column({
     type: 'date',
     nullable: false,
   })
-  startTime: Date;
-
-  @Column({
-    type: 'date',
-    nullable: false,
-  })
-  endTime: Date;
+  endDate: Date;
 
   @Column({
     type: 'enum',
@@ -55,7 +47,7 @@ export class Voucher {
     nullable: false,
     default: 0,
   })
-  value: number;
+  discount: number;
 
   @Column({
     type: 'int',

@@ -42,19 +42,22 @@ export class UpdateProvider {
 
     try {
       if (updateVoucherDto.name) voucher.name = updateVoucherDto.name;
-      if (updateVoucherDto.code) voucher.code = updateVoucherDto.code;
+
       if (updateVoucherDto.voucherType)
         voucher.voucherType = updateVoucherDto.voucherType;
-      if (updateVoucherDto.startTime)
-        voucher.startTime = updateVoucherDto.startTime;
-      if (updateVoucherDto.endTime) voucher.endTime = updateVoucherDto.endTime;
+
       if (updateVoucherDto.amount) {
         const remain =
           voucher.remain + updateVoucherDto.amount - voucher.amount;
         voucher.amount = updateVoucherDto.amount;
         voucher.remain = remain;
       }
-      if (updateVoucherDto.value) voucher.value = updateVoucherDto.value;
+
+      if (updateVoucherDto.startDate)
+        voucher.startDate = updateVoucherDto.startDate;
+      if (updateVoucherDto.endDate) voucher.endDate = updateVoucherDto.endDate;
+      if (updateVoucherDto.discount)
+        voucher.discount = updateVoucherDto.discount;
       if (updateVoucherDto.minPrice)
         voucher.minPrice = updateVoucherDto.minPrice;
       if (updateVoucherDto.maxDiscount)
@@ -62,7 +65,7 @@ export class UpdateProvider {
 
       await this.voucherRepository.save(voucher);
     } catch (error) {
-      throw new BadRequestException(error);
+      throw new BadRequestException(String(error));
     }
 
     return {

@@ -13,6 +13,7 @@ import { FacilityService } from 'src/facilities/facility.service';
 import { isBetweenTime } from 'src/utils/is-between-time';
 import { isBefore } from 'src/utils/isBefore';
 import { durationOverlapTime } from 'src/utils/duration-overlap-time';
+import { BookingStatusEnum } from 'src/bookings/enums/booking-status.enum';
 
 @Injectable()
 export class GetAvailabilityFieldInFacilityProvider {
@@ -61,9 +62,6 @@ export class GetAvailabilityFieldInFacilityProvider {
           facility: {
             id: facilityId,
           },
-          // sports: {
-          //   id: getAvailabilityFieldInFacilityDto.sportId,
-          // },
         },
         relations: {
           fields: {
@@ -75,6 +73,9 @@ export class GetAvailabilityFieldInFacilityProvider {
 
       const startTime = getAvailabilityFieldInFacilityDto.startTime;
       const endTime = getAvailabilityFieldInFacilityDto.endTime;
+      const date = getAvailabilityFieldInFacilityDto.date
+        .toISOString()
+        .split('T')[0];
 
       const availableFieldGroups = fieldGroups
         .filter((fieldGroup) => {
@@ -92,7 +93,8 @@ export class GetAvailabilityFieldInFacilityProvider {
             .filter((field) => {
               for (const booking of field.bookings) {
                 if (
-                  booking.date === getAvailabilityFieldInFacilityDto.date &&
+                  booking.status !== BookingStatusEnum.CANCELLED &&
+                  String(booking.date) === String(date) &&
                   durationOverlapTime(
                     startTime,
                     endTime,

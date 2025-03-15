@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMilitaryTime, IsNotEmpty, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsMilitaryTime, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class GetAvailabilityServiceInFacilityDto {
   @ApiProperty({
@@ -8,6 +9,7 @@ export class GetAvailabilityServiceInFacilityDto {
   })
   @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number)
   sportId: number;
 
   @ApiProperty({
@@ -25,4 +27,13 @@ export class GetAvailabilityServiceInFacilityDto {
   @IsNotEmpty()
   @IsMilitaryTime()
   endTime: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '2025-03-12T00:00:00.000Z',
+  })
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  date: Date;
 }

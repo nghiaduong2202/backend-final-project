@@ -1,19 +1,14 @@
-import { PaymentTypeEnum } from '../enums/payment-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsArray,
   IsDate,
-  IsEnum,
   IsMilitaryTime,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
-  ValidateNested,
+  IsPositive,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BookingServicesDto } from './booking-services.dto';
 
-export class CreateBookingDto {
+export class CreateDraftBookingDto {
   @ApiProperty({
     type: 'string',
     example: '06:00',
@@ -40,14 +35,6 @@ export class CreateBookingDto {
   date: Date;
 
   @ApiProperty({
-    type: 'string',
-    example: PaymentTypeEnum.ONLINE,
-  })
-  @IsNotEmpty()
-  @IsEnum(PaymentTypeEnum)
-  paymentType: PaymentTypeEnum;
-
-  @ApiProperty({
     type: 'number',
     example: 1,
   })
@@ -56,26 +43,11 @@ export class CreateBookingDto {
   fieldId: number;
 
   @ApiProperty({
-    type: 'string',
-    example: '',
+    type: 'number',
+    example: 1,
   })
-  @IsOptional()
-  // @IsUUID()
+  @IsNotEmpty()
   @IsNumber()
-  voucherId?: number;
-
-  @ApiProperty({
-    type: 'array',
-    example: [
-      {
-        serviceId: 1,
-        amount: 2,
-      },
-    ],
-  })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => BookingServicesDto)
-  bookingServicesData?: BookingServicesDto[];
+  @IsPositive()
+  sportId: number;
 }
