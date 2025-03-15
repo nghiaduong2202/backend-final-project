@@ -1,11 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
-import { CreateBookingDto } from './dtos/create-booking.dto';
+import { CreateDraftBookingDto } from './dtos/create-draft-booking.dto';
 import { BookingService } from './booking.service';
 import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
 import { UUID } from 'crypto';
+import { UpdateFieldBookingDto } from './dtos/update-field-booking.dto';
+import { UpdateServiceBookingDto } from './dtos/upadte-services-booking.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -21,10 +31,52 @@ export class BookingController {
   })
   @Post()
   @AuthRoles(AuthRoleEnum.PLAYER)
-  public create(
-    @Body() createBookingDto: CreateBookingDto,
+  public createDraft(
+    @Body() createDraftBookingDto: CreateDraftBookingDto,
     @ActivePeople('sub') playerId: UUID,
   ) {
-    return this.bookingService.create(createBookingDto, playerId);
+    return this.bookingService.createDraft(createDraftBookingDto, playerId);
+  }
+
+  @ApiOperation({
+    summary: 'Delete draft booking (role: player)',
+  })
+  @Delete(':bookingId')
+  @AuthRoles(AuthRoleEnum.PLAYER)
+  public deleteDraft(
+    @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
+    @ActivePeople('sub') playerId: UUID,
+  ) {
+    return this.bookingService.deleteDraft(bookingId, playerId);
+  }
+
+  @ApiOperation({
+    summary: 'Update field (role: player)',
+  })
+  @Put(':bookingId/field')
+  @AuthRoles(AuthRoleEnum.PLAYER)
+  public updateField(
+    @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
+    @Body() updateFieldBookingDto: UpdateFieldBookingDto,
+    @ActivePeople('sub') playerId: UUID,
+  ) {
+    return this.bookingService.updateField(
+      updateFieldBookingDto,
+      bookingId,
+      playerId,
+    );
+  }
+
+  @Put(':bookingId/service')
+  public updateService(
+    @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
+    @Body() updateServiceBookingDto: UpdateServiceBookingDto,
+    @ActivePeople('sub') playerId: UUID,
+  ) {
+    return this.bookingService.updateService(
+      updateServiceBookingDto,
+      bookingId,
+      playerId,
+    );
   }
 }

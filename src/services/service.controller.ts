@@ -113,6 +113,9 @@ export class ServiceController {
     @Query()
     getAvailabilityServiceInFacility: GetAvailabilityServiceInFacilityDto,
   ) {
-    return { message: 'ok' };
+    return this.serviceService.getAvailabilityServiceInFacility(
+      getAvailabilityServiceInFacility,
+      facilityId,
+    );
   }
 }

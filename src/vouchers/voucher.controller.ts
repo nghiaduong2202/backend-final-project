@@ -66,6 +66,7 @@ export class VoucherController {
     @Body() updateVoucherDto: UpdateVoucherDto,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.voucherService.update(updateVoucherDto, ownerId);
+    return { message: 'xem xet lai viec update voucher' };
+    // return this.voucherService.update(updateVoucherDto, ownerId);
   }
 }

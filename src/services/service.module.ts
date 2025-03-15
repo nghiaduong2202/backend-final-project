@@ -14,6 +14,13 @@ import { GetAvailabilityServiceInFacilityProvider } from './providers/get-availa
 @Module({
   imports: [TypeOrmModule.forFeature([Service]), FacilityModule, SportModule],
   controllers: [ServiceController],
-  providers: [ServiceService, CreateManyProvider, UpdateProvider, GetByFacilityProvider, DeleteProvider, GetAvailabilityServiceInFacilityProvider],
+  providers: [
+    ServiceService,
+    CreateManyProvider,
+    UpdateProvider,
+    GetByFacilityProvider,
+    DeleteProvider,
+    GetAvailabilityServiceInFacilityProvider,
+  ],
 })
 export class ServiceModule {}

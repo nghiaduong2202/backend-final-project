@@ -9,6 +9,7 @@ import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider
 import { UpdateProvider } from './providers/update.provider';
 import { UpdateStatusProvider } from './providers/update-status.provider';
 import { DeleteProvider } from './providers/delete.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DeleteProvider } from './providers/delete.provider';
     UpdateProvider,
     UpdateStatusProvider,
     DeleteProvider,
+    GetByIdProvider,
   ],
   exports: [FieldService],
 })

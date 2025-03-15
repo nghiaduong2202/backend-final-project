@@ -8,6 +8,7 @@ import { UpdateFieldDto } from './dtos/update-field.dto';
 import { UpdateStatusProvider } from './providers/update-status.provider';
 import { FieldStatusEnum } from './enums/field-status.entity';
 import { DeleteProvider } from './providers/delete.provider';
+import { GetByIdProvider } from './providers/get-by-id.provider';
 
 @Injectable()
 export class FieldService {
@@ -32,6 +33,10 @@ export class FieldService {
      * inject delete provider
      */
     private readonly deleteProvider: DeleteProvider,
+    /**
+     * inject get by id provider
+     */
+    private readonly getByIdProvider: GetByIdProvider,
   ) {}
 
   public async createMany(
@@ -64,5 +69,9 @@ export class FieldService {
 
   public async delete(fieldId: number, ownerId: UUID) {
     return await this.deleteProvider.delete(fieldId, ownerId);
+  }
+
+  public async getById(fieldId: number) {
+    return await this.getByIdProvider.getById(fieldId);
   }
 }

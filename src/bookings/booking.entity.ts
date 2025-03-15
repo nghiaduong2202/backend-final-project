@@ -8,7 +8,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { PaymentTypeEnum } from './enums/payment-type.enum';
@@ -16,9 +15,10 @@ import { Field } from 'src/fields/field.entity';
 import { Voucher } from 'src/vouchers/voucher.entity';
 import { BookingService } from './booking-service.entity';
 import { People } from 'src/people/people.entity';
+import { Sport } from 'src/sports/sport.entity';
+import { BookingStatusEnum } from './enums/booking-status.enum';
 
 @Entity()
-@Unique(['startTime', 'endTime', 'field'])
 @Check('"endTime" > "startTime"')
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
@@ -56,40 +56,43 @@ export class Booking {
 
   @Column({
     type: 'enum',
-    enum: PaymentTypeEnum,
+    enum: BookingStatusEnum,
     nullable: false,
+    default: BookingStatusEnum.DRAFT,
   })
-  paymentType: PaymentTypeEnum;
+  status: BookingStatusEnum;
 
   @Column({
-    type: 'float',
-    nullable: false,
+    type: 'enum',
+    enum: PaymentTypeEnum,
+    nullable: true,
   })
-  price: number;
+  paymentType?: PaymentTypeEnum;
 
   @Column({
     type: 'integer',
-    nullable: true,
+    nullable: false,
+    default: 0,
   })
-  pricePeak?: number;
+  fieldPrice: number;
 
   @Column({
-    type: 'float',
+    type: 'integer',
     nullable: false,
+    default: 0,
   })
-  finalPrice: number;
+  servicePrice: number;
 
   @Column({
-    type: 'boolean',
+    type: 'integer',
     nullable: false,
-    default: false,
+    default: 0,
   })
-  isPaid: boolean;
+  discountAmount: number;
 
   @ManyToOne(() => Field, (field) => field.bookings, {
     cascade: true,
     nullable: false,
-    onDelete: 'CASCADE',
   })
   @JoinColumn()
   field: Field;
@@ -109,5 +112,13 @@ export class Booking {
     onDelete: 'CASCADE',
     nullable: false,
   })
+  @JoinColumn()
   player: People;
+
+  @ManyToOne(() => Sport, {
+    cascade: true,
+    nullable: false,
+  })
+  @JoinColumn()
+  sport: Sport;
 }
