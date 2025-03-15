@@ -11,6 +11,7 @@ import { DeleteDraftProvider } from './providers/delete-draft.provider';
 import { PaymentProvider } from './providers/payment.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
 import { ConfigModule } from '@nestjs/config';
+import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ConfigModule } from '@nestjs/config';
     DeleteDraftProvider,
     PaymentProvider,
     GetByIdProvider,
+    VnpayIpnProvider,
   ],
 })
 export class BookingModule {}

@@ -49,6 +49,7 @@ export class UpdateFieldProvider {
               facility: true,
             },
           },
+          sport: true,
         },
       });
 
@@ -175,7 +176,7 @@ export class UpdateFieldProvider {
       return booking;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException(error);
+      throw new BadRequestException(String(error));
     } finally {
       await queryRunner.release();
     }

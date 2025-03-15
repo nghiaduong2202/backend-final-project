@@ -10,6 +10,7 @@ import { DeleteProvider } from './providers/delete.provider';
 import { GetByFacilityProvider } from './providers/get-by-facility.provider';
 import { UpdateProvider } from './providers/update.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
+import { GetAllByFacilityProvider } from './providers/get-all-by-facility.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Voucher]), FacilityModule, SportModule],
@@ -21,6 +22,7 @@ import { GetByIdProvider } from './providers/get-by-id.provider';
     GetByFacilityProvider,
     UpdateProvider,
     GetByIdProvider,
+    GetAllByFacilityProvider,
   ],
   exports: [VoucherService],
 })
