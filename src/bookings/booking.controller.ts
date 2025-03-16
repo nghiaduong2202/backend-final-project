@@ -4,9 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseDatePipe,
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -103,5 +105,14 @@ export class BookingController {
   @AuthRoles(AuthRoleEnum.NONE)
   public inpVnpay(@Req() req: Request) {
     return this.bookingService.vnpayIpn(req);
+  }
+
+  @Get(':fieldId/')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByField(
+    @Param('fieldId') fieldId: number,
+    @Query('date', new ParseDatePipe()) date: Date,
+  ) {
+    return this.bookingService.getByField(fieldId, date);
   }
 }
