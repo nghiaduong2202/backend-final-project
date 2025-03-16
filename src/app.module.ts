@@ -19,6 +19,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { VoucherModule } from './vouchers/voucher.module';
 import { ServiceModule } from './services/service.module';
 import { BookingModule } from './bookings/booking.module';
+import { ScheduleModule } from '@nestjs/schedule';
 // import * as fs from 'fs';
 
 @Module({
@@ -55,6 +56,7 @@ import { BookingModule } from './bookings/booking.module';
     VoucherModule,
     ServiceModule,
     BookingModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [

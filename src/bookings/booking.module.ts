@@ -12,6 +12,8 @@ import { PaymentProvider } from './providers/payment.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
 import { ConfigModule } from '@nestjs/config';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
+import { BookingScheduleProvider } from './providers/booking-schedule.provider';
+import { GetByFieldProviders } from './providers/get-by-field.providers';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
     PaymentProvider,
     GetByIdProvider,
     VnpayIpnProvider,
+    BookingScheduleProvider,
+    GetByFieldProviders,
   ],
 })
 export class BookingModule {}

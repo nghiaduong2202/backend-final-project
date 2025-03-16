@@ -12,6 +12,7 @@ import { PaymentProvider } from './providers/payment.provider';
 import { Request } from 'express';
 import { PaymentDto } from './dtos/payment.dto';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
+import { GetByFieldProviders } from './providers/get-by-field.providers';
 
 @Injectable()
 export class BookingService {
@@ -44,6 +45,10 @@ export class BookingService {
      * inject vnpay inp provider
      */
     private readonly vnpayIpnProvider: VnpayIpnProvider,
+    /**
+     * inject get by field provider
+     */
+    private readonly getByFieldProvider: GetByFieldProviders,
   ) {}
 
   public async createDraft(
@@ -104,5 +109,9 @@ export class BookingService {
 
   public async vnpayIpn(req: Request) {
     return await this.vnpayIpnProvider.vnpayIpn(req);
+  }
+
+  public async getByField(fieldId: number, date: Date) {
+    return await this.getByFieldProvider.getByField(fieldId, date);
   }
 }
