@@ -13,6 +13,9 @@ import { Request } from 'express';
 import { PaymentDto } from './dtos/payment.dto';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 import { GetByFieldProviders } from './providers/get-by-field.providers';
+import { Repository } from 'typeorm';
+import { Booking } from './booking.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class BookingService {
@@ -49,6 +52,11 @@ export class BookingService {
      * inject get by field provider
      */
     private readonly getByFieldProvider: GetByFieldProviders,
+    /**
+     * inject bookingRepository
+     */
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
   ) {}
 
   public async createDraft(
@@ -113,5 +121,63 @@ export class BookingService {
 
   public async getByField(fieldId: number, date: Date) {
     return await this.getByFieldProvider.getByField(fieldId, date);
+  }
+
+  public async getByFacility(facilityId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        field: {
+          fieldGroup: {
+            facility: {
+              id: facilityId,
+            },
+          },
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
+  }
+
+  public async getByOwner(ownerId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        field: {
+          fieldGroup: {
+            facility: {
+              owner: {
+                id: ownerId,
+              },
+            },
+          },
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
+  }
+
+  public async getByPlayer(playerId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        player: {
+          id: playerId,
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
   }
 }

@@ -14,11 +14,13 @@ import { ConfigModule } from '@nestjs/config';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 import { BookingScheduleProvider } from './providers/booking-schedule.provider';
 import { GetByFieldProviders } from './providers/get-by-field.providers';
+import { Facility } from 'src/facilities/facility.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Booking, BookingServiceEntity]),
     ConfigModule,
+    Facility,
   ],
   controllers: [BookingController],
   providers: [
