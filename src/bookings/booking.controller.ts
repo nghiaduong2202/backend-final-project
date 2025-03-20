@@ -107,12 +107,39 @@ export class BookingController {
     return this.bookingService.vnpayIpn(req);
   }
 
-  @Get(':fieldId/')
+  @Get('field/:fieldId')
   @AuthRoles(AuthRoleEnum.NONE)
   public getByField(
-    @Param('fieldId') fieldId: number,
+    @Param('fieldId/') fieldId: number,
     @Query('date', new ParseDatePipe()) date: Date,
   ) {
     return this.bookingService.getByField(fieldId, date);
+  }
+
+  @ApiOperation({
+    summary: 'Get booking by facility (role: none)',
+  })
+  @Get('facility/:facilityId/')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByFacility(@Param('facilityId') facilityId: UUID) {
+    return this.bookingService.getByFacility(facilityId);
+  }
+
+  @ApiOperation({
+    summary: 'Get booking by owner (role: owner)',
+  })
+  @Get('owner/:ownerId')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public getByOwner(@Param('ownerId') ownerId: UUID) {
+    return this.bookingService.getByOwner(ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get booking by player (role: player)',
+  })
+  @Get('player/:playerId')
+  @AuthRoles(AuthRoleEnum.PLAYER)
+  public getByPlayer(@Param('playerId') playerId: UUID) {
+    return this.bookingService.getByPlayer(playerId);
   }
 }
