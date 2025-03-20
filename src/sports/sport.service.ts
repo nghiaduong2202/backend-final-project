@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProvider } from './providers/create.provider';
 import { CreateSportDto } from './dtos/create-sport.dto';
 import { GetAllProvider } from './providers/get-all.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
 import { Sport } from './sport.entity';
+import { QueryRunner } from 'typeorm';
 
 @Injectable()
 export class SportService {
@@ -32,6 +33,21 @@ export class SportService {
 
   public async getById(sportId: number) {
     return await this.getByIdProvider.getById(sportId);
+  }
+
+  public async getByIdWithTransaction(
+    sportId: number,
+    queryRunner: QueryRunner,
+  ) {
+    const sport = await queryRunner.manager.findOneBy(Sport, {
+      id: sportId,
+    });
+
+    if (!sport) {
+      throw new NotFoundException('Sport not found');
+    }
+
+    return sport;
   }
 
   public async getByManyId(ids: number[]) {

@@ -41,8 +41,7 @@ export class BookingController {
     @Body() createDraftBookingDto: CreateDraftBookingDto,
     @ActivePeople('sub') playerId: UUID,
   ) {
-    console.log(createDraftBookingDto);
-    // return this.bookingService.createDraft(createDraftBookingDto, playerId);
+    return this.bookingService.createDraft(createDraftBookingDto, playerId);
   }
 
   @ApiOperation({

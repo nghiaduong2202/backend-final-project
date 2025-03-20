@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { CreateDraftProvider } from './providers/create-draft.provider';
 import { CreateDraftBookingDto } from './dtos/create-draft-booking.dto';
@@ -14,6 +14,11 @@ import { PaymentDto } from './dtos/payment.dto';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 import { GetByFieldProviders } from './providers/get-by-field.providers';
 import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
+import { isBefore } from 'src/utils/is-before';
+import { QueryRunner } from 'typeorm';
+import { PeopleService } from 'src/people/people.service';
+import { FieldService } from 'src/fields/field.service';
+import { SportService } from 'src/sports/sport.service';
 
 @Injectable()
 export class BookingService {
@@ -22,16 +27,61 @@ export class BookingService {
      * inject transactionManagerProvider
      */
     private readonly transactionManagerProvider: TransactionManagerProvider,
+    /**
+     * inject peopleService
+     */
+    private readonly peopleService: PeopleService,
+    /**
+     * inject fieldService
+     */
+    private readonly fieldService: FieldService,
+    /**
+     * inject sportService
+     */
+    private readonly sportService: SportService,
   ) {}
 
   public async createDraft(
     createDraftBookingDto: CreateDraftBookingDto,
     playerId: UUID,
   ) {
-    // return await this.createDraftProvider.createDraft(
-    //   createDraftBookingDto,
-    //   playerId,
-    // );
+    // check start time before end time
+    isBefore(
+      createDraftBookingDto.startTime,
+      createDraftBookingDto.endTime,
+      'Start time must be before end time',
+    );
+
+    await this.transactionManagerProvider.transaction(
+      async (queryRunner: QueryRunner) => {
+        // get player by id
+        const player = await this.peopleService.getByIdWithTransaction(
+          playerId,
+          queryRunner,
+        );
+
+        // get field by id
+        const field = await this.fieldService.getByIdWithTransaction(
+          createDraftBookingDto.fieldId,
+          queryRunner,
+        );
+
+        // check field includes sport
+        if (
+          !field.fieldGroup.sports.find(
+            (sport) => sport.id === createDraftBookingDto.sportId,
+          )
+        ) {
+          throw new BadRequestException('Field does not include this sport');
+        }
+
+        // check startTime and endTime between openTime and closeTime
+        
+
+        // check not overlap with other booking
+        // create draft booking
+      },
+    );
   }
 
   public async deleteDraft(bookingId: UUID, playerId: UUID) {

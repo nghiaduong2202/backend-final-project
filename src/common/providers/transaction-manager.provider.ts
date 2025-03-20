@@ -11,25 +11,25 @@ export class TransactionManagerProvider {
   ) {}
 
   public async transaction<T>(
-    callback: (querryRunner: QueryRunner) => Promise<T>,
+    callback: (queryRunner: QueryRunner) => Promise<T>,
   ) {
-    const querryRunner = this.dataSource.createQueryRunner();
+    const instanceQueryRuner = this.dataSource.createQueryRunner();
 
-    await querryRunner.connect();
+    await instanceQueryRuner.connect();
 
-    await querryRunner.startTransaction();
+    await instanceQueryRuner.startTransaction();
 
     try {
-      const result = await callback(querryRunner);
+      const result = await callback(instanceQueryRuner);
 
-      await querryRunner.commitTransaction();
+      await instanceQueryRuner.commitTransaction();
 
       return result;
     } catch (error) {
-      await querryRunner.rollbackTransaction();
+      await instanceQueryRuner.rollbackTransaction();
       throw new BadRequestException(String(error));
     } finally {
-      await querryRunner.release();
+      await instanceQueryRuner.release();
     }
   }
 }

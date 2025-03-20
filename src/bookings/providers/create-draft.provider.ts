@@ -84,7 +84,7 @@ export class CreateDraftProvider {
       const sport = await queryRunner.manager.findOneBy(Sport, {
         id: createDraftBookingDto.sportId,
       });
-      
+
       if (!sport) {
         throw new NotFoundException('Sport not found');
       }

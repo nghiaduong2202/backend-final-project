@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateManyProvider } from './providers/create-many.provider';
 import { CreateFieldsDto } from './dtos/create-fields.dto';
 import { UUID } from 'crypto';
@@ -9,6 +9,8 @@ import { UpdateStatusProvider } from './providers/update-status.provider';
 import { FieldStatusEnum } from './enums/field-status.entity';
 import { DeleteProvider } from './providers/delete.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
+import { QueryRunner } from 'typeorm';
+import { Field } from './field.entity';
 
 @Injectable()
 export class FieldService {
@@ -73,5 +75,25 @@ export class FieldService {
 
   public async getById(fieldId: number) {
     return await this.getByIdProvider.getById(fieldId);
+  }
+
+  public async getByIdWithTransaction(
+    fieldId: number,
+    queryRunner: QueryRunner,
+  ) {
+    const field = await queryRunner.manager.findOne(Field, {
+      where: { id: fieldId },
+      relations: {
+        fieldGroup: {
+          sports: true,
+        },
+      },
+    });
+
+    if (!field) {
+      throw new NotFoundException('Field not found');
+    }
+
+    return field;
   }
 }
