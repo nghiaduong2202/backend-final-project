@@ -6,14 +6,8 @@ import { PeopleModule } from 'src/people/people.module';
 import { FacilityService } from './facility.service';
 import { CreateProvider } from './providers/create.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
-import { GetByIdProvider } from './providers/get-by-id.provider';
 import { SportModule } from 'src/sports/sport.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { GetAllProvider } from './providers/get-all.provider';
-import { GetByOwnerProvider } from './providers/get-by-owner.provider';
-import { UpdateImagesProvider } from './providers/update-images.provider';
-import { DeleteImageProviver } from './providers/delete-image.proviver';
-import { UpdateProvider } from './providers/update.provider';
 
 @Module({
   imports: [
@@ -24,16 +18,7 @@ import { UpdateProvider } from './providers/update.provider';
     CloudinaryModule,
   ],
   controllers: [FacilityController],
-  providers: [
-    FacilityService,
-    CreateProvider,
-    GetByIdProvider,
-    GetAllProvider,
-    GetByOwnerProvider,
-    UpdateImagesProvider,
-    DeleteImageProviver,
-    UpdateProvider,
-  ],
+  providers: [FacilityService, CreateProvider],
   exports: [FacilityService],
 })
 export class FacilityModule {}

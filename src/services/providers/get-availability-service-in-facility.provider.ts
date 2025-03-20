@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GetAvailabilityServiceInFacilityDto } from '../dtos/get-availability-service-in-facility.dto';
 import { UUID } from 'crypto';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 import { FacilityService } from 'src/facilities/facility.service';
 import { isBetweenTime } from 'src/utils/is-between-time';
 import { Service } from '../service.entiry';

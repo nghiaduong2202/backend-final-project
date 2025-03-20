@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProvider } from './providers/create.provider';
 import { RegisterDto } from 'src/auths/dtos/register.dto';
 import { GetAllProvider } from './providers/get-all.provider';
@@ -6,6 +6,8 @@ import { GetByEmailProvider } from './providers/get-by-email.provider';
 import { GetByIdProvider } from './providers/get-by-id.provider';
 import { UUID } from 'crypto';
 import { UpdateAvatarProvider } from './providers/update-avatar.provider';
+import { QueryRunner } from 'typeorm';
+import { People } from './people.entity';
 
 @Injectable()
 export class PeopleService {
@@ -46,6 +48,21 @@ export class PeopleService {
 
   public async getById(peopleId: UUID) {
     return await this.getByIdProvider.getById(peopleId);
+  }
+
+  public async getByIdWithTransaction(
+    peopleId: UUID,
+    queryRunner: QueryRunner,
+  ) {
+    const people = await queryRunner.manager.findOneBy(People, {
+      id: peopleId,
+    });
+
+    if (!people) {
+      throw new NotFoundException('People not found');
+    }
+
+    return people;
   }
 
   public async updateAvatar(image: Express.Multer.File, peopleId: UUID) {

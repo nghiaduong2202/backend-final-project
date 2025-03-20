@@ -3,13 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HashProvider } from './providers/hash.provider';
 import { BcryptProvider } from './providers/bcrypt.provider';
-import { LoginProvider } from './providers/login.provider';
 import { PeopleModule } from 'src/people/people.module';
-import { RegisterProvider } from './providers/register.provider';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GenerateTokenProvider } from './providers/generate-token.provider';
-import { RefreshTokenProvider } from './providers/refresh-token.provider';
+import { TokenProvider } from './providers/token.provider';
 
 @Module({
   imports: [
@@ -35,10 +32,7 @@ import { RefreshTokenProvider } from './providers/refresh-token.provider';
       provide: HashProvider,
       useClass: BcryptProvider,
     },
-    LoginProvider,
-    RegisterProvider,
-    GenerateTokenProvider,
-    RefreshTokenProvider,
+    TokenProvider,
   ],
   exports: [AuthService],
 })

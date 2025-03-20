@@ -23,7 +23,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateFacilityInterceptor } from './interceptors/create-facility.interceptor';
 import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
-import { DeleteImageDto } from './dtos/delete-image.dto';
+import { DeleteImagesDto } from './dtos/delete-images.dto';
 import { UpdateFacilityDto } from './dtos/update-facility.dto';
 
 @Controller('facility')
@@ -102,12 +102,12 @@ export class FacilityController {
   @Delete(':facilityId/delete-image')
   @AuthRoles(AuthRoleEnum.OWNER)
   public deleteImage(
-    @Body() deleteImageDto: DeleteImageDto,
+    @Body() deleteImagesDto: DeleteImagesDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
     @ActivePeople('sub') ownerId: UUID,
   ) {
-    return this.facilityService.deleteImage(
-      deleteImageDto,
+    return this.facilityService.deleteImages(
+      deleteImagesDto,
       facilityId,
       ownerId,
     );

@@ -13,60 +13,33 @@ import { Request } from 'express';
 import { PaymentDto } from './dtos/payment.dto';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 import { GetByFieldProviders } from './providers/get-by-field.providers';
+import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
 
 @Injectable()
 export class BookingService {
   constructor(
     /**
-     * inject create draft provider
+     * inject transactionManagerProvider
      */
-    private readonly createDraftProvider: CreateDraftProvider,
-    /**
-     * delete draft provider
-     */
-    private readonly deleteDraftProvider: DeleteDraftProvider,
-    /**
-     * inject get by id provider
-     */
-    private readonly getByIdProvider: GetByIdProvider,
-    /**
-     * inject update field provider
-     */
-    private readonly updateFieldProvider: UpdateFieldProvider,
-    /**
-     * inject update service provider
-     */
-    private readonly updateServiceProvider: UpdateServiceProvider,
-    /**
-     * inject payment provider
-     */
-    private readonly paymentProvider: PaymentProvider,
-    /**
-     * inject vnpay inp provider
-     */
-    private readonly vnpayIpnProvider: VnpayIpnProvider,
-    /**
-     * inject get by field provider
-     */
-    private readonly getByFieldProvider: GetByFieldProviders,
+    private readonly transactionManagerProvider: TransactionManagerProvider,
   ) {}
 
   public async createDraft(
     createDraftBookingDto: CreateDraftBookingDto,
     playerId: UUID,
   ) {
-    return await this.createDraftProvider.createDraft(
-      createDraftBookingDto,
-      playerId,
-    );
+    // return await this.createDraftProvider.createDraft(
+    //   createDraftBookingDto,
+    //   playerId,
+    // );
   }
 
   public async deleteDraft(bookingId: UUID, playerId: UUID) {
-    return await this.deleteDraftProvider.deleteDraft(bookingId, playerId);
+    // return await this.deleteDraftProvider.deleteDraft(bookingId, playerId);
   }
 
   public async getById(bookingId: UUID) {
-    return await this.getByIdProvider.getById(bookingId);
+    // return await this.getByIdProvider.getById(bookingId);
   }
 
   public async updateField(
@@ -74,11 +47,11 @@ export class BookingService {
     bookingId: UUID,
     playerId: UUID,
   ) {
-    return await this.updateFieldProvider.updateField(
-      updateFieldBookingDto,
-      bookingId,
-      playerId,
-    );
+    // return await this.updateFieldProvider.updateField(
+    //   updateFieldBookingDto,
+    //   bookingId,
+    //   playerId,
+    // );
   }
 
   public async updateService(
@@ -86,11 +59,11 @@ export class BookingService {
     bookingId: UUID,
     playerId: UUID,
   ) {
-    return await this.updateServiceProvider.updateService(
-      updateServiceBookingDto,
-      bookingId,
-      playerId,
-    );
+    // return await this.updateServiceProvider.updateService(
+    //   updateServiceBookingDto,
+    //   bookingId,
+    //   playerId,
+    // );
   }
 
   public async payment(
@@ -99,19 +72,19 @@ export class BookingService {
     playerId: UUID,
     req: Request,
   ) {
-    return await this.paymentProvider.payment(
-      paymentDto,
-      bookingId,
-      playerId,
-      req,
-    );
+    // return await this.paymentProvider.payment(
+    //   paymentDto,
+    //   bookingId,
+    //   playerId,
+    //   req,
+    // );
   }
 
   public async vnpayIpn(req: Request) {
-    return await this.vnpayIpnProvider.vnpayIpn(req);
+    // return await this.vnpayIpnProvider.vnpayIpn(req);
   }
 
   public async getByField(fieldId: number, date: Date) {
-    return await this.getByFieldProvider.getByField(fieldId, date);
+    // return await this.getByFieldProvider.getByField(fieldId, date);
   }
 }

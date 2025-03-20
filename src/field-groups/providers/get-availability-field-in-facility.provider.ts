@@ -11,7 +11,7 @@ import { FieldGroup } from '../field-group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FacilityService } from 'src/facilities/facility.service';
 import { isBetweenTime } from 'src/utils/is-between-time';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 import { durationOverlapTime } from 'src/utils/duration-overlap-time';
 import { BookingStatusEnum } from 'src/bookings/enums/booking-status.enum';
 

@@ -10,7 +10,7 @@ import { UUID } from 'crypto';
 import { FacilityService } from 'src/facilities/facility.service';
 import { Field } from 'src/fields/field.entity';
 import { SportService } from 'src/sports/sport.service';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 
 @Injectable()
 export class CreateManyProvider {

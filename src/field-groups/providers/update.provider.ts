@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { UpdateFieldGroupDto } from '../dtos/update-field-group.dto';
 import { UUID } from 'crypto';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 import { Repository } from 'typeorm';
 import { FieldGroup } from '../field-group.entity';
 import { InjectRepository } from '@nestjs/typeorm';

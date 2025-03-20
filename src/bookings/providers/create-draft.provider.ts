@@ -15,7 +15,7 @@ import {
 } from 'typeorm';
 import { Booking } from '../booking.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 import { People } from 'src/people/people.entity';
 import { Field } from 'src/fields/field.entity';
 import { Sport } from 'src/sports/sport.entity';
@@ -84,6 +84,7 @@ export class CreateDraftProvider {
       const sport = await queryRunner.manager.findOneBy(Sport, {
         id: createDraftBookingDto.sportId,
       });
+      
       if (!sport) {
         throw new NotFoundException('Sport not found');
       }

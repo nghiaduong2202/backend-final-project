@@ -10,7 +10,7 @@ import { CreateFieldGroupDto } from 'src/field-groups/dtos/create-field-group.dt
 import { CreateFieldDto } from 'src/fields/dtos/create-field.dto';
 import { SportService } from 'src/sports/sport.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { isBefore } from 'src/utils/isBefore';
+import { isBefore } from 'src/utils/is-before';
 
 @Injectable()
 export class CreateProvider {
