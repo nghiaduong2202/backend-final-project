@@ -1,53 +1,69 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProvider } from './providers/create.provider';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { RegisterDto } from 'src/auths/dtos/register.dto';
-import { GetAllProvider } from './providers/get-all.provider';
-import { GetByEmailProvider } from './providers/get-by-email.provider';
-import { GetByIdProvider } from './providers/get-by-id.provider';
 import { UUID } from 'crypto';
-import { UpdateAvatarProvider } from './providers/update-avatar.provider';
-import { QueryRunner } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { People } from './people.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PeopleRoleEnum } from './enums/people-role.enum';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class PeopleService {
   constructor(
     /**
-     * Inject createUserProvider
+     * inject peopleRepository
      */
-    private readonly createProvider: CreateProvider,
+    @InjectRepository(People)
+    private readonly peopleRepository: Repository<People>,
     /**
-     * Inject getAllPeopleProvider
+     * inject cloudinaryService
      */
-    private readonly getAllProvider: GetAllProvider,
-    /**
-     * Inject getPeopleByEmailProvider
-     */
-    private readonly getByEmailProvider: GetByEmailProvider,
-    /**
-     * inject get people by id provider
-     */
-    private readonly getByIdProvider: GetByIdProvider,
-    /**
-     * inject update avatar provider
-     */
-    private readonly updateAvatarProvider: UpdateAvatarProvider,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   public async create(registerDto: RegisterDto) {
-    return await this.createProvider.create(registerDto);
+    if (registerDto.role === PeopleRoleEnum.ADMIN) {
+      throw new NotFoundException(
+        'You do not have permission to register admin account',
+      );
+    }
+
+    try {
+      const people = this.peopleRepository.create(registerDto);
+      console.log('🚀 ~ PeopleService ~ create ~ people:', people);
+
+      return await this.peopleRepository.save(people);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
   }
 
   public async getAll() {
-    return await this.getAllProvider.getAll();
+    return await this.peopleRepository.find();
   }
 
   public async getByEmail(email: string) {
-    return await this.getByEmailProvider.getByEmail(email);
+    const people = await this.peopleRepository.findOneBy({ email });
+
+    if (!people) {
+      throw new NotFoundException('User not found');
+    }
+
+    return people;
   }
 
   public async getById(peopleId: UUID) {
-    return await this.getByIdProvider.getById(peopleId);
+    const people = await this.peopleRepository.findOneBy({ id: peopleId });
+
+    if (!people) {
+      throw new NotFoundException('People not found');
+    }
+
+    return people;
   }
 
   public async getByIdWithTransaction(
@@ -66,6 +82,23 @@ export class PeopleService {
   }
 
   public async updateAvatar(image: Express.Multer.File, peopleId: UUID) {
-    return await this.updateAvatarProvider.updateAvatar(image, peopleId);
+    const people = await this.getById(peopleId);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { secure_url } = await this.cloudinaryService.uploadImage(image);
+
+    if (secure_url === null)
+      throw new BadRequestException('Avatar not uploaded');
+
+    try {
+      people.avatarUrl = String(secure_url);
+      await this.peopleRepository.save(people);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Avatar updated successfully',
+    };
   }
 }

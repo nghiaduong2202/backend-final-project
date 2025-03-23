@@ -1,38 +1,53 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProvider } from './providers/create.provider';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSportDto } from './dtos/create-sport.dto';
-import { GetAllProvider } from './providers/get-all.provider';
-import { GetByIdProvider } from './providers/get-by-id.provider';
 import { Sport } from './sport.entity';
-import { QueryRunner } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SportService {
   constructor(
     /**
-     * inject create provider
+     * inject sportRepository
      */
-    private readonly createProvider: CreateProvider,
-    /**
-     * inject get all provider
-     */
-    private readonly getAllProvider: GetAllProvider,
-    /**
-     * inject get by ids provider
-     */
-    private readonly getByIdProvider: GetByIdProvider,
+    @InjectRepository(Sport)
+    private readonly sportRepository: Repository<Sport>,
   ) {}
 
   public async create(createSportDto: CreateSportDto) {
-    return await this.createProvider.create(createSportDto);
+    try {
+      const sport = this.sportRepository.create(createSportDto);
+
+      return await this.sportRepository.save(sport);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
   }
 
   public async getAll() {
-    return await this.getAllProvider.getAll();
+    return await this.sportRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
   }
 
   public async getById(sportId: number) {
-    return await this.getByIdProvider.getById(sportId);
+    const sport = await this.sportRepository.findOne({
+      where: {
+        id: sportId,
+      },
+    });
+
+    if (!sport) {
+      throw new NotFoundException('Sport not found');
+    }
+
+    return sport;
   }
 
   public async getByIdWithTransaction(
@@ -54,7 +69,7 @@ export class SportService {
     const sports: Sport[] = [];
 
     for (const id of ids) {
-      const sport = await this.getByIdProvider.getById(id);
+      const sport = await this.getById(id);
 
       sports.push(sport);
     }

@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -9,11 +11,13 @@ import { CreateFacilityDto } from './dtos/create-facility.dto';
 import { DeleteImagesDto } from './dtos/delete-images.dto';
 import { UpdateFacilityDto } from './dtos/update-facility.dto';
 import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { Facility } from './facility.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { isBefore } from 'src/utils/is-before';
+import { isBefore } from 'src/common/utils/is-before';
+import { PeopleService } from 'src/people/people.service';
+import { FieldGroupService } from 'src/field-groups/field-group.service';
 
 @Injectable()
 export class FacilityService {
@@ -31,7 +35,31 @@ export class FacilityService {
      * inject cloudinaryService
      */
     private readonly cloudinaryService: CloudinaryService,
+    /**
+     * inject peopleService
+     */
+    private readonly peopleService: PeopleService,
+    /**
+     * inject fieldGroupService
+     */
+    @Inject(forwardRef(() => FieldGroupService))
+    private readonly fieldGroupService: FieldGroupService,
   ) {}
+
+  public async findOne(facilityId: UUID, relations?: string[]) {
+    const facility = await this.facilityRepository.findOne({
+      where: {
+        id: facilityId,
+      },
+      relations: relations,
+    });
+
+    if (!facility) {
+      throw new NotFoundException('Facility not found');
+    }
+
+    return facility;
+  }
 
   public async getById(facilityId: UUID) {
     // get facility
@@ -72,8 +100,47 @@ export class FacilityService {
     ownerId: UUID,
   ) {
     // check open time is before close time
-    // create new facility
-    // create many field group
+    isBefore(
+      createFacilityDto.openTime,
+      createFacilityDto.closeTime,
+      'Open time must be before close time',
+    );
+
+    // upload image to cloudinary
+    const imagesUrl: string[] = [];
+    for (const image of images) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { secure_url } = await this.cloudinaryService.uploadImage(image);
+      imagesUrl.push(String(secure_url));
+    }
+
+    await this.transactionManagerProvider.transaction(
+      async (queryRunner: QueryRunner) => {
+        // get owner by id
+        const owner = await this.peopleService.getByIdWithTransaction(
+          ownerId,
+          queryRunner,
+        );
+
+        // create new facility
+        const facility = queryRunner.manager.create(Facility, {
+          ...createFacilityDto,
+          imagesUrl,
+          owner,
+        });
+
+        await queryRunner.manager.save(facility);
+
+        // create many field group
+        for (const fieldGroupData of createFacilityDto.fieldGroupsData) {
+          await this.fieldGroupService.createWithTransaction(
+            fieldGroupData,
+            facility,
+            queryRunner,
+          );
+        }
+      },
+    );
 
     return {
       message: 'Facility created successfully',
@@ -198,7 +265,11 @@ export class FacilityService {
       facility.description = updateFacilityDto.description;
 
     if (updateFacilityDto.openTime && updateFacilityDto.closeTime) {
-      isBefore(updateFacilityDto.openTime, updateFacilityDto.closeTime);
+      isBefore(
+        updateFacilityDto.openTime,
+        updateFacilityDto.closeTime,
+        'Open time must be before close time',
+      );
 
       facility.openTime = updateFacilityDto.openTime;
       facility.closeTime = updateFacilityDto.closeTime;

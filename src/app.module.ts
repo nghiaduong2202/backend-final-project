@@ -40,6 +40,7 @@ import { CommonModule } from './common/common.module';
         password: configService.get<string>('DATABASE_PASSWORD'),
         host: configService.get<string>('DATABASE_HOST'),
         database: configService.get<string>('DATABASE_NAME'),
+        // logging: true,
         // ssl: {
         //   rejectUnauthorized: true,
         //   ca: fs.readFileSync('./ca.pem').toString(),

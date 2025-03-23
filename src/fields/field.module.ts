@@ -3,29 +3,17 @@ import { FieldController } from './field.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Field } from './field.entity';
 import { FieldService } from './field.service';
-import { CreateManyProvider } from './providers/create-many.provider';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
-import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider';
-import { UpdateProvider } from './providers/update.provider';
-import { UpdateStatusProvider } from './providers/update-status.provider';
-import { DeleteProvider } from './providers/delete.provider';
-import { GetByIdProvider } from './providers/get-by-id.provider';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Field]),
     forwardRef(() => FieldGroupModule),
+    CommonModule,
   ],
   controllers: [FieldController],
-  providers: [
-    FieldService,
-    CreateManyProvider,
-    GetByFieldGroupProvider,
-    UpdateProvider,
-    UpdateStatusProvider,
-    DeleteProvider,
-    GetByIdProvider,
-  ],
+  providers: [FieldService],
   exports: [FieldService],
 })
 export class FieldModule {}

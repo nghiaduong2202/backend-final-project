@@ -115,4 +115,31 @@ export class BookingController {
   ) {
     return this.bookingService.getByField(fieldId, date);
   }
+
+  @ApiOperation({
+    summary: 'Get booking by player (role: player)',
+  })
+  @Get('player/:playerId/')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByPlayer(@Param('playerId', ParseUUIDPipe) playerId: UUID) {
+    return this.bookingService.getByPlayer(playerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get booking by owner (role: owner)',
+  })
+  @Get('owner/:ownerId/')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByOwner(@Param('ownerId', ParseUUIDPipe) ownerId: UUID) {
+    return this.bookingService.getByOwner(ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get booking by facility (role: owner)',
+  })
+  @Get('facility/:facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByFacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.bookingService.getByFacility(facilityId);
+  }
 }
