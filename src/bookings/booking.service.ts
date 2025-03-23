@@ -600,4 +600,62 @@ export class BookingService {
       },
     });
   }
+
+  public async getByFacility(facilityId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        field: {
+          fieldGroup: {
+            facility: {
+              id: facilityId,
+            },
+          },
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
+  }
+
+  public async getByOwner(ownerId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        field: {
+          fieldGroup: {
+            facility: {
+              owner: {
+                id: ownerId,
+              },
+            },
+          },
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
+  }
+
+  public async getByPlayer(playerId: UUID) {
+    return await this.bookingRepository.find({
+      where: {
+        player: {
+          id: playerId,
+        },
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+      relations: {
+        sport: true,
+      },
+    });
+  }
 }

@@ -107,10 +107,10 @@ export class BookingController {
     return this.bookingService.vnpayIpn(req);
   }
 
-  @Get(':fieldId/')
+  @Get('field/:fieldId')
   @AuthRoles(AuthRoleEnum.NONE)
   public getByField(
-    @Param('fieldId') fieldId: number,
+    @Param('fieldId/') fieldId: number,
     @Query('date', new ParseDatePipe()) date: Date,
   ) {
     return this.bookingService.getByField(fieldId, date);
