@@ -1,51 +1,97 @@
-import { Injectable } from '@nestjs/common';
-import { GetByIdProvider } from './providers/get-by-id.provider';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UUID } from 'crypto';
-import { CreateProvider } from './providers/create.provider';
 import { CreateFacilityDto } from './dtos/create-facility.dto';
-import { GetAllProvider } from './providers/get-all.provider';
-import { GetByOwnerProvider } from './providers/get-by-owner.provider';
-import { UpdateImagesProvider } from './providers/update-images.provider';
-import { DeleteImageProviver } from './providers/delete-image.proviver';
-import { DeleteImageDto } from './dtos/delete-image.dto';
-import { UpdateProvider } from './providers/update.provider';
+import { DeleteImagesDto } from './dtos/delete-images.dto';
 import { UpdateFacilityDto } from './dtos/update-facility.dto';
+import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
+import { QueryRunner, Repository } from 'typeorm';
+import { Facility } from './facility.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { isBefore } from 'src/common/utils/is-before';
+import { PeopleService } from 'src/people/people.service';
+import { FieldGroupService } from 'src/field-groups/field-group.service';
 
 @Injectable()
 export class FacilityService {
   constructor(
     /**
-     * inject get by id provider
+     * inject transactionManagerProvider
      */
-    private readonly getByIdProvider: GetByIdProvider,
+    private readonly transactionManagerProvider: TransactionManagerProvider,
     /**
-     * inject create provider
+     * inject facilityRepository
      */
-    private readonly createProvider: CreateProvider,
+    @InjectRepository(Facility)
+    private readonly facilityRepository: Repository<Facility>,
     /**
-     * inject get all provider
+     * inject cloudinaryService
      */
-    private readonly getAllProvider: GetAllProvider,
+    private readonly cloudinaryService: CloudinaryService,
     /**
-     * inject get by owner provider
+     * inject peopleService
      */
-    private readonly getByOwnerProvider: GetByOwnerProvider,
+    private readonly peopleService: PeopleService,
     /**
-     * inject update images provider
+     * inject fieldGroupService
      */
-    private readonly updateImagesProvider: UpdateImagesProvider,
-    /**
-     * inject delete image provider
-     */
-    private readonly deleteImageProvider: DeleteImageProviver,
-    /**
-     * inject update provider
-     */
-    private readonly updateProvider: UpdateProvider,
+    @Inject(forwardRef(() => FieldGroupService))
+    private readonly fieldGroupService: FieldGroupService,
   ) {}
 
+  public async findOne(facilityId: UUID, relations?: string[]) {
+    const facility = await this.facilityRepository.findOne({
+      where: {
+        id: facilityId,
+      },
+      relations: relations,
+    });
+
+    if (!facility) {
+      throw new NotFoundException('Facility not found');
+    }
+
+    return facility;
+  }
+
   public async getById(facilityId: UUID) {
-    return await this.getByIdProvider.getById(facilityId);
+    // get facility
+    const facility = await this.facilityRepository.findOne({
+      where: {
+        id: facilityId,
+      },
+      relations: {
+        owner: true,
+        fieldGroups: {
+          sports: true,
+        },
+      },
+    });
+
+    // check exist
+    if (!facility) {
+      throw new NotFoundException('Facility not found');
+    }
+
+    const { fieldGroups, ...rest } = facility;
+
+    return {
+      ...rest,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    };
   }
 
   public async create(
@@ -53,15 +99,90 @@ export class FacilityService {
     images: Express.Multer.File[],
     ownerId: UUID,
   ) {
-    return await this.createProvider.create(createFacilityDto, images, ownerId);
+    // check open time is before close time
+    isBefore(
+      createFacilityDto.openTime,
+      createFacilityDto.closeTime,
+      'Open time must be before close time',
+    );
+
+    // upload image to cloudinary
+    const imagesUrl: string[] = [];
+    for (const image of images) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { secure_url } = await this.cloudinaryService.uploadImage(image);
+      imagesUrl.push(String(secure_url));
+    }
+
+    await this.transactionManagerProvider.transaction(
+      async (queryRunner: QueryRunner) => {
+        // get owner by id
+        const owner = await this.peopleService.getByIdWithTransaction(
+          ownerId,
+          queryRunner,
+        );
+
+        // create new facility
+        const facility = queryRunner.manager.create(Facility, {
+          ...createFacilityDto,
+          imagesUrl,
+          owner,
+        });
+
+        await queryRunner.manager.save(facility);
+
+        // create many field group
+        for (const fieldGroupData of createFacilityDto.fieldGroupsData) {
+          await this.fieldGroupService.createWithTransaction(
+            fieldGroupData,
+            facility,
+            queryRunner,
+          );
+        }
+      },
+    );
+
+    return {
+      message: 'Facility created successfully',
+    };
   }
 
   public async getAll() {
-    return await this.getAllProvider.getAll();
+    // get all facilities
+    const facilities = await this.facilityRepository.find({
+      relations: {
+        owner: true,
+        fieldGroups: {
+          sports: true,
+        },
+      },
+    });
+
+    // return
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    }));
   }
 
   public async getByOwner(ownerId: UUID) {
-    return await this.getByOwnerProvider.getByOwner(ownerId);
+    // get facility by owner id
+    const facilities = await this.facilityRepository.find({
+      where: {
+        owner: {
+          id: ownerId,
+        },
+      },
+    });
+
+    // return
+    return facilities;
   }
 
   public async updateImages(
@@ -69,23 +190,57 @@ export class FacilityService {
     facilityId: UUID,
     ownerId: UUID,
   ) {
-    return await this.updateImagesProvider.updateImages(
-      images,
-      facilityId,
-      ownerId,
-    );
+    // get facility by id
+    const faclity = await this.getById(facilityId);
+    // check owner have permission to update image into this facility
+    if (faclity.owner.id !== ownerId) {
+      throw new NotAcceptableException('You do not have permission to update');
+    }
+    // update images
+    try {
+      for (const image of images) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const { secure_url } = await this.cloudinaryService.uploadImage(image);
+
+        faclity.imagesUrl?.push(String(secure_url));
+      }
+
+      await this.facilityRepository.save(faclity);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+    return {
+      message: 'Images updated successfully',
+    };
   }
 
-  public async deleteImage(
-    deleteImageDto: DeleteImageDto,
+  public async deleteImages(
+    deleteImagesDto: DeleteImagesDto,
     facilityId: UUID,
     ownerId: UUID,
   ) {
-    return await this.deleteImageProvider.deleteImage(
-      deleteImageDto,
-      facilityId,
-      ownerId,
+    // get facility by id
+    const facility = await this.getById(facilityId);
+
+    // check owner have permission to delete this image
+    if (facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to delete this image',
+      );
+    }
+
+    // delete image from cloudinary, implement later
+
+    // delete image from facility
+    facility.imagesUrl = facility.imagesUrl?.filter(
+      (image) => !deleteImagesDto.images.includes(image),
     );
+
+    await this.facilityRepository.save(facility);
+
+    return {
+      message: 'Image deleted successfully',
+    };
   }
 
   public async update(
@@ -93,10 +248,44 @@ export class FacilityService {
     facilityId: UUID,
     ownerId: UUID,
   ) {
-    return await this.updateProvider.update(
-      updateFacilityDto,
-      facilityId,
-      ownerId,
-    );
+    // get facility by id
+    const facility = await this.getById(facilityId);
+
+    // check owner have permission to update this facility
+    if (facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to update this facility',
+      );
+    }
+
+    // update facility
+    if (updateFacilityDto.name) facility.name = updateFacilityDto.name;
+
+    if (updateFacilityDto.description)
+      facility.description = updateFacilityDto.description;
+
+    if (updateFacilityDto.openTime && updateFacilityDto.closeTime) {
+      isBefore(
+        updateFacilityDto.openTime,
+        updateFacilityDto.closeTime,
+        'Open time must be before close time',
+      );
+
+      facility.openTime = updateFacilityDto.openTime;
+      facility.closeTime = updateFacilityDto.closeTime;
+    }
+
+    if (updateFacilityDto.location)
+      facility.location = updateFacilityDto.location;
+
+    try {
+      await this.facilityRepository.save(facility);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Facility updated successfully',
+    };
   }
 }

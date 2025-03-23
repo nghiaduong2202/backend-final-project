@@ -1,41 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProvider } from './providers/create.provider';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateVoucherDto } from './dtos/create-voucher.dto';
 import { UUID } from 'crypto';
-import { DeleteProvider } from './providers/delete.provider';
-import { GetByFacilityProvider } from './providers/get-by-facility.provider';
-import { UpdateProvider } from './providers/update.provider';
 import { UpdateVoucherDto } from './dtos/update-voucher.dto';
-import { GetByIdProvider } from './providers/get-by-id.provider';
-import { GetAllByFacilityProvider } from './providers/get-all-by-facility.provider';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Voucher } from './voucher.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FacilityService } from 'src/facilities/facility.service';
+import { VoucherTypeEnum } from './enums/voucher-type.enum';
 
 @Injectable()
 export class VoucherService {
   constructor(
     /**
-     * inject create provider
+     * inject voucherRepository
      */
-    private readonly createProvider: CreateProvider,
+    @InjectRepository(Voucher)
+    private readonly voucherRepository: Repository<Voucher>,
     /**
-     * inject delete provider
+     * inject facilityService
      */
-    private readonly deleteProvider: DeleteProvider,
-    /**
-     * inject get by facility provider
-     */
-    private readonly getByFacilityProvider: GetByFacilityProvider,
-    /**
-     * inject update provider
-     */
-    private readonly updateProvider: UpdateProvider,
-    /**
-     * inject get by id provider
-     */
-    private readonly getByIdProvider: GetByIdProvider,
-    /**
-     * inject get all by facility provider
-     */
-    private readonly getAllByFacilityProvider: GetAllByFacilityProvider,
+    private readonly facilityService: FacilityService,
   ) {}
 
   public async create(
@@ -43,30 +32,165 @@ export class VoucherService {
     facilityId: UUID,
     ownerId: UUID,
   ) {
-    return await this.createProvider.create(
-      createVoucherDto,
-      facilityId,
-      ownerId,
-    );
+    if (
+      createVoucherDto.voucherType === VoucherTypeEnum.PERCENT &&
+      createVoucherDto.discount > 100
+    ) {
+      throw new BadRequestException('Discount must be less than 100');
+    }
+
+    if (createVoucherDto.startDate > createVoucherDto.endDate) {
+      throw new BadRequestException('Start date must be before end date');
+    }
+
+    if (
+      createVoucherDto.voucherType === VoucherTypeEnum.CASH &&
+      createVoucherDto.discount !== createVoucherDto.maxDiscount
+    ) {
+      throw new BadRequestException('Max discount must be equal to discount');
+    }
+
+    // get facility
+    const facility = await this.facilityService.findOne(facilityId, ['owner']);
+
+    // check permission
+    if (facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to create new voucher in this facility',
+      );
+    }
+
+    try {
+      const voucher = this.voucherRepository.create({
+        ...createVoucherDto,
+        facility,
+        remain: createVoucherDto.amount,
+      });
+
+      await this.voucherRepository.save(voucher);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Create voucher successfully',
+    };
+  }
+
+  public async findOne(voucherId: number, relations?: string[]) {
+    const voucher = await this.voucherRepository.findOne({
+      where: {
+        id: voucherId,
+      },
+      relations: relations,
+    });
+
+    if (!voucher) {
+      throw new NotFoundException('Voucher not found');
+    }
+
+    return voucher;
   }
 
   public async delete(voucherId: number, ownerId: UUID) {
-    return await this.deleteProvider.delete(voucherId, ownerId);
+    // find one voucher by id
+    const voucher = await this.findOne(voucherId, ['facility.owner']);
+
+    // check permission
+    if (voucher.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to delete this voucher',
+      );
+    }
+
+    //delte voucher
+    try {
+      await this.voucherRepository.delete(voucher);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Delete voucher successfully',
+    };
   }
 
   public async getByFacility(facilityId: UUID) {
-    return await this.getByFacilityProvider.getByFacility(facilityId);
+    const today = new Date();
+
+    const vouchers = await this.voucherRepository.find({
+      where: {
+        facility: {
+          id: facilityId,
+        },
+        startDate: LessThanOrEqual(today),
+        endDate: MoreThanOrEqual(today),
+      },
+    });
+
+    return vouchers;
   }
 
   public async update(updateVoucherDto: UpdateVoucherDto, ownerId: UUID) {
-    return await this.updateProvider.update(updateVoucherDto, ownerId);
+    // find one voucher by id
+    const voucher = await this.findOne(updateVoucherDto.id, ['facility.owner']);
+
+    // check permission
+    if (voucher.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to update this voucher',
+      );
+    }
+
+    // update voucher
+    try {
+      if (updateVoucherDto.name) voucher.name = updateVoucherDto.name;
+
+      if (updateVoucherDto.voucherType)
+        voucher.voucherType = updateVoucherDto.voucherType;
+
+      if (updateVoucherDto.amount) {
+        const remain =
+          voucher.remain + updateVoucherDto.amount - voucher.amount;
+        voucher.amount = updateVoucherDto.amount;
+        voucher.remain = remain;
+      }
+
+      if (updateVoucherDto.startDate)
+        voucher.startDate = updateVoucherDto.startDate;
+      if (updateVoucherDto.endDate) voucher.endDate = updateVoucherDto.endDate;
+      if (updateVoucherDto.discount)
+        voucher.discount = updateVoucherDto.discount;
+      if (updateVoucherDto.minPrice)
+        voucher.minPrice = updateVoucherDto.minPrice;
+      if (updateVoucherDto.maxDiscount)
+        voucher.maxDiscount = updateVoucherDto.maxDiscount;
+
+      await this.voucherRepository.save(voucher);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Update voucher successfully',
+    };
   }
 
   public async getById(voucherId: number) {
-    return await this.getByIdProvider.getById(voucherId);
+    const voucher = await this.findOne(voucherId, ['facility']);
+
+    return voucher;
   }
 
   public async getAllByFacility(facilityId: UUID) {
-    return await this.getAllByFacilityProvider.getAllByfacility(facilityId);
+    const vouchers = await this.voucherRepository.find({
+      where: {
+        facility: {
+          id: facilityId,
+        },
+      },
+    });
+
+    return vouchers;
   }
 }

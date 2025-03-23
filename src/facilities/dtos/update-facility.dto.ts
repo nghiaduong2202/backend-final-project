@@ -4,6 +4,7 @@ import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 export class UpdateFacilityDto {
   @ApiProperty({
     type: 'string',
+    required: false,
     example: 'Facility name',
   })
   @IsString()

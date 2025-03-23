@@ -20,6 +20,7 @@ import { VoucherModule } from './vouchers/voucher.module';
 import { ServiceModule } from './services/service.module';
 import { BookingModule } from './bookings/booking.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CommonModule } from './common/common.module';
 // import * as fs from 'fs';
 
 @Module({
@@ -39,6 +40,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         password: configService.get<string>('DATABASE_PASSWORD'),
         host: configService.get<string>('DATABASE_HOST'),
         database: configService.get<string>('DATABASE_NAME'),
+        // logging: true,
         // ssl: {
         //   rejectUnauthorized: true,
         //   ca: fs.readFileSync('./ca.pem').toString(),
@@ -57,6 +59,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ServiceModule,
     BookingModule,
     ScheduleModule.forRoot(),
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [

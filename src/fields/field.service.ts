@@ -1,58 +1,105 @@
-import { Injectable } from '@nestjs/common';
-import { CreateManyProvider } from './providers/create-many.provider';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateFieldsDto } from './dtos/create-fields.dto';
 import { UUID } from 'crypto';
-import { GetByFieldGroupProvider } from './providers/get-by-field-group.provider';
-import { UpdateProvider } from './providers/update.provider';
 import { UpdateFieldDto } from './dtos/update-field.dto';
-import { UpdateStatusProvider } from './providers/update-status.provider';
-import { FieldStatusEnum } from './enums/field-status.entity';
-import { DeleteProvider } from './providers/delete.provider';
-import { GetByIdProvider } from './providers/get-by-id.provider';
+import { QueryRunner, Repository } from 'typeorm';
+import { Field } from './field.entity';
+import { FieldGroup } from 'src/field-groups/field-group.entity';
+import { FieldGroupService } from 'src/field-groups/field-group.service';
+import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
+import { CreateFieldDto } from './dtos/create-field.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class FieldService {
   constructor(
     /**
-     * inject create fields provider
+     * inject fieldGroupService
      */
-    private readonly createManyProvider: CreateManyProvider,
+    @Inject(forwardRef(() => FieldGroupService))
+    private readonly fieldGroupService: FieldGroupService,
     /**
-     * inject get by field group provider
+     * inject transactionManagerProvider
      */
-    private readonly getByFieldGroupProvider: GetByFieldGroupProvider,
+    private readonly transactionManagerProvider: TransactionManagerProvider,
     /**
-     * inject update provider
+     * inject fieldRepository
      */
-    private readonly updateProvider: UpdateProvider,
-    /**
-     * inject update status provider
-     */
-    private readonly updateStatusProvider: UpdateStatusProvider,
-    /**
-     * inject delete provider
-     */
-    private readonly deleteProvider: DeleteProvider,
-    /**
-     * inject get by id provider
-     */
-    private readonly getByIdProvider: GetByIdProvider,
+    @InjectRepository(Field)
+    private readonly fieldRepository: Repository<Field>,
   ) {}
+
+  public async findOne(fieldId: number, relations?: string[]) {
+    const field = await this.fieldRepository.findOne({
+      where: {
+        id: fieldId,
+      },
+      relations: relations,
+    });
+
+    if (!field) {
+      throw new NotFoundException('Field not found');
+    }
+
+    return field;
+  }
 
   public async createMany(
     createFieldsDto: CreateFieldsDto,
     fieldGroupId: UUID,
     ownerId: UUID,
   ) {
-    return await this.createManyProvider.createMany(
-      createFieldsDto,
-      fieldGroupId,
-      ownerId,
+    // get fieldGroup by id
+    const fieldGroup = await this.fieldGroupService.getById(fieldGroupId);
+
+    // check permission
+    if (fieldGroup.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to create fields',
+      );
+    }
+    // create fields
+    await this.transactionManagerProvider.transaction(
+      async (queryRunner: QueryRunner) => {
+        for (const fieldData of createFieldsDto.fieldsData) {
+          await this.createWithTransaction(fieldData, fieldGroup, queryRunner);
+        }
+      },
     );
+
+    return {
+      message: 'Create fields successfully',
+    };
+  }
+
+  public async createWithTransaction(
+    createFieldDto: CreateFieldDto,
+    fieldGroup: FieldGroup,
+    queryRunner: QueryRunner,
+  ) {
+    const field = queryRunner.manager.create(Field, {
+      ...createFieldDto,
+      fieldGroup,
+    });
+
+    await queryRunner.manager.save(field);
   }
 
   public async getByFieldGroup(fieldGroupId: UUID) {
-    return await this.getByFieldGroupProvider.getByFieldGroup(fieldGroupId);
+    return await this.fieldRepository.find({
+      where: {
+        fieldGroup: {
+          id: fieldGroupId,
+        },
+      },
+    });
   }
 
   public async update(
@@ -60,18 +107,67 @@ export class FieldService {
     fieldId: number,
     ownerId: UUID,
   ) {
-    return this.updateProvider.update(updateFieldDto, fieldId, ownerId);
-  }
+    // get filed by id
+    const field = await this.findOne(fieldId, ['fieldGroup.facility.owner']);
 
-  public async updateStatus(fieldId: number, fieldStatus: FieldStatusEnum) {
-    return await this.updateStatusProvider.updateStatus(fieldId, fieldStatus);
-  }
+    // check permission
+    if (field.fieldGroup.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException('You do not have permission to update');
+    }
 
-  public async delete(fieldId: number, ownerId: UUID) {
-    return await this.deleteProvider.delete(fieldId, ownerId);
+    // update field
+    try {
+      if (updateFieldDto.name) field.name = updateFieldDto.name;
+
+      await this.fieldRepository.save(field);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      message: 'Update field successfully',
+    };
   }
 
   public async getById(fieldId: number) {
-    return await this.getByIdProvider.getById(fieldId);
+    return await this.findOne(fieldId, ['fieldGroup', 'fieldGroup.sports']);
+  }
+
+  public async delete(fieldId: number, ownerId: UUID) {
+    // get field by id
+    const field = await this.findOne(fieldId, ['fieldGroup.facility.owner']);
+
+    // check permission
+    if (field.fieldGroup.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException('You do not have permission to delete');
+    }
+
+    // delete field
+    try {
+      await this.fieldRepository.delete(fieldId);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+  }
+
+  public async getByIdWithTransaction(
+    fieldId: number,
+    queryRunner: QueryRunner,
+  ) {
+    const field = await queryRunner.manager.findOne(Field, {
+      where: { id: fieldId },
+      relations: {
+        fieldGroup: {
+          sports: true,
+          facility: true,
+        },
+      },
+    });
+
+    if (!field) {
+      throw new NotFoundException('Field not found');
+    }
+
+    return field;
   }
 }
