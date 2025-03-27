@@ -179,10 +179,25 @@ export class FacilityService {
           id: ownerId,
         },
       },
+      relations: {
+        owner: true,
+        fieldGroups: {
+          sports: true,
+        },
+      },
     });
 
     // return
-    return facilities;
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    }));
   }
 
   public async updateImages(
