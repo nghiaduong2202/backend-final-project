@@ -6,19 +6,19 @@ import {
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
-import { PeopleService } from 'src/people/people.service';
+import { PersonService } from 'src/people/person.service';
 import { HashProvider } from './providers/hash.provider';
 import { ConfigService } from '@nestjs/config';
 import { TokenProvider } from './providers/token.provider';
-import { ActivePeopleData } from './interfaces/active-people-data.interface';
+import { ActivePersonData } from './interfaces/active-person-data.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     /**
-     * inject peopleService
+     * inject personService
      */
-    private readonly peopleService: PeopleService,
+    private readonly personService: PersonService,
     /**
      * inject hashProvider
      */
@@ -47,9 +47,9 @@ export class AuthService {
     // set password
     registerDto.password = hashPassowrd;
 
-    // create a new people
+    // create a new person
 
-    await this.peopleService.create(registerDto);
+    await this.personService.create(registerDto);
 
     return {
       message: 'Create successful',
@@ -57,13 +57,13 @@ export class AuthService {
   }
 
   public async login(loginDto: LoginDto) {
-    // get people by email
-    const people = await this.peopleService.getByEmail(loginDto.email);
+    // get person by email
+    const person = await this.personService.getByEmail(loginDto.email);
 
     // check password
     const isEqual = await this.hashProvider.comparePassword(
       loginDto.password,
-      people.password,
+      person.password,
     );
 
     if (!isEqual) {
@@ -72,11 +72,11 @@ export class AuthService {
 
     // generate access token
     const payload = {
-      role: people.role,
+      role: person.role,
     };
 
     const accessToken = await this.tokenProvider.generate(
-      people.id,
+      person.id,
       this.configService.get<string>('JWT_SECRET')!,
       this.configService.get<string>('JWT_EXPIRE')!,
       payload,
@@ -84,7 +84,7 @@ export class AuthService {
 
     // generate refresh token
     const refreshToken = await this.tokenProvider.generate(
-      people.id,
+      person.id,
       this.configService.get<string>('JWT_SECRET_REFRESH')!,
       this.configService.get<string>('JWT_EXPIRE_REFRESH')!,
     );
@@ -101,17 +101,17 @@ export class AuthService {
   public async refreshToken(refreshTokenDto: RefreshTokenDto) {
     // verify refresh token
     const { sub } = await this.tokenProvider.verify<
-      Pick<ActivePeopleData, 'sub'>
+      Pick<ActivePersonData, 'sub'>
     >(
       refreshTokenDto.refreshToken,
       this.configService.get<string>('JWT_SECRET_REFRESH')!,
     );
 
-    // get people id from refresh token
-    const people = await this.peopleService.getById(sub);
+    // get person id from refresh token
+    const person = await this.personService.getById(sub);
 
     // generate new access token
-    const payload = { role: people.role };
+    const payload = { role: person.role };
     const accessToken = await this.tokenProvider.generate(
       sub,
       this.configService.get<string>('JWT_SECRET')!,

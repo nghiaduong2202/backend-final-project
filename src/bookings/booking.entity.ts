@@ -1,34 +1,29 @@
 import { UUID } from 'crypto';
 import {
-  Check,
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PaymentTypeEnum } from './enums/payment-type.enum';
-import { Field } from 'src/fields/field.entity';
-import { Voucher } from 'src/vouchers/voucher.entity';
-import { BookingService } from './booking-service.entity';
-import { People } from 'src/people/people.entity';
-import { Sport } from 'src/sports/sport.entity';
 import { BookingStatusEnum } from './enums/booking-status.enum';
+import { Voucher } from 'src/vouchers/voucher.entity';
+import { Person } from 'src/people/person.entity';
+import { Sport } from 'src/sports/sport.entity';
+import { BookingSlot } from 'src/booking-slots/booking-slot.entity';
+import { isBefore } from 'src/common/utils/is-before';
+import { Payment } from 'src/payments/payment.entity';
+import { AdditionalService } from 'src/additional-serrvices/additional-service.entity';
 
 @Entity()
-@Check('"endTime" > "startTime"')
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
-
-  @Column({
-    type: 'date',
-    nullable: false,
-  })
-  date: Date;
 
   @Column({
     type: 'time',
@@ -62,63 +57,43 @@ export class Booking {
   })
   status: BookingStatusEnum;
 
-  @Column({
-    type: 'enum',
-    enum: PaymentTypeEnum,
-    nullable: true,
-  })
-  paymentType?: PaymentTypeEnum;
-
-  @Column({
-    type: 'integer',
-    nullable: false,
-    default: 0,
-  })
-  fieldPrice: number;
-
-  @Column({
-    type: 'integer',
-    nullable: false,
-    default: 0,
-  })
-  servicePrice: number;
-
-  @Column({
-    type: 'integer',
-    nullable: false,
-    default: 0,
-  })
-  discountAmount: number;
-
-  @ManyToOne(() => Field, (field) => field.bookings, {
-    cascade: true,
-    nullable: false,
-  })
-  @JoinColumn()
-  field: Field;
-
-  @OneToMany(() => BookingService, (bookingService) => bookingService.booking)
-  bookingServices?: BookingService[];
-
-  @ManyToOne(() => Voucher, {
-    cascade: true,
+  @ManyToOne(() => Voucher, (voucher) => voucher.bookings, {
     nullable: true,
   })
   @JoinColumn()
   voucher?: Voucher;
 
-  @ManyToOne(() => People, (people) => people.bookings, {
-    cascade: true,
-    onDelete: 'CASCADE',
+  @ManyToOne(() => Person, (person) => person.bookings, {
     nullable: false,
   })
   @JoinColumn()
-  player: People;
+  player: Person;
 
   @ManyToOne(() => Sport, {
-    cascade: true,
+    onDelete: 'RESTRICT',
     nullable: false,
   })
   @JoinColumn()
   sport: Sport;
+
+  @OneToMany(() => BookingSlot, (bookingSlot) => bookingSlot.booking)
+  bookingSlots: BookingSlot[];
+
+  @OneToOne(() => Payment, (payment) => payment.booking)
+  payment: Payment;
+
+  @OneToMany(
+    () => AdditionalService,
+    (additionalService) => additionalService.booking,
+  )
+  additionalServices: AdditionalService[];
+
+  @BeforeInsert()
+  beforeInsert() {
+    isBefore(
+      this.startTime,
+      this.endTime,
+      'Start time must be more than end time',
+    );
+  }
 }

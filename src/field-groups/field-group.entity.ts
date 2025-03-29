@@ -3,10 +3,8 @@ import { Facility } from 'src/facilities/facility.entity';
 import { Field } from 'src/fields/field.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
-  Check,
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -17,7 +15,6 @@ import {
 
 @Entity()
 @Unique(['name', 'facility'])
-@Check('"peakStartTime" < "peakEndTime"')
 export class FieldGroup {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
@@ -53,34 +50,70 @@ export class FieldGroup {
     type: 'time',
     nullable: true,
   })
-  peakStartTime?: string;
+  peakStartTime1?: string;
 
   @Column({
     type: 'time',
     nullable: true,
   })
-  peakEndTime?: string;
+  peakEndTime1?: string;
 
   @Column({
     type: 'integer',
     nullable: true,
   })
-  priceIncrease?: number;
+  priceIncrease1?: number;
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakStartTime2?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakEndTime2?: string;
+
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  priceIncrease2?: number;
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakStartTime3?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakEndTime3?: string;
+
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  priceIncrease3?: number;
+
+  @Column({
+    type: 'integer',
+    nullable: false,
+    default: 0,
+  })
+  numberOfPeaks: number;
+
+  @OneToMany(() => Field, (field) => field.fieldGroup)
+  fields: Field[];
 
   @ManyToOne(() => Facility, (facility) => facility.fieldGroups, {
-    cascade: true,
-    nullable: false,
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
   facility: Facility;
 
-  @ManyToMany(() => Sport, (sports) => sports.fieldGroups)
-  @JoinTable({
-    name: 'field-group-sport',
-  })
+  @ManyToMany(() => Sport)
+  @JoinTable()
   sports: Sport[];
-
-  @OneToMany(() => Field, (fields) => fields.fieldGroup)
-  fields: Field[];
 }

@@ -10,7 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { PeopleRoleEnum } from 'src/people/enums/people-role.enum';
+import { PersonRoleEnum } from 'src/people/enums/person-role.enum';
 
 export class RegisterDto {
   @ApiProperty({
@@ -63,10 +63,10 @@ export class RegisterDto {
 
   @ApiProperty({
     type: 'string',
-    enum: PeopleRoleEnum,
-    example: PeopleRoleEnum.PLAYER,
+    enum: PersonRoleEnum,
+    example: PersonRoleEnum.PLAYER,
   })
-  @IsEnum(PeopleRoleEnum)
+  @IsEnum(PersonRoleEnum)
   @IsNotEmpty()
-  role: PeopleRoleEnum;
+  role: PersonRoleEnum;
 }

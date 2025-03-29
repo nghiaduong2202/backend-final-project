@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auths/auth.module';
-import { PeopleModule } from './people/people.module';
+import { PersonModule } from './people/person.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthRoleGuard } from './auths/guards/auth-role.guard';
 import { AdminGuard } from './auths/guards/admin.guard';
@@ -21,6 +21,11 @@ import { ServiceModule } from './services/service.module';
 import { BookingModule } from './bookings/booking.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommonModule } from './common/common.module';
+import { CertificateModule } from './certificates/certificate.module';
+import { LicenseModule } from './licenses/license.module';
+import { BookingSlotModule } from './booking-slots/booking-slot.module';
+import { PaymentModule } from './payments/payment.module';
+import { AdditionalServiceModule } from './additional-serrvices/additional-service.module';
 // import * as fs from 'fs';
 
 @Module({
@@ -48,7 +53,7 @@ import { CommonModule } from './common/common.module';
       }),
     }),
     AuthModule,
-    PeopleModule,
+    PersonModule,
     JwtModule,
     FacilityModule,
     SportModule,
@@ -60,6 +65,11 @@ import { CommonModule } from './common/common.module';
     BookingModule,
     ScheduleModule.forRoot(),
     CommonModule,
+    CertificateModule,
+    LicenseModule,
+    BookingSlotModule,
+    PaymentModule,
+    AdditionalServiceModule,
   ],
   controllers: [AppController],
   providers: [

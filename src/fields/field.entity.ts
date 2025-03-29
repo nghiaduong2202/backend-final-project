@@ -1,15 +1,14 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { FieldStatusEnum } from './enums/field-status.entity';
+import { FieldStatusEnum } from './enums/field-status.enum';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
-import { Booking } from 'src/bookings/booking.entity';
+import { BookingSlot } from 'src/booking-slots/booking-slot.entity';
 
 @Entity()
 @Unique(['name', 'fieldGroup'])
@@ -27,18 +26,16 @@ export class Field {
   @Column({
     type: 'enum',
     enum: FieldStatusEnum,
-    default: FieldStatusEnum.PENDING,
+    default: FieldStatusEnum.ACTIVE,
   })
   status: FieldStatusEnum;
 
   @ManyToOne(() => FieldGroup, (fieldGroup) => fieldGroup.fields, {
-    cascade: true,
-    nullable: false,
     onDelete: 'CASCADE',
+    nullable: false,
   })
-  @JoinColumn()
   fieldGroup: FieldGroup;
 
-  @OneToMany(() => Booking, (booking) => booking.field)
-  bookings: Booking[];
+  @OneToMany(() => BookingSlot, (bookingSlot) => bookingSlot.field)
+  bookingSlots: BookingSlot[];
 }

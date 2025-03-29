@@ -12,7 +12,7 @@ import {
 import { FieldGroupService } from './field-group.service';
 import { CreateFieldGroupsDto } from './dtos/create-field-groups.dto';
 import { UUID } from 'crypto';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
@@ -31,7 +31,7 @@ export class FieldGroupController {
   public create(
     @Body() createFieldGroupsDto: CreateFieldGroupsDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.fieldGroupService.createMany(
       createFieldGroupsDto,
@@ -57,7 +57,7 @@ export class FieldGroupController {
   public update(
     @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
     @Body() updateFieldGroupDto: UpdateFieldGroupDto,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.fieldGroupService.update(
       updateFieldGroupDto,
@@ -73,7 +73,7 @@ export class FieldGroupController {
   @AuthRoles(AuthRoleEnum.OWNER)
   public delete(
     @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.fieldGroupService.delete(fieldGroupId, ownerId);
   }

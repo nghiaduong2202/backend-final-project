@@ -16,7 +16,7 @@ import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { CreateDraftBookingDto } from './dtos/create-draft-booking.dto';
 import { BookingService } from './booking.service';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
 import { UpdateFieldBookingDto } from './dtos/update-field-booking.dto';
 import { UpdateServiceBookingDto } from './dtos/upadte-services-booking.dto';
@@ -39,7 +39,7 @@ export class BookingController {
   @AuthRoles(AuthRoleEnum.PLAYER)
   public createDraft(
     @Body() createDraftBookingDto: CreateDraftBookingDto,
-    @ActivePeople('sub') playerId: UUID,
+    @ActivePerson('sub') playerId: UUID,
   ) {
     return this.bookingService.createDraft(createDraftBookingDto, playerId);
   }
@@ -51,7 +51,7 @@ export class BookingController {
   @AuthRoles(AuthRoleEnum.PLAYER)
   public deleteDraft(
     @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
-    @ActivePeople('sub') playerId: UUID,
+    @ActivePerson('sub') playerId: UUID,
   ) {
     return this.bookingService.deleteDraft(bookingId, playerId);
   }
@@ -64,7 +64,7 @@ export class BookingController {
   public updateField(
     @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
     @Body() updateFieldBookingDto: UpdateFieldBookingDto,
-    @ActivePeople('sub') playerId: UUID,
+    @ActivePerson('sub') playerId: UUID,
   ) {
     return this.bookingService.updateField(
       updateFieldBookingDto,
@@ -78,7 +78,7 @@ export class BookingController {
   public updateService(
     @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
     @Body() updateServiceBookingDto: UpdateServiceBookingDto,
-    @ActivePeople('sub') playerId: UUID,
+    @ActivePerson('sub') playerId: UUID,
   ) {
     return this.bookingService.updateService(
       updateServiceBookingDto,
@@ -95,7 +95,7 @@ export class BookingController {
   public payment(
     @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
     @Body() paymentDto: PaymentDto,
-    @ActivePeople('sub') playerId: UUID,
+    @ActivePerson('sub') playerId: UUID,
     @Req() req: Request,
   ) {
     return this.bookingService.payment(paymentDto, bookingId, playerId, req);

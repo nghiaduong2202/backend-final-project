@@ -20,7 +20,7 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
-import { PeopleService } from 'src/people/people.service';
+import { PersonService } from 'src/people/person.service';
 import { FieldService } from 'src/fields/field.service';
 import { SportService } from 'src/sports/sport.service';
 import { isBetweenTime } from 'src/common/utils/is-between-time';
@@ -30,7 +30,6 @@ import { duration } from 'src/common/utils/duration';
 import { durationOverlapTime } from 'src/common/utils/duration-overlap-time';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceService } from 'src/services/service.service';
-import { BookingService as BookingServiceEntity } from './booking-service.entity';
 import { PaymentProvider } from './providers/payment.provider';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 
@@ -42,9 +41,9 @@ export class BookingService {
      */
     private readonly transactionManagerProvider: TransactionManagerProvider,
     /**
-     * inject peopleService
+     * inject personService
      */
-    private readonly peopleService: PeopleService,
+    private readonly personService: PersonService,
     /**
      * inject fieldService
      */
@@ -86,7 +85,7 @@ export class BookingService {
     return await this.transactionManagerProvider.transaction(
       async (queryRunner: QueryRunner) => {
         // get player by id
-        const player = await this.peopleService.getByIdWithTransaction(
+        const player = await this.personService.getByIdWithTransaction(
           playerId,
           queryRunner,
         );

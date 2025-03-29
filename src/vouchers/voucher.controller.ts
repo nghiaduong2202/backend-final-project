@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateVoucherDto } from './dtos/create-voucher.dto';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
 import { VoucherService } from './voucher.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
@@ -34,7 +34,7 @@ export class VoucherController {
   public create(
     @Body() createVoucherDto: CreateVoucherDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.voucherService.create(createVoucherDto, facilityId, ownerId);
   }
@@ -44,7 +44,7 @@ export class VoucherController {
   })
   @Delete(':id')
   @AuthRoles(AuthRoleEnum.OWNER)
-  public delete(@Param('id') id: number, @ActivePeople('sub') ownerId: UUID) {
+  public delete(@Param('id') id: number, @ActivePerson('sub') ownerId: UUID) {
     return this.voucherService.delete(id, ownerId);
   }
 
@@ -64,7 +64,7 @@ export class VoucherController {
   @AuthRoles(AuthRoleEnum.OWNER)
   public update(
     @Body() updateVoucherDto: UpdateVoucherDto,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     // return { message: 'xem xet lai viec update voucher' };
     return this.voucherService.update(updateVoucherDto, ownerId);

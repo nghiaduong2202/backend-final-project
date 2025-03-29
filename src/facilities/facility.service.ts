@@ -16,7 +16,7 @@ import { Facility } from './facility.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { isBefore } from 'src/common/utils/is-before';
-import { PeopleService } from 'src/people/people.service';
+import { PersonService } from 'src/people/person.service';
 import { FieldGroupService } from 'src/field-groups/field-group.service';
 
 @Injectable()
@@ -36,9 +36,9 @@ export class FacilityService {
      */
     private readonly cloudinaryService: CloudinaryService,
     /**
-     * inject peopleService
+     * inject personService
      */
-    private readonly peopleService: PeopleService,
+    private readonly personService: PersonService,
     /**
      * inject fieldGroupService
      */
@@ -117,7 +117,7 @@ export class FacilityService {
     await this.transactionManagerProvider.transaction(
       async (queryRunner: QueryRunner) => {
         // get owner by id
-        const owner = await this.peopleService.getByIdWithTransaction(
+        const owner = await this.personService.getByIdWithTransaction(
           ownerId,
           queryRunner,
         );

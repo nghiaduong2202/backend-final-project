@@ -6,19 +6,19 @@ import {
 import { RegisterDto } from 'src/auths/dtos/register.dto';
 import { UUID } from 'crypto';
 import { QueryRunner, Repository } from 'typeorm';
-import { People } from './people.entity';
+import { Person } from './person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PeopleRoleEnum } from './enums/people-role.enum';
+import { PersonRoleEnum } from './enums/person-role.enum';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
-export class PeopleService {
+export class PersonService {
   constructor(
     /**
-     * inject peopleRepository
+     * inject personRepository
      */
-    @InjectRepository(People)
-    private readonly peopleRepository: Repository<People>,
+    @InjectRepository(Person)
+    private readonly personRepository: Repository<Person>,
     /**
      * inject cloudinaryService
      */
@@ -26,63 +26,62 @@ export class PeopleService {
   ) {}
 
   public async create(registerDto: RegisterDto) {
-    if (registerDto.role === PeopleRoleEnum.ADMIN) {
+    if (registerDto.role === PersonRoleEnum.ADMIN) {
       throw new NotFoundException(
         'You do not have permission to register admin account',
       );
     }
 
     try {
-      const people = this.peopleRepository.create(registerDto);
-      console.log('🚀 ~ PeopleService ~ create ~ people:', people);
+      const person = this.personRepository.create(registerDto);
 
-      return await this.peopleRepository.save(people);
+      return await this.personRepository.save(person);
     } catch (error) {
       throw new BadRequestException(String(error));
     }
   }
 
   public async getAll() {
-    return await this.peopleRepository.find();
+    return await this.personRepository.find();
   }
 
   public async getByEmail(email: string) {
-    const people = await this.peopleRepository.findOneBy({ email });
+    const person = await this.personRepository.findOneBy({ email });
 
-    if (!people) {
+    if (!person) {
       throw new NotFoundException('User not found');
     }
 
-    return people;
+    return person;
   }
 
-  public async getById(peopleId: UUID) {
-    const people = await this.peopleRepository.findOneBy({ id: peopleId });
+  public async getById(personId: UUID) {
+    const person = await this.personRepository.findOneBy({ id: personId });
 
-    if (!people) {
-      throw new NotFoundException('People not found');
+    if (!person) {
+      throw new NotFoundException('Person not found');
     }
 
-    return people;
+    return person;
   }
 
   public async getByIdWithTransaction(
-    peopleId: UUID,
+    personId: UUID,
     queryRunner: QueryRunner,
   ) {
-    const people = await queryRunner.manager.findOneBy(People, {
-      id: peopleId,
+    const person = await queryRunner.manager.findOneBy(Person, {
+      id: personId,
     });
 
-    if (!people) {
-      throw new NotFoundException('People not found');
+    if (!person) {
+      throw new NotFoundException('Person not found');
     }
 
-    return people;
+    return person;
   }
 
-  public async updateAvatar(image: Express.Multer.File, peopleId: UUID) {
-    const people = await this.getById(peopleId);
+  public async updateAvatar(image: Express.Multer.File, personId: UUID) {
+    const person = await this.getById(personId);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { secure_url } = await this.cloudinaryService.uploadImage(image);
@@ -91,8 +90,8 @@ export class PeopleService {
       throw new BadRequestException('Avatar not uploaded');
 
     try {
-      people.avatarUrl = String(secure_url);
-      await this.peopleRepository.save(people);
+      person.avatarUrl = String(secure_url);
+      await this.personRepository.save(person);
     } catch (error) {
       throw new BadRequestException(String(error));
     }

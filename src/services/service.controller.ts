@@ -15,7 +15,7 @@ import { UUID } from 'crypto';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { CreateServicesDto } from './dtos/create-services.dto';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { ServiceService } from './service.service';
 import { UpdateServiceDto } from './dtos/update-service.dto';
 import { GetAvailabilityServiceInFacilityDto } from './dtos/get-availability-service-in-facility.dto';
@@ -37,7 +37,7 @@ export class ServiceController {
   public createMany(
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
     @Body() createServicesDto: CreateServicesDto,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.serviceService.createMany(
       createServicesDto,
@@ -54,7 +54,7 @@ export class ServiceController {
   public update(
     @Param('serviceId', ParseIntPipe) serviceId: number,
     @Body() updateServiceDto: UpdateServiceDto,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.serviceService.update(updateServiceDto, serviceId, ownerId);
   }
@@ -83,7 +83,7 @@ export class ServiceController {
   @AuthRoles(AuthRoleEnum.OWNER)
   public delete(
     @Param('serviceId', ParseIntPipe) serviceId: number,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.serviceService.delete(serviceId, ownerId);
   }

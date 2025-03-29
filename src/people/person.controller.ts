@@ -8,26 +8,26 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { PeopleService } from './people.service';
-import { GetPeopleByEmailDto } from './dtos/get-people-by-email.dto';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { PersonService } from './person.service';
+import { GetPersonByEmailDto } from './dtos/get-person-by-email.dto';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UUID } from 'crypto';
 
-@Controller('people')
+@Controller('person')
 @UseInterceptors(ClassSerializerInterceptor)
-export class PeopleController {
-  constructor(private readonly peopleService: PeopleService) {}
+export class PersonController {
+  constructor(private readonly personService: PersonService) {}
 
   @ApiOperation({
-    summary: 'get all people (role: admin)',
+    summary: 'get all person (role: admin)',
   })
   @AuthRoles(AuthRoleEnum.ADMIN)
   @Get('all')
   public getAll() {
-    return this.peopleService.getAll();
+    return this.personService.getAll();
   }
 
   @ApiOperation({
@@ -35,8 +35,8 @@ export class PeopleController {
   })
   @Get('/email')
   @AuthRoles(AuthRoleEnum.ADMIN)
-  public getByEmail(@Body() getPeopleByEmailDto: GetPeopleByEmailDto) {
-    return this.peopleService.getByEmail(getPeopleByEmailDto.email);
+  public getByEmail(@Body() getPersonByEmailDto: GetPersonByEmailDto) {
+    return this.personService.getByEmail(getPersonByEmailDto.email);
   }
 
   @ApiOperation({
@@ -44,8 +44,8 @@ export class PeopleController {
   })
   @Get('my-info')
   @AuthRoles(AuthRoleEnum.ADMIN, AuthRoleEnum.OWNER, AuthRoleEnum.PLAYER)
-  public getMyInfor(@ActivePeople('sub') peopleId: UUID) {
-    return this.peopleService.getById(peopleId);
+  public getMyInfor(@ActivePerson('sub') personId: UUID) {
+    return this.personService.getById(personId);
   }
 
   @ApiOperation({
@@ -56,8 +56,8 @@ export class PeopleController {
   @UseInterceptors(FileInterceptor('image'))
   public updateAvatar(
     @UploadedFile() image: Express.Multer.File,
-    @ActivePeople('sub') peopleId: UUID,
+    @ActivePerson('sub') personId: UUID,
   ) {
-    return this.peopleService.updateAvatar(image, peopleId);
+    return this.personService.updateAvatar(image, personId);
   }
 }

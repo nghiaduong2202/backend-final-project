@@ -1,12 +1,14 @@
-import { BookingService } from 'src/bookings/booking-service.entity';
+import { BadRequestException } from '@nestjs/common';
 import { Facility } from 'src/facilities/facility.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -43,22 +45,30 @@ export class Service {
   })
   amount: number;
 
-  @ManyToOne(() => Sport, {
+  @OneToOne(() => Sport, {
+    onDelete: 'RESTRICT',
     nullable: false,
-    cascade: true,
-    onDelete: 'CASCADE',
   })
   @JoinColumn()
   sport: Sport;
 
   @ManyToOne(() => Facility, (facility) => facility.services, {
     nullable: false,
-    cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   facility: Facility;
 
-  @OneToMany(() => BookingService, (bookingService) => bookingService.service)
-  bookingServices: BookingService[];
+  @BeforeUpdate()
+  @BeforeInsert()
+  beforeUpdateAndInsert() {
+    /**
+     * amount must be more than or equal to 0
+     */
+    if (this.amount < 0) {
+      throw new BadRequestException(
+        'Amount of service must be more than or equal to 0',
+      );
+    }
+  }
 }

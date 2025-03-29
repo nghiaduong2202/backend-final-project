@@ -12,14 +12,14 @@ export class TokenProvider {
   ) {}
 
   public async generate<T>(
-    peopleId: UUID,
+    personId: UUID,
     secret: string,
     expiresIn: string,
     payload?: T,
   ) {
     return await this.jwtService.signAsync(
       {
-        sub: peopleId,
+        sub: personId,
         ...payload,
       },
       {

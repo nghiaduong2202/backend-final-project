@@ -8,13 +8,13 @@ import {
 } from 'typeorm';
 import { GenderEnum } from './enums/gender.enum';
 import { UUID } from 'crypto';
-import { Facility } from 'src/facilities/facility.entity';
 import { Exclude } from 'class-transformer';
-import { PeopleRoleEnum } from './enums/people-role.enum';
+import { PersonRoleEnum } from './enums/person-role.enum';
+import { Facility } from 'src/facilities/facility.entity';
 import { Booking } from 'src/bookings/booking.entity';
 
 @Entity()
-export class People {
+export class Person {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
 
@@ -65,7 +65,7 @@ export class People {
   gender?: GenderEnum;
 
   @Column({
-    type: 'timestamp',
+    type: 'timestamptz',
     nullable: true,
   })
   dob?: Date;
@@ -78,11 +78,11 @@ export class People {
 
   @Column({
     type: 'enum',
-    enum: PeopleRoleEnum,
+    enum: PersonRoleEnum,
     nullable: false,
-    default: PeopleRoleEnum.PLAYER,
+    default: PersonRoleEnum.PLAYER,
   })
-  role: PeopleRoleEnum;
+  role: PersonRoleEnum;
 
   @Exclude()
   @CreateDateColumn({ type: 'timestamptz' })

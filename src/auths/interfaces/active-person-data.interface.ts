@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
 
-export interface ActivePeopleData {
+export interface ActivePersonData {
   /**
    * id
    */

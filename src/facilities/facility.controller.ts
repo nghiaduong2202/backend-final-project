@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotAcceptableException,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -17,12 +16,11 @@ import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { CreateFacilityDto } from './dtos/create-facility.dto';
 import { FacilityService } from './facility.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
 import { ApiOperation } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateFacilityInterceptor } from './interceptors/create-facility.interceptor';
-import { ActivePeopleData } from 'src/auths/interfaces/active-people-data.interface';
 import { DeleteImagesDto } from './dtos/delete-images.dto';
 import { UpdateFacilityDto } from './dtos/update-facility.dto';
 
@@ -45,7 +43,7 @@ export class FacilityController {
   public create(
     @Body() createFacilityDto: CreateFacilityDto,
     @UploadedFiles() images: Express.Multer.File[],
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.facilityService.create(createFacilityDto, images, ownerId);
   }
@@ -64,13 +62,8 @@ export class FacilityController {
   })
   @Get('my-facilities')
   @AuthRoles(AuthRoleEnum.OWNER)
-  public getMyFacilities(@ActivePeople() activePeopleData: ActivePeopleData) {
-    if (activePeopleData.role !== 'owner') {
-      throw new NotAcceptableException(
-        'You do not have permission to get my facilities',
-      );
-    }
-    return this.facilityService.getByOwner(activePeopleData.sub);
+  public getMyFacilities(@ActivePerson() ownerId: UUID) {
+    return this.facilityService.getByOwner(ownerId);
   }
 
   @ApiOperation({
@@ -90,7 +83,7 @@ export class FacilityController {
   @AuthRoles(AuthRoleEnum.OWNER)
   public updateImages(
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     return this.facilityService.updateImages(images, facilityId, ownerId);
@@ -104,7 +97,7 @@ export class FacilityController {
   public deleteImage(
     @Body() deleteImagesDto: DeleteImagesDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.facilityService.deleteImages(
       deleteImagesDto,
@@ -121,7 +114,7 @@ export class FacilityController {
   public update(
     @Body() updateFacilityDto: UpdateFacilityDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.facilityService.update(updateFacilityDto, facilityId, ownerId);
   }
