@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -56,5 +57,14 @@ export class VoucherController {
     @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.voucherService.update(updateVoucherDto, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'get voucher by facility (role: none)',
+  })
+  @Get(':facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByFacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.voucherService.getByFacility(facilityId);
   }
 }

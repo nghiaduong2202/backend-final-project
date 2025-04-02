@@ -160,15 +160,18 @@ export class ServiceService {
     };
   }
 
-  public async getByFacility(facilityId: UUID, sportId?: number) {
+  public async getByFacility(facilityId: UUID) {
     return await this.serviceRepository.find({
       where: {
         facility: {
           id: facilityId,
         },
-        sport: {
-          id: sportId,
-        },
+      },
+      relations: {
+        sport: true,
+      },
+      order: {
+        name: 'DESC',
       },
     });
   }

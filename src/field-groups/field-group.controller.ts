@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -64,5 +65,14 @@ export class FieldGroupController {
     @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.fieldGroupService.delete(fieldGroupId, ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'Get field group by facility id (role: none)',
+  })
+  @Get(':facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByFacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.fieldGroupService.getByFacility(facilityId);
   }
 }

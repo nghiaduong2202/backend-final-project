@@ -11,7 +11,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PersonRoleEnum } from './enums/person-role.enum';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdatePersonDto } from './dtos/update-person.dto';
-import { emitWarning } from 'process';
 
 @Injectable()
 export class PersonService {

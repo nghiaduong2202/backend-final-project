@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
+  IsDateString,
   IsEmail,
   IsEnum,
   IsOptional,
@@ -56,7 +56,7 @@ export class UpdatePersonDto {
     type: 'string',
     example: '2025-03-12T00:00:00.000Z',
   })
-  @IsDate()
+  @IsDateString()
   @Type(() => Date)
   @ValidateNested()
   dob?: Date;
