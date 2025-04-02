@@ -10,6 +10,8 @@ import { Person } from './person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PersonRoleEnum } from './enums/person-role.enum';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { UpdatePersonDto } from './dtos/update-person.dto';
+import { emitWarning } from 'process';
 
 @Injectable()
 export class PersonService {
@@ -105,6 +107,44 @@ export class PersonService {
 
     return {
       message: 'Avatar updated successfully',
+    };
+  }
+
+  public async updateInfor(updatePersonDto: UpdatePersonDto, personId: UUID) {
+    const person = await this.findOneById(personId);
+
+    try {
+      if (updatePersonDto.name) person.name = updatePersonDto.name;
+
+      if (updatePersonDto.email) {
+        const personWithEmail = await this.personRepository.findOneBy({
+          email: updatePersonDto.email,
+        });
+
+        if (personWithEmail) {
+          throw new BadRequestException('Email already exists');
+        }
+
+        person.email = updatePersonDto.email;
+      }
+
+      if (updatePersonDto.phoneNumber)
+        person.phoneNumber = updatePersonDto.phoneNumber;
+
+      if (updatePersonDto.gender) person.gender = updatePersonDto.gender;
+
+      if (updatePersonDto.dob) person.dob = updatePersonDto.dob;
+
+      if (updatePersonDto.bankAccount)
+        person.bankAccount = updatePersonDto.bankAccount;
+
+      await this.personRepository.save(person);
+    } catch (error) {
+      throw new BadRequestException(String(error));
+    }
+
+    return {
+      messager: 'Infor updated successfully',
     };
   }
 }

@@ -1,4 +1,5 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -13,6 +14,7 @@ import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UUID } from 'crypto';
+import { UpdatePersonDto } from './dtos/update-person.dto';
 
 @Controller('person')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -48,5 +50,17 @@ export class PersonController {
     @ActivePerson('sub') personId: UUID,
   ) {
     return this.personService.updateAvatar(image, personId);
+  }
+
+  @ApiOperation({
+    summary: 'update infor (role: admin, owner, player)',
+  })
+  @Put('update-infor')
+  @AuthRoles(AuthRoleEnum.ADMIN, AuthRoleEnum.OWNER, AuthRoleEnum.PLAYER)
+  public updateInfor(
+    @Body() updatePersonDto: UpdatePersonDto,
+    @ActivePerson('sub') personId: UUID,
+  ) {
+    return this.personService.updateInfor(updatePersonDto, personId);
   }
 }

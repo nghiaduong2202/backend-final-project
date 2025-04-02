@@ -17,7 +17,7 @@ import { FacilityService } from './facility.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 import {
   FileFieldsInterceptor,
   FilesInterceptor,
@@ -38,14 +38,19 @@ export class FacilityController {
   ) {}
 
   @ApiOperation({
+    summary: 'get all facilities',
+  })
+  public getAll() {}
+
+  @ApiOperation({
     summary: 'create new facility and field groups and fields (role: owner)',
   })
   @Post('create')
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'images', maxCount: 10 },
-      { name: 'certificate', maxCount: 1 },
       { name: 'licenses', maxCount: 7 },
+      { name: 'certificate', maxCount: 1 },
     ]),
     CreateFacilityInterceptor,
   )
@@ -55,7 +60,7 @@ export class FacilityController {
     @UploadedFiles()
     files: {
       images: Express.Multer.File[];
-      certificate: Express.Multer.File;
+      certificate: Express.Multer.File[];
       licenses?: Express.Multer.File[];
     },
     @ActivePerson('sub') ownerId: UUID,
@@ -65,7 +70,7 @@ export class FacilityController {
       createFacilityDto,
       files.images,
       ownerId,
-      files.certificate,
+      files.certificate[0],
       files.licenses,
       sportLicensesDto?.sportIds,
     );

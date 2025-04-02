@@ -281,9 +281,6 @@ export class FacilityService {
       facility.closeTime3 = updateFacilityDto.closeTime3;
     }
 
-    if (updateFacilityDto.location)
-      facility.location = updateFacilityDto.location;
-
     try {
       await this.facilityRepository.save(facility);
     } catch (error) {
