@@ -87,12 +87,4 @@ export class UpdateFacilityDto {
   @IsOptional()
   @IsMilitaryTime()
   closeTime3?: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'Facility location',
-  })
-  @IsString()
-  @IsOptional()
-  location?: string;
 }
