@@ -152,29 +152,29 @@ export class FacilityService {
     };
   }
 
-  // public async getAll() {
-  //   // get all facilities
-  //   const facilities = await this.facilityRepository.find({
-  //     relations: {
-  //       owner: true,
-  //       fieldGroups: {
-  //         sports: true,
-  //       },
-  //     },
-  //   });
+  public async getAll() {
+    // get all facilities
+    const facilities = await this.facilityRepository.find({
+      relations: {
+        owner: true,
+        fieldGroups: {
+          sports: true,
+        },
+      },
+    });
 
-  //   // return
-  //   return facilities.map(({ fieldGroups, ...facility }) => ({
-  //     ...facility,
-  //     sports: fieldGroups
-  //       .map((fieldGroup) => fieldGroup.sports)
-  //       .flat()
-  //       .filter(
-  //         (item, index, self) =>
-  //           index === self.findIndex((t) => t.id === item.id),
-  //       ),
-  //   }));
-  // }
+    // return
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    }));
+  }
 
   public async updateImages(
     images: Express.Multer.File[],
@@ -290,5 +290,20 @@ export class FacilityService {
     return {
       message: 'Facility updated successfully',
     };
+  }
+
+  public async getDropDownInfor(facilityId: UUID) {
+    return await this.facilityRepository.find({
+      select: {
+        id: true,
+        name: true,
+      },
+      where: {
+        id: facilityId,
+      },
+      order: {
+        name: 'ASC',
+      },
+    });
   }
 }

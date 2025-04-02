@@ -3,6 +3,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -17,7 +18,7 @@ import { FacilityService } from './facility.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
-import { ApiOperation, ApiProperty } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 import {
   FileFieldsInterceptor,
   FilesInterceptor,
@@ -38,9 +39,24 @@ export class FacilityController {
   ) {}
 
   @ApiOperation({
-    summary: 'get all facilities',
+    summary: 'get all facilities (role: none)',
   })
-  public getAll() {}
+  @Get('all')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAll() {
+    return this.facilityService.getAll();
+  }
+
+  @ApiOperation({
+    summary: 'get facility by id (role: none)',
+  })
+  @Get(':facilityId/drop-down')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getDropDownInfor(
+    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
+  ) {
+    return this.facilityService.getDropDownInfor(facilityId);
+  }
 
   @ApiOperation({
     summary: 'create new facility and field groups and fields (role: owner)',

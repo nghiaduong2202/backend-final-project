@@ -224,6 +224,20 @@ export class FieldGroupService {
     };
   }
 
+  public async getByFacility(facilityId: UUID) {
+    return await this.fieldGroupRepository.find({
+      where: {
+        facility: {
+          id: facilityId,
+        },
+      },
+      relations: {
+        fields: true,
+        sports: true,
+      },
+    });
+  }
+
   // public async getAvailabilityFieldInFacility(
   //   getAvailabilityFieldInFacilityDto: GetAvailabilityFieldInFacilityDto,
   //   facilityId: UUID,

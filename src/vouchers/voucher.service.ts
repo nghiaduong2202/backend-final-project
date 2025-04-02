@@ -154,4 +154,17 @@ export class VoucherService {
       message: 'Update voucher successfully',
     };
   }
+
+  public async getByFacility(facilityId: UUID) {
+    return await this.voucherRepository.find({
+      where: {
+        facility: {
+          id: facilityId,
+        },
+      },
+      order: {
+        endDate: 'DESC',
+      },
+    });
+  }
 }

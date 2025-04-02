@@ -1,4 +1,5 @@
 import {
+  AfterLoad,
   Column,
   CreateDateColumn,
   Entity,
@@ -65,7 +66,7 @@ export class Person {
   gender?: GenderEnum;
 
   @Column({
-    type: 'timestamptz',
+    type: 'date',
     nullable: true,
   })
   dob?: Date;
@@ -97,4 +98,11 @@ export class Person {
 
   @OneToMany(() => Booking, (booking) => booking.player)
   bookings: Booking[];
+
+  @AfterLoad()
+  afterLoad() {
+    if (this.dob) {
+      this.dob = new Date(this.dob);
+    }
+  }
 }

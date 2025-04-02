@@ -8,7 +8,6 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { UUID } from 'crypto';
@@ -63,11 +62,8 @@ export class ServiceController {
   })
   @Get(':facilityId')
   @AuthRoles(AuthRoleEnum.NONE)
-  public getByfacility(
-    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @Query('sportId', new ParseIntPipe({ optional: true })) sportId?: number,
-  ) {
-    return this.serviceService.getByFacility(facilityId, sportId);
+  public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.serviceService.getByFacility(facilityId);
   }
 
   @ApiOperation({
