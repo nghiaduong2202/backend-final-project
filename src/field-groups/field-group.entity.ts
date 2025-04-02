@@ -1,8 +1,11 @@
 import { UUID } from 'crypto';
+import { isBefore } from 'src/common/utils/is-before';
 import { Facility } from 'src/facilities/facility.entity';
 import { Field } from 'src/fields/field.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinTable,
@@ -116,4 +119,38 @@ export class FieldGroup {
   @ManyToMany(() => Sport)
   @JoinTable()
   sports: Sport[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeInsertAndUpdate() {
+    if (this.peakEndTime1 && this.peakStartTime1) {
+      isBefore(
+        this.peakStartTime1,
+        this.peakEndTime1,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 1;
+    }
+
+    if (this.peakEndTime2 && this.peakStartTime2) {
+      isBefore(
+        this.peakStartTime2,
+        this.peakEndTime2,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 2;
+    }
+
+    if (this.peakEndTime3 && this.peakStartTime3) {
+      isBefore(
+        this.peakStartTime3,
+        this.peakEndTime3,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 3;
+    }
+  }
 }

@@ -10,9 +10,9 @@ export class Certificate {
   @Column({
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
   })
-  verified: string;
+  verified?: string;
 
   @Column({
     type: 'varchar',

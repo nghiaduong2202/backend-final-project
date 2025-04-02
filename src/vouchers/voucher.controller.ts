@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -25,7 +24,6 @@ export class VoucherController {
      */
     private readonly voucherService: VoucherService,
   ) {}
-
   @ApiOperation({
     summary: 'create new voucher (role: owner)',
   })
@@ -49,15 +47,6 @@ export class VoucherController {
   }
 
   @ApiOperation({
-    summary: 'get voucher by facility (role: none)',
-  })
-  @Get(':facilityId/booking')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
-    return this.voucherService.getByFacility(facilityId);
-  }
-
-  @ApiOperation({
     summary: 'update voucher (role: owner)',
   })
   @Patch()
@@ -66,18 +55,6 @@ export class VoucherController {
     @Body() updateVoucherDto: UpdateVoucherDto,
     @ActivePerson('sub') ownerId: UUID,
   ) {
-    // return { message: 'xem xet lai viec update voucher' };
     return this.voucherService.update(updateVoucherDto, ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get all voucher by facility (role: none)',
-  })
-  @Get(':facilityId/all')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getAllByFacility(
-    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-  ) {
-    return this.voucherService.getAllByFacility(facilityId);
   }
 }

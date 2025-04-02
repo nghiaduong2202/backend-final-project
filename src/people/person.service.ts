@@ -45,7 +45,7 @@ export class PersonService {
     return await this.personRepository.find();
   }
 
-  public async getByEmail(email: string) {
+  public async getOneByEmail(email: string) {
     const person = await this.personRepository.findOneBy({ email });
 
     if (!person) {
@@ -55,8 +55,11 @@ export class PersonService {
     return person;
   }
 
-  public async getById(personId: UUID) {
-    const person = await this.personRepository.findOneBy({ id: personId });
+  public async findOneById(personId: UUID, relations?: string[]) {
+    const person = await this.personRepository.findOne({
+      where: { id: personId },
+      relations,
+    });
 
     if (!person) {
       throw new NotFoundException('Person not found');
@@ -65,12 +68,16 @@ export class PersonService {
     return person;
   }
 
-  public async getByIdWithTransaction(
+  public async findOneByIdWithTransaction(
     personId: UUID,
     queryRunner: QueryRunner,
+    relations?: string[],
   ) {
-    const person = await queryRunner.manager.findOneBy(Person, {
-      id: personId,
+    const person = await queryRunner.manager.findOne(Person, {
+      where: {
+        id: personId,
+      },
+      relations,
     });
 
     if (!person) {
@@ -81,7 +88,7 @@ export class PersonService {
   }
 
   public async updateAvatar(image: Express.Multer.File, personId: UUID) {
-    const person = await this.getById(personId);
+    const person = await this.findOneById(personId);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { secure_url } = await this.cloudinaryService.uploadImage(image);

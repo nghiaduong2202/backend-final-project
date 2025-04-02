@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { ServiceTypeEnum } from './enums/service-type.enum';
 
 @Entity()
 @Unique(['name', 'facility'])
@@ -33,6 +34,13 @@ export class Service {
   price: number;
 
   @Column({
+    type: 'enum',
+    enum: ServiceTypeEnum,
+    nullable: false,
+  })
+  type: ServiceTypeEnum;
+
+  @Column({
     type: 'text',
     nullable: true,
   })
@@ -44,6 +52,13 @@ export class Service {
     default: 0,
   })
   amount: number;
+
+  @Column({
+    type: 'integer',
+    nullable: false,
+    default: 0,
+  })
+  bookedCount: number;
 
   @OneToOne(() => Sport, {
     onDelete: 'RESTRICT',

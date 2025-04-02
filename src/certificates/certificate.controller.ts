@@ -1,34 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Patch,
+  Param,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { CertificateService } from './certificate.service';
-import { CreateCertificateDto } from './dto/create-certificate.dto';
-import { UpdateCertificateDto } from './dto/update-certificate.dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UUID } from 'crypto';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 
 @Controller('certificate')
 export class CertificateController {
   constructor(private readonly certificateService: CertificateService) {}
 
-  @Post()
-  create(@Body() createCertificateDto: CreateCertificateDto) {
-    return this.certificateService.create(createCertificateDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.certificateService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.certificateService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCertificateDto: UpdateCertificateDto) {
-    return this.certificateService.update(+id, updateCertificateDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.certificateService.remove(+id);
+  @ApiOperation({ summary: 'update certificate' })
+  @Patch(':facilityId')
+  @UseInterceptors(FileInterceptor('certificate'))
+  update(
+    @Param('facilityId') facilityId: UUID,
+    @UploadedFile() updateCertificate: Express.Multer.File,
+    @ActivePerson('sub') ownerId: UUID,
+  ) {
+    return this.certificateService.update(
+      facilityId,
+      updateCertificate,
+      ownerId,
+    );
   }
 }

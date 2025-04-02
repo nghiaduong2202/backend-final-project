@@ -3,18 +3,13 @@ import { CreateFieldDto } from './create-field.dto';
 import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateFieldsDto {
+export class CreateManyFieldsDto {
   @ApiProperty({
-    type: 'array',
-    example: [
-      {
-        name: 'Field name',
-      },
-    ],
+    type: () => CreateFieldDto,
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateFieldDto)
   @IsNotEmpty()
-  fieldsData: CreateFieldDto[];
+  fields: CreateFieldDto[];
 }

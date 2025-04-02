@@ -7,7 +7,8 @@ import { FacilityService } from './facility.service';
 import { FieldGroupModule } from 'src/field-groups/field-gourp.module';
 import { SportModule } from 'src/sports/sport.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-
+import { CertificateModule } from 'src/certificates/certificate.module';
+import { LicenseModule } from 'src/licenses/license.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Facility]),
@@ -15,6 +16,8 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
     forwardRef(() => FieldGroupModule),
     SportModule,
     CloudinaryModule,
+    forwardRef(() => CertificateModule),
+    LicenseModule,
   ],
   controllers: [FacilityController],
   providers: [FacilityService],

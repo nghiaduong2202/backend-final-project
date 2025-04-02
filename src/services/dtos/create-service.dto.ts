@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -8,6 +9,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ServiceTypeEnum } from '../enums/service-type.enum';
 
 export class CreateServiceDto {
   @ApiProperty({
@@ -31,6 +33,7 @@ export class CreateServiceDto {
 
   @ApiProperty({
     type: 'string',
+    nullable: true,
     example: 'Service description',
   })
   @IsOptional()
@@ -53,4 +56,13 @@ export class CreateServiceDto {
   @IsNotEmpty()
   @IsNumber()
   sportId: number;
+
+  @ApiProperty({
+    type: 'string',
+    enum: ServiceTypeEnum,
+    example: ServiceTypeEnum.OTHER,
+  })
+  @IsNotEmpty()
+  @IsEnum(ServiceTypeEnum)
+  type: ServiceTypeEnum;
 }

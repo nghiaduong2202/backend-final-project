@@ -58,7 +58,7 @@ export class AuthService {
 
   public async login(loginDto: LoginDto) {
     // get person by email
-    const person = await this.personService.getByEmail(loginDto.email);
+    const person = await this.personService.getOneByEmail(loginDto.email);
 
     // check password
     const isEqual = await this.hashProvider.comparePassword(
@@ -108,7 +108,7 @@ export class AuthService {
     );
 
     // get person id from refresh token
-    const person = await this.personService.getById(sub);
+    const person = await this.personService.findOneById(sub);
 
     // generate new access token
     const payload = { role: person.role };

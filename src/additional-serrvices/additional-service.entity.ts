@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
 import { Booking } from 'src/bookings/booking.entity';
-import { Service } from 'src/services/service.entiry';
+import { Service } from 'src/services/service.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()

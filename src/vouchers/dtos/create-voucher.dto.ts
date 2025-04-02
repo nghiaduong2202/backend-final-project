@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   MaxLength,
@@ -71,11 +72,12 @@ export class CreateVoucherDto {
   @ApiProperty({
     type: 'number',
     example: 20000,
+    nullable: true,
   })
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @IsPositive()
-  maxDiscount: number;
+  maxDiscount?: number;
 
   @ApiProperty({
     type: 'number',

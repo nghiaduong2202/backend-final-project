@@ -3,7 +3,6 @@ import { BookingController } from './booking.controller';
 import { BookingService } from './booking.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Booking } from './booking.entity';
-import { PaymentProvider } from './providers/payment.provider';
 import { ConfigModule } from '@nestjs/config';
 import { VnpayIpnProvider } from './providers/vnpay-ipn.provider';
 import { BookingScheduleProvider } from './providers/booking-schedule.provider';
@@ -24,11 +23,6 @@ import { ServiceModule } from 'src/services/service.module';
     ServiceModule,
   ],
   controllers: [BookingController],
-  providers: [
-    BookingService,
-    PaymentProvider,
-    VnpayIpnProvider,
-    BookingScheduleProvider,
-  ],
+  providers: [BookingService, VnpayIpnProvider, BookingScheduleProvider],
 })
 export class BookingModule {}

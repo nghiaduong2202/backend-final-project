@@ -36,7 +36,7 @@ export class SportService {
     });
   }
 
-  public async getById(sportId: number) {
+  public async findOneById(sportId: number) {
     const sport = await this.sportRepository.findOne({
       where: {
         id: sportId,
@@ -50,7 +50,7 @@ export class SportService {
     return sport;
   }
 
-  public async getByIdWithTransaction(
+  public async findOneByIdWithTransaction(
     sportId: number,
     queryRunner: QueryRunner,
   ) {
@@ -65,11 +65,11 @@ export class SportService {
     return sport;
   }
 
-  public async getByManyId(ids: number[]) {
+  public async findManyByIds(sportIds: number[]) {
     const sports: Sport[] = [];
 
-    for (const id of ids) {
-      const sport = await this.getById(id);
+    for (const sportId of sportIds) {
+      const sport = await this.findOneById(sportId);
 
       sports.push(sport);
     }

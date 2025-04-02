@@ -1,5 +1,4 @@
 import {
-  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -9,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { PersonService } from './person.service';
-import { GetPersonByEmailDto } from './dtos/get-person-by-email.dto';
 import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
@@ -31,21 +29,12 @@ export class PersonController {
   }
 
   @ApiOperation({
-    summary: 'get user by email (role: admin)',
-  })
-  @Get('/email')
-  @AuthRoles(AuthRoleEnum.ADMIN)
-  public getByEmail(@Body() getPersonByEmailDto: GetPersonByEmailDto) {
-    return this.personService.getByEmail(getPersonByEmailDto.email);
-  }
-
-  @ApiOperation({
     summary: 'get my info (role: admin, owner, player)',
   })
   @Get('my-info')
   @AuthRoles(AuthRoleEnum.ADMIN, AuthRoleEnum.OWNER, AuthRoleEnum.PLAYER)
   public getMyInfor(@ActivePerson('sub') personId: UUID) {
-    return this.personService.getById(personId);
+    return this.personService.findOneById(personId);
   }
 
   @ApiOperation({

@@ -3,16 +3,14 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  Get,
   Param,
   ParseIntPipe,
   ParseUUIDPipe,
-  Patch,
   Put,
   UseInterceptors,
 } from '@nestjs/common';
 import { FieldService } from './field.service';
-import { CreateFieldsDto } from './dtos/create-fields.dto';
+import { CreateManyFieldsDto } from './dtos/create-many-fields.dto';
 import { UUID } from 'crypto';
 import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
@@ -30,36 +28,27 @@ export class FieldController {
   })
   @Put(':fieldGroupId')
   @AuthRoles(AuthRoleEnum.OWNER)
-  public createFields(
-    @Body() createFieldsDto: CreateFieldsDto,
+  public createMany(
+    @Body() createManyFieldsDto: CreateManyFieldsDto,
     @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
     @ActivePerson('sub') ownerId: UUID,
   ) {
-    return this.fieldService.createMany(createFieldsDto, fieldGroupId, ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get fields by field group (role: none)',
-  })
-  @Get(':fieldGroupId')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getByFieldGroup(
-    @Param('fieldGroupId', ParseUUIDPipe) fieldGroupId: UUID,
-  ) {
-    return this.fieldService.getByFieldGroup(fieldGroupId);
+    return this.fieldService.createMany(
+      createManyFieldsDto,
+      fieldGroupId,
+      ownerId,
+    );
   }
 
   @ApiOperation({
     summary: 'update field (role: owner)',
   })
-  @Patch(':fieldId')
   @AuthRoles(AuthRoleEnum.OWNER)
   public update(
-    @Param('fieldId', ParseIntPipe) fieldId: number,
     @Body() updateFieldDto: UpdateFieldDto,
     @ActivePerson('sub') ownerId: UUID,
   ) {
-    return this.fieldService.update(updateFieldDto, fieldId, ownerId);
+    return this.fieldService.update(updateFieldDto, ownerId);
   }
 
   @ApiOperation({

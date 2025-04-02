@@ -1,26 +1,130 @@
-import { Injectable } from '@nestjs/common';
-import { CreateLicenseDto } from './dto/create-license.dto';
-import { UpdateLicenseDto } from './dto/update-license.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Facility } from 'src/facilities/facility.entity';
+import { SportService } from 'src/sports/sport.service';
+import { QueryRunner, Repository } from 'typeorm';
+import { License } from './license.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class LicenseService {
-  create(createLicenseDto: CreateLicenseDto) {
-    return 'This action adds a new license';
+  constructor(
+    /**
+     * inject sportService
+     */
+    private readonly sportService: SportService,
+    /**
+     * inject cloudinaryService
+     */
+    private readonly cloudinaryService: CloudinaryService,
+    /**
+     * inject licenseRepository
+     */
+    @InjectRepository(License)
+    private readonly licenseRepository: Repository<License>,
+  ) {}
+
+  public async findOneById(
+    facilityId: UUID,
+    sportId: number,
+    relations?: string[],
+  ) {
+    const license = await this.licenseRepository.findOne({
+      where: {
+        sportId,
+        facilityId,
+      },
+      relations,
+    });
+
+    if (!license) {
+      throw new NotFoundException('License not found');
+    }
+
+    return license;
   }
 
-  findAll() {
-    return `This action returns all license`;
+  public async createWithTransaction(
+    license: Express.Multer.File,
+    facility: Facility,
+    sportId: number,
+    queryRunner: QueryRunner,
+  ) {
+    // check mimetype
+    if (!license.mimetype.includes('image')) {
+      throw new BadRequestException('License must be image');
+    }
+
+    // upload license
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { secure_url } = await this.cloudinaryService.uploadImage(license);
+
+    const sport = await this.sportService.findOneByIdWithTransaction(
+      sportId,
+      queryRunner,
+    );
+
+    const newLicense = queryRunner.manager.create(License, {
+      facility,
+      sport,
+      temporary: String(secure_url),
+    });
+
+    // save license
+    return queryRunner.manager.save(newLicense);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} license`;
+  public async update(
+    facilityId: UUID,
+    sportId: number,
+    license: Express.Multer.File,
+    ownerId: UUID,
+  ) {
+    const licenseObject = await this.findOneById(facilityId, sportId, [
+      'facility.owner',
+    ]);
+
+    // check permistion
+    if (licenseObject.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to update license',
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { secure_url } = await this.cloudinaryService.uploadImage(license);
+
+    licenseObject.temporary = String(secure_url);
+
+    await this.licenseRepository.save(licenseObject);
+
+    return {
+      message: 'Update license successful',
+    };
   }
 
-  update(id: number, updateLicenseDto: UpdateLicenseDto) {
-    return `This action updates a #${id} license`;
-  }
+  public async remove(facilityId: UUID, sportId: number, ownerId: UUID) {
+    const license = await this.findOneById(facilityId, sportId, [
+      'facility.owner',
+    ]);
 
-  remove(id: number) {
-    return `This action removes a #${id} license`;
+    // check permission
+    if (license.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException(
+        'You do not have permission to delete license',
+      );
+    }
+
+    await this.licenseRepository.remove(license);
+
+    return {
+      message: 'Delete license successfull',
+    };
   }
 }

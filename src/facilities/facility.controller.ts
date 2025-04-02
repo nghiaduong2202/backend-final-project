@@ -3,7 +3,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
-  Get,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -19,10 +18,14 @@ import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
 import { ApiOperation } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 import { CreateFacilityInterceptor } from './interceptors/create-facility.interceptor';
 import { DeleteImagesDto } from './dtos/delete-images.dto';
 import { UpdateFacilityDto } from './dtos/update-facility.dto';
+import { sportLicensesDto } from './dtos/sport-licenses.dto';
 
 @Controller('facility')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -38,41 +41,34 @@ export class FacilityController {
     summary: 'create new facility and field groups and fields (role: owner)',
   })
   @Post('create')
-  @UseInterceptors(FilesInterceptor('images', 10), CreateFacilityInterceptor)
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'images', maxCount: 10 },
+      { name: 'certificate', maxCount: 1 },
+      { name: 'licenses', maxCount: 7 },
+    ]),
+    CreateFacilityInterceptor,
+  )
   @AuthRoles(AuthRoleEnum.OWNER)
   public create(
-    @Body() createFacilityDto: CreateFacilityDto,
-    @UploadedFiles() images: Express.Multer.File[],
+    @Body('facilityInfo') createFacilityDto: CreateFacilityDto,
+    @UploadedFiles()
+    files: {
+      images: Express.Multer.File[];
+      certificate: Express.Multer.File;
+      licenses?: Express.Multer.File[];
+    },
     @ActivePerson('sub') ownerId: UUID,
+    @Body('sportLicenses') sportLicensesDto?: sportLicensesDto,
   ) {
-    return this.facilityService.create(createFacilityDto, images, ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get all facility in database (role: none)',
-  })
-  @Get('all')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getAll() {
-    return this.facilityService.getAll();
-  }
-
-  @ApiOperation({
-    summary: 'get my facilities (role: owner)',
-  })
-  @Get('my-facilities')
-  @AuthRoles(AuthRoleEnum.OWNER)
-  public getMyFacilities(@ActivePerson() ownerId: UUID) {
-    return this.facilityService.getByOwner(ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get facility by id (role: none)',
-  })
-  @Get('/:facilityId')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getById(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
-    return this.facilityService.getById(facilityId);
+    return this.facilityService.create(
+      createFacilityDto,
+      files.images,
+      ownerId,
+      files.certificate,
+      files.licenses,
+      sportLicensesDto?.sportIds,
+    );
   }
 
   @ApiOperation({
@@ -111,7 +107,7 @@ export class FacilityController {
   })
   @Patch(':facilityId')
   @AuthRoles(AuthRoleEnum.OWNER)
-  public update(
+  public updateInfor(
     @Body() updateFacilityDto: UpdateFacilityDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
     @ActivePerson('sub') ownerId: UUID,

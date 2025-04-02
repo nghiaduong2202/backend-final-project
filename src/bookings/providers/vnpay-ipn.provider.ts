@@ -15,7 +15,6 @@ import {
 import { Booking } from '../booking.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'crypto';
-import { BookingStatusEnum } from '../enums/booking-status.enum';
 
 @Injectable()
 export class VnpayIpnProvider {
@@ -59,17 +58,17 @@ export class VnpayIpnProvider {
         throw new NotFoundException('Booking not found');
       }
 
-      if (!verify.isSuccess) {
-        booking.status = BookingStatusEnum.CANCELLED;
-        await this.bookingRepository.save(booking);
-        throw new BadRequestException('Payment failed');
-      }
+      // if (!verify.isSuccess) {
+      //   booking.status = BookingStatusEnum.CANCELLED;
+      //   await this.bookingRepository.save(booking);
+      //   throw new BadRequestException('Payment failed');
+      // }
 
-      booking.status = BookingStatusEnum.PAID;
-      await this.bookingRepository.save(booking);
-      return {
-        message: 'Payment success',
-      };
+      // booking.status = BookingStatusEnum.PAID;
+      // await this.bookingRepository.save(booking);
+      // return {
+      //   message: 'Payment success',
+      // };
     } catch (error) {
       throw new BadRequestException(String(error));
     }

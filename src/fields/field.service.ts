@@ -6,7 +6,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateFieldsDto } from './dtos/create-fields.dto';
+import { CreateManyFieldsDto } from './dtos/create-many-fields.dto';
 import { UUID } from 'crypto';
 import { UpdateFieldDto } from './dtos/update-field.dto';
 import { QueryRunner, Repository } from 'typeorm';
@@ -36,12 +36,29 @@ export class FieldService {
     private readonly fieldRepository: Repository<Field>,
   ) {}
 
-  public async findOne(fieldId: number, relations?: string[]) {
+  public async findOneById(fieldId: number, relations?: string[]) {
     const field = await this.fieldRepository.findOne({
       where: {
         id: fieldId,
       },
       relations: relations,
+    });
+    if (!field) {
+      throw new NotFoundException('Field not found');
+    }
+    return field;
+  }
+
+  public async findOneWithTransaction(
+    fieldId: number,
+    queryRunner: QueryRunner,
+    relations?: string[],
+  ) {
+    const field = await queryRunner.manager.findOne(Field, {
+      where: {
+        id: fieldId,
+      },
+      relations,
     });
 
     if (!field) {
@@ -52,12 +69,14 @@ export class FieldService {
   }
 
   public async createMany(
-    createFieldsDto: CreateFieldsDto,
+    createManyFieldsDto: CreateManyFieldsDto,
     fieldGroupId: UUID,
     ownerId: UUID,
   ) {
     // get fieldGroup by id
-    const fieldGroup = await this.fieldGroupService.getById(fieldGroupId);
+    const fieldGroup = await this.fieldGroupService.findOneById(fieldGroupId, [
+      'facility.owner',
+    ]);
 
     // check permission
     if (fieldGroup.facility.owner.id !== ownerId) {
@@ -65,20 +84,19 @@ export class FieldService {
         'You do not have permission to create fields',
       );
     }
+
     // create fields
     await this.transactionManagerProvider.transaction(
       async (queryRunner: QueryRunner) => {
-        for (const fieldData of createFieldsDto.fieldsData) {
-          await this.createWithTransaction(fieldData, fieldGroup, queryRunner);
+        for (const field of createManyFieldsDto.fields) {
+          await this.createWithTransaction(field, fieldGroup, queryRunner);
         }
       },
     );
-
     return {
       message: 'Create fields successfully',
     };
   }
-
   public async createWithTransaction(
     createFieldDto: CreateFieldDto,
     fieldGroup: FieldGroup,
@@ -92,23 +110,11 @@ export class FieldService {
     await queryRunner.manager.save(field);
   }
 
-  public async getByFieldGroup(fieldGroupId: UUID) {
-    return await this.fieldRepository.find({
-      where: {
-        fieldGroup: {
-          id: fieldGroupId,
-        },
-      },
-    });
-  }
-
-  public async update(
-    updateFieldDto: UpdateFieldDto,
-    fieldId: number,
-    ownerId: UUID,
-  ) {
+  public async update(updateFieldDto: UpdateFieldDto, ownerId: UUID) {
     // get filed by id
-    const field = await this.findOne(fieldId, ['fieldGroup.facility.owner']);
+    const field = await this.findOneById(updateFieldDto.id, [
+      'fieldGroup.facility.owner',
+    ]);
 
     // check permission
     if (field.fieldGroup.facility.owner.id !== ownerId) {
@@ -129,13 +135,11 @@ export class FieldService {
     };
   }
 
-  public async getById(fieldId: number) {
-    return await this.findOne(fieldId, ['fieldGroup', 'fieldGroup.sports']);
-  }
-
   public async delete(fieldId: number, ownerId: UUID) {
     // get field by id
-    const field = await this.findOne(fieldId, ['fieldGroup.facility.owner']);
+    const field = await this.findOneById(fieldId, [
+      'fieldGroup.facility.owner',
+    ]);
 
     // check permission
     if (field.fieldGroup.facility.owner.id !== ownerId) {
@@ -144,30 +148,9 @@ export class FieldService {
 
     // delete field
     try {
-      await this.fieldRepository.delete(fieldId);
+      await this.fieldRepository.remove(field);
     } catch (error) {
       throw new BadRequestException(String(error));
     }
-  }
-
-  public async getByIdWithTransaction(
-    fieldId: number,
-    queryRunner: QueryRunner,
-  ) {
-    const field = await queryRunner.manager.findOne(Field, {
-      where: { id: fieldId },
-      relations: {
-        fieldGroup: {
-          sports: true,
-          facility: true,
-        },
-      },
-    });
-
-    if (!field) {
-      throw new NotFoundException('Field not found');
-    }
-
-    return field;
   }
 }

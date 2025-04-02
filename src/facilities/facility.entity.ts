@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,12 +13,13 @@ import {
 } from 'typeorm';
 import { FacilityStatusEnum } from './enums/facility-status.enum';
 import { UUID } from 'crypto';
-import { Service } from 'src/services/service.entiry';
+import { Service } from 'src/services/service.entity';
 import { Voucher } from 'src/vouchers/voucher.entity';
 import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { Person } from 'src/people/person.entity';
 import { Certificate } from 'src/certificates/certificate.entity';
 import { License } from 'src/licenses/license.entity';
+import { isBefore } from 'src/common/utils/is-before';
 @Entity()
 export class Facility {
   @PrimaryGeneratedColumn('uuid')
@@ -144,44 +147,50 @@ export class Facility {
   @OneToMany(() => License, (license) => license.facility)
   licenses: License[];
 
-  // @BeforeInsert()
-  // @BeforeUpdate()
-  // beforeInsertAndUpdate() {
-  //   /**
-  //    * openTime > closeTime
-  //    */
-  //   isBefore(
-  //     this.openTime1,
-  //     this.closeTime1,
-  //     'Open time must be before close time',
-  //   );
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeInsertAndUpdate() {
+    /**
+     * openTime > closeTime
+     */
+    isBefore(
+      this.openTime1,
+      this.closeTime1,
+      'Open time must be before close time',
+    );
 
-  //   if (this.openTime2 && this.closeTime2) {
-  //     isBefore(
-  //       this.closeTime1,
-  //       this.openTime2,
-  //       'Close time 1 must be before openTime 2',
-  //     );
+    this.numberOfShifts = 1;
 
-  //     isBefore(
-  //       this.openTime2,
-  //       this.closeTime2,
-  //       'Open time must be before close time',
-  //     );
+    if (this.openTime2 && this.closeTime2) {
+      isBefore(
+        this.closeTime1,
+        this.openTime2,
+        'Close time 1 must be before openTime 2',
+      );
 
-  //     if (this.openTime3 && this.closeTime3) {
-  //       isBefore(
-  //         this.closeTime1,
-  //         this.openTime2,
-  //         'Close time 2 must be before openTime 3',
-  //       );
+      isBefore(
+        this.openTime2,
+        this.closeTime2,
+        'Open time must be before close time',
+      );
 
-  //       isBefore(
-  //         this.openTime3,
-  //         this.closeTime3,
-  //         'Open time must be before close time',
-  //       );
-  //     }
-  //   }
-  // }
+      this.numberOfShifts = 2;
+
+      if (this.openTime3 && this.closeTime3) {
+        isBefore(
+          this.closeTime1,
+          this.openTime2,
+          'Close time 2 must be before openTime 3',
+        );
+
+        isBefore(
+          this.openTime3,
+          this.closeTime3,
+          'Open time must be before close time',
+        );
+
+        this.numberOfShifts = 3;
+      }
+    }
+  }
 }
