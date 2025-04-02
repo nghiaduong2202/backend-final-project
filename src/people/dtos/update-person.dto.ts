@@ -58,6 +58,7 @@ export class UpdatePersonDto {
   })
   @IsDateString()
   @Type(() => Date)
+  @IsOptional()
   @ValidateNested()
   dob?: Date;
 
