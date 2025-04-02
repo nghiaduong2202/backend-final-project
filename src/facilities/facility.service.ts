@@ -306,4 +306,36 @@ export class FacilityService {
       },
     });
   }
+
+  public async getByOwner(ownerId: UUID) {
+    const facilities = await this.facilityRepository.find({
+      where: {
+        owner: {
+          id: ownerId,
+        },
+      },
+      relations: {
+        fieldGroups: {
+          sports: true,
+        },
+      },
+    });
+
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+      minPrice: Math.min(
+        ...fieldGroups.map((fieldGroup) => fieldGroup.basePrice),
+      ),
+      maxPrice: Math.max(
+        ...fieldGroups.map((fieldGroup) => fieldGroup.basePrice),
+      ),
+    }));
+  }
 }

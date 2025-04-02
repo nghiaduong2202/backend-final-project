@@ -135,4 +135,30 @@ export class FacilityController {
   ) {
     return this.facilityService.update(updateFacilityDto, facilityId, ownerId);
   }
+
+  @ApiOperation({
+    summary: 'get all facilities by owner (role: none)',
+  })
+  @Get('owner/:ownerId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getAllByOwner(@Param('ownerId', ParseUUIDPipe) ownerId: UUID) {
+    return this.facilityService.getByOwner(ownerId);
+  }
+
+  @ApiOperation({
+    summary: 'get facility by id (role: none)',
+  })
+  @Get(':facilityId')
+  @AuthRoles(AuthRoleEnum.NONE)
+  public getByFacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.facilityService.findOneById(facilityId, [
+      'services',
+      'vouchers',
+      'fieldGroups.fields',
+      'fieldGroups.sports',
+      'owner',
+      'licenses',
+      'certificate',
+    ]);
+  }
 }
