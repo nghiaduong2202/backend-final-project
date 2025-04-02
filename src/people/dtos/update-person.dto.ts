@@ -67,6 +67,5 @@ export class UpdatePersonDto {
   })
   @IsString()
   @IsOptional()
-  @MinLength(5)
   bankAccount?: string;
 }
