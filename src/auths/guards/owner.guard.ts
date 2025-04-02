@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { ActivePeopleData } from '../interfaces/active-people-data.interface';
+import { ActivePersonData } from '../interfaces/active-person-data.interface';
 import { AuthRoleEnum } from '../enums/auth-role.enum';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class OwnerGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<ActivePeopleData>(
+      const payload = await this.jwtService.verifyAsync<ActivePersonData>(
         token,
         {
           secret: this.configService.get<string>('JWT_SECRET'),
@@ -38,7 +38,7 @@ export class OwnerGuard implements CanActivate {
         return false;
       }
 
-      request['people'] = payload;
+      request['person'] = payload;
     } catch {
       return false;
     }

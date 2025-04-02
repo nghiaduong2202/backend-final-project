@@ -1,5 +1,4 @@
-import { FieldGroup } from 'src/field-groups/field-group.entity';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Sport {
@@ -13,7 +12,4 @@ export class Sport {
     unique: true,
   })
   name: string;
-
-  @ManyToMany(() => FieldGroup, (fieldGroup) => fieldGroup.sports)
-  fieldGroups: FieldGroup[];
 }

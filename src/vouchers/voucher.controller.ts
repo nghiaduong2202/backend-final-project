@@ -2,14 +2,13 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
 import { CreateVoucherDto } from './dtos/create-voucher.dto';
-import { ActivePeople } from 'src/auths/decorators/active-people.decorator';
+import { ActivePerson } from 'src/auths/decorators/active-person.decorator';
 import { UUID } from 'crypto';
 import { VoucherService } from './voucher.service';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
@@ -25,7 +24,6 @@ export class VoucherController {
      */
     private readonly voucherService: VoucherService,
   ) {}
-
   @ApiOperation({
     summary: 'create new voucher (role: owner)',
   })
@@ -34,7 +32,7 @@ export class VoucherController {
   public create(
     @Body() createVoucherDto: CreateVoucherDto,
     @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
     return this.voucherService.create(createVoucherDto, facilityId, ownerId);
   }
@@ -44,17 +42,8 @@ export class VoucherController {
   })
   @Delete(':id')
   @AuthRoles(AuthRoleEnum.OWNER)
-  public delete(@Param('id') id: number, @ActivePeople('sub') ownerId: UUID) {
+  public delete(@Param('id') id: number, @ActivePerson('sub') ownerId: UUID) {
     return this.voucherService.delete(id, ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get voucher by facility (role: none)',
-  })
-  @Get(':facilityId/booking')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getByfacility(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
-    return this.voucherService.getByFacility(facilityId);
   }
 
   @ApiOperation({
@@ -64,20 +53,8 @@ export class VoucherController {
   @AuthRoles(AuthRoleEnum.OWNER)
   public update(
     @Body() updateVoucherDto: UpdateVoucherDto,
-    @ActivePeople('sub') ownerId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
   ) {
-    // return { message: 'xem xet lai viec update voucher' };
     return this.voucherService.update(updateVoucherDto, ownerId);
-  }
-
-  @ApiOperation({
-    summary: 'get all voucher by facility (role: none)',
-  })
-  @Get(':facilityId/all')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getAllByFacility(
-    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-  ) {
-    return this.voucherService.getAllByFacility(facilityId);
   }
 }

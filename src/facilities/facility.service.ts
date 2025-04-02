@@ -15,9 +15,10 @@ import { QueryRunner, Repository } from 'typeorm';
 import { Facility } from './facility.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { isBefore } from 'src/common/utils/is-before';
-import { PeopleService } from 'src/people/people.service';
+import { PersonService } from 'src/people/person.service';
 import { FieldGroupService } from 'src/field-groups/field-group.service';
+import { CertificateService } from 'src/certificates/certificate.service';
+import { LicenseService } from 'src/licenses/license.service';
 
 @Injectable()
 export class FacilityService {
@@ -36,17 +37,26 @@ export class FacilityService {
      */
     private readonly cloudinaryService: CloudinaryService,
     /**
-     * inject peopleService
+     * inject personService
      */
-    private readonly peopleService: PeopleService,
+    private readonly personService: PersonService,
     /**
      * inject fieldGroupService
      */
     @Inject(forwardRef(() => FieldGroupService))
     private readonly fieldGroupService: FieldGroupService,
+    /**
+     * inject certificateService
+     */
+    @Inject(forwardRef(() => CertificateService))
+    private readonly certificateService: CertificateService,
+    /**
+     * inject licenseService
+     */
+    private readonly licenseService: LicenseService,
   ) {}
 
-  public async findOne(facilityId: UUID, relations?: string[]) {
+  public async findOneById(facilityId: UUID, relations?: string[]) {
     const facility = await this.facilityRepository.findOne({
       where: {
         id: facilityId,
@@ -61,51 +71,14 @@ export class FacilityService {
     return facility;
   }
 
-  public async getById(facilityId: UUID) {
-    // get facility
-    const facility = await this.facilityRepository.findOne({
-      where: {
-        id: facilityId,
-      },
-      relations: {
-        owner: true,
-        fieldGroups: {
-          sports: true,
-        },
-      },
-    });
-
-    // check exist
-    if (!facility) {
-      throw new NotFoundException('Facility not found');
-    }
-
-    const { fieldGroups, ...rest } = facility;
-
-    return {
-      ...rest,
-      sports: fieldGroups
-        .map((fieldGroup) => fieldGroup.sports)
-        .flat()
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.id === item.id),
-        ),
-    };
-  }
-
   public async create(
     createFacilityDto: CreateFacilityDto,
     images: Express.Multer.File[],
     ownerId: UUID,
+    certificate: Express.Multer.File,
+    licenses?: Express.Multer.File[],
+    sportIds?: number[],
   ) {
-    // check open time is before close time
-    isBefore(
-      createFacilityDto.openTime,
-      createFacilityDto.closeTime,
-      'Open time must be before close time',
-    );
-
     // upload image to cloudinary
     const imagesUrl: string[] = [];
     for (const image of images) {
@@ -117,7 +90,7 @@ export class FacilityService {
     await this.transactionManagerProvider.transaction(
       async (queryRunner: QueryRunner) => {
         // get owner by id
-        const owner = await this.peopleService.getByIdWithTransaction(
+        const owner = await this.personService.findOneByIdWithTransaction(
           ownerId,
           queryRunner,
         );
@@ -132,12 +105,44 @@ export class FacilityService {
         await queryRunner.manager.save(facility);
 
         // create many field group
-        for (const fieldGroupData of createFacilityDto.fieldGroupsData) {
+        for (const fieldGroupData of createFacilityDto.fieldGroups) {
           await this.fieldGroupService.createWithTransaction(
             fieldGroupData,
             facility,
             queryRunner,
           );
+        }
+
+        // create certificate
+        await this.certificateService.createWithTransaction(
+          certificate,
+          facility,
+          queryRunner,
+        );
+
+        // create many licenses
+        if (sportIds && licenses) {
+          if (sportIds.length !== licenses.length) {
+            throw new BadRequestException(
+              'sportIds and licenses must be the same length',
+            );
+          }
+
+          // check sportIds is unique
+          const uniqueSportIds = new Set(sportIds);
+          if (uniqueSportIds.size !== sportIds.length) {
+            throw new BadRequestException('sportIds must be unique');
+          }
+
+          // create many licenses
+          for (let i = 0; i < licenses.length; i++) {
+            await this.licenseService.createWithTransaction(
+              licenses[i],
+              facility,
+              sportIds[i],
+              queryRunner,
+            );
+          }
         }
       },
     );
@@ -147,58 +152,29 @@ export class FacilityService {
     };
   }
 
-  public async getAll() {
-    // get all facilities
-    const facilities = await this.facilityRepository.find({
-      relations: {
-        owner: true,
-        fieldGroups: {
-          sports: true,
-        },
-      },
-    });
+  // public async getAll() {
+  //   // get all facilities
+  //   const facilities = await this.facilityRepository.find({
+  //     relations: {
+  //       owner: true,
+  //       fieldGroups: {
+  //         sports: true,
+  //       },
+  //     },
+  //   });
 
-    // return
-    return facilities.map(({ fieldGroups, ...facility }) => ({
-      ...facility,
-      sports: fieldGroups
-        .map((fieldGroup) => fieldGroup.sports)
-        .flat()
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.id === item.id),
-        ),
-    }));
-  }
-
-  public async getByOwner(ownerId: UUID) {
-    // get facility by owner id
-    const facilities = await this.facilityRepository.find({
-      where: {
-        owner: {
-          id: ownerId,
-        },
-      },
-      relations: {
-        owner: true,
-        fieldGroups: {
-          sports: true,
-        },
-      },
-    });
-
-    // return
-    return facilities.map(({ fieldGroups, ...facility }) => ({
-      ...facility,
-      sports: fieldGroups
-        .map((fieldGroup) => fieldGroup.sports)
-        .flat()
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.id === item.id),
-        ),
-    }));
-  }
+  //   // return
+  //   return facilities.map(({ fieldGroups, ...facility }) => ({
+  //     ...facility,
+  //     sports: fieldGroups
+  //       .map((fieldGroup) => fieldGroup.sports)
+  //       .flat()
+  //       .filter(
+  //         (item, index, self) =>
+  //           index === self.findIndex((t) => t.id === item.id),
+  //       ),
+  //   }));
+  // }
 
   public async updateImages(
     images: Express.Multer.File[],
@@ -206,11 +182,13 @@ export class FacilityService {
     ownerId: UUID,
   ) {
     // get facility by id
-    const faclity = await this.getById(facilityId);
+    const faclity = await this.findOneById(facilityId);
+
     // check owner have permission to update image into this facility
     if (faclity.owner.id !== ownerId) {
       throw new NotAcceptableException('You do not have permission to update');
     }
+
     // update images
     try {
       for (const image of images) {
@@ -235,7 +213,7 @@ export class FacilityService {
     ownerId: UUID,
   ) {
     // get facility by id
-    const facility = await this.getById(facilityId);
+    const facility = await this.findOneById(facilityId);
 
     // check owner have permission to delete this image
     if (facility.owner.id !== ownerId) {
@@ -264,7 +242,7 @@ export class FacilityService {
     ownerId: UUID,
   ) {
     // get facility by id
-    const facility = await this.getById(facilityId);
+    const facility = await this.findOneById(facilityId);
 
     // check owner have permission to update this facility
     if (facility.owner.id !== ownerId) {
@@ -279,15 +257,28 @@ export class FacilityService {
     if (updateFacilityDto.description)
       facility.description = updateFacilityDto.description;
 
-    if (updateFacilityDto.openTime && updateFacilityDto.closeTime) {
-      isBefore(
-        updateFacilityDto.openTime,
-        updateFacilityDto.closeTime,
-        'Open time must be before close time',
-      );
+    if (updateFacilityDto.openTime1) {
+      facility.openTime1 = updateFacilityDto.openTime1;
+    }
 
-      facility.openTime = updateFacilityDto.openTime;
-      facility.closeTime = updateFacilityDto.closeTime;
+    if (updateFacilityDto.openTime2) {
+      facility.openTime2 = updateFacilityDto.openTime2;
+    }
+
+    if (updateFacilityDto.openTime3) {
+      facility.openTime3 = updateFacilityDto.openTime3;
+    }
+
+    if (updateFacilityDto.closeTime1) {
+      facility.closeTime1 = updateFacilityDto.closeTime1;
+    }
+
+    if (updateFacilityDto.closeTime2) {
+      facility.closeTime2 = updateFacilityDto.closeTime2;
+    }
+
+    if (updateFacilityDto.closeTime3) {
+      facility.closeTime3 = updateFacilityDto.closeTime3;
     }
 
     if (updateFacilityDto.location)

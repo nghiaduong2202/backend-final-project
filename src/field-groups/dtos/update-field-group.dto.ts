@@ -13,6 +13,7 @@ import {
 export class UpdateFieldGroupDto {
   @ApiProperty({
     type: 'string',
+    nullable: true,
     example: 'Field group name',
   })
   @IsString()
@@ -24,6 +25,7 @@ export class UpdateFieldGroupDto {
   @ApiProperty({
     type: 'string',
     example: '120x240',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
@@ -34,6 +36,7 @@ export class UpdateFieldGroupDto {
   @ApiProperty({
     type: 'string',
     example: 'mặt cỏ',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
@@ -44,6 +47,7 @@ export class UpdateFieldGroupDto {
   @ApiProperty({
     type: 'number',
     example: 100000,
+    nullable: true,
   })
   @IsOptional()
   @IsNumber()
@@ -53,33 +57,97 @@ export class UpdateFieldGroupDto {
   @ApiPropertyOptional({
     type: 'string',
     example: '18:00',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
   @IsMilitaryTime()
-  peakStartTime?: string;
+  peakStartTime1?: string;
 
   @ApiPropertyOptional({
     type: 'string',
     example: '21:00',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
   @IsMilitaryTime()
-  peakEndTime?: string;
+  peakEndTime1?: string;
 
   @ApiPropertyOptional({
     type: 'number',
     example: 50000,
+    nullable: true,
   })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  priceIncrease?: number;
+  priceIncrease1?: number;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '18:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakStartTime2?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '21:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakEndTime2?: string;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    example: 50000,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  priceIncrease2?: number;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '18:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakStartTime3?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '21:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakEndTime3?: string;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    example: 50000,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  priceIncrease3?: number;
 
   @ApiProperty({
     type: 'array',
     example: [1, 2],
+    nullable: true,
   })
   @IsArray()
   @IsNumber({}, { each: true })

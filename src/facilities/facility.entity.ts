@@ -1,23 +1,26 @@
 import {
-  Check,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { FacilityStatusEnum } from './enums/facility-status.enum';
-import { People } from 'src/people/people.entity';
-import { FieldGroup } from 'src/field-groups/field-group.entity';
 import { UUID } from 'crypto';
+import { Service } from 'src/services/service.entity';
 import { Voucher } from 'src/vouchers/voucher.entity';
-import { Exclude } from 'class-transformer';
-import { Service } from 'src/services/service.entiry';
+import { FieldGroup } from 'src/field-groups/field-group.entity';
+import { Person } from 'src/people/person.entity';
+import { Certificate } from 'src/certificates/certificate.entity';
+import { License } from 'src/licenses/license.entity';
+import { isBefore } from 'src/common/utils/is-before';
 @Entity()
-@Check('"openTime" < "closeTime"')
 export class Facility {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
@@ -40,16 +43,45 @@ export class Facility {
     type: 'time',
     nullable: false,
   })
-  openTime: string;
+  openTime1: string;
 
   @Column({
     type: 'time',
     nullable: false,
   })
-  closeTime: string;
-  /**
-   * Có thể sửa lại thành kinh độ vĩ độ nhưng để hiện thực sau
-   */
+  closeTime1: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  openTime2?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  closeTime2?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  openTime3?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  closeTime3?: string;
+
+  @Column({
+    type: 'integer',
+    nullable: false,
+    default: 1,
+  })
+  numberOfShifts: number;
+
   @Column({
     type: 'varchar',
     length: 255,
@@ -67,43 +99,98 @@ export class Facility {
 
   @Column({
     type: 'real',
+    nullable: false,
     default: 0.0,
   })
   avgRating: number;
 
   @Column({
     type: 'integer',
+    nullable: false,
     default: 0,
   })
-  quantityRating: number;
+  numberOfRating: number;
 
-  @Column('simple-json', {
+  @Column({
+    type: 'varchar',
+    length: 255,
+    array: true,
     nullable: true,
   })
   imagesUrl?: string[];
 
-  @Exclude()
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @Exclude()
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @ManyToOne(() => People, (people) => people.facilities, {
-    cascade: true,
-    nullable: false,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
-  owner: People;
-
-  @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)
-  fieldGroups: FieldGroup[];
+  @OneToMany(() => Service, (service) => service.facility)
+  services: Service[];
 
   @OneToMany(() => Voucher, (voucher) => voucher.facility)
   vouchers: Voucher[];
 
-  @OneToMany(() => Service, (service) => service.facility)
-  services: Service[];
+  @OneToMany(() => FieldGroup, (fieldGroup) => fieldGroup.facility)
+  fieldGroups: FieldGroup[];
+
+  @ManyToOne(() => Person, (person) => person.facilities, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn()
+  owner: Person;
+
+  @OneToOne(() => Certificate, (certificate) => certificate.facility)
+  certificate: Certificate;
+
+  @OneToMany(() => License, (license) => license.facility)
+  licenses: License[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeInsertAndUpdate() {
+    /**
+     * openTime > closeTime
+     */
+    isBefore(
+      this.openTime1,
+      this.closeTime1,
+      'Open time must be before close time',
+    );
+
+    this.numberOfShifts = 1;
+
+    if (this.openTime2 && this.closeTime2) {
+      isBefore(
+        this.closeTime1,
+        this.openTime2,
+        'Close time 1 must be before openTime 2',
+      );
+
+      isBefore(
+        this.openTime2,
+        this.closeTime2,
+        'Open time must be before close time',
+      );
+
+      this.numberOfShifts = 2;
+
+      if (this.openTime3 && this.closeTime3) {
+        isBefore(
+          this.closeTime1,
+          this.openTime2,
+          'Close time 2 must be before openTime 3',
+        );
+
+        isBefore(
+          this.openTime3,
+          this.closeTime3,
+          'Open time must be before close time',
+        );
+
+        this.numberOfShifts = 3;
+      }
+    }
+  }
 }

@@ -1,6 +1,7 @@
 export enum FacilityStatusEnum {
   PENDING = 'pending',
-  REJECTED = 'rejected',
-  APPROVED = 'approved',
+  ACTIVE = 'active',
+  UNACTIVE = 'unactive',
   CLOSED = 'closed',
+  BANNED = 'banned',
 }

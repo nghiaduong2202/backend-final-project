@@ -25,6 +25,7 @@ export class CreateFacilityDto {
 
   @ApiProperty({
     type: 'string',
+    nullable: true,
     example: 'Facility description',
   })
   @IsString()
@@ -38,7 +39,7 @@ export class CreateFacilityDto {
   @IsString()
   @IsNotEmpty()
   @IsMilitaryTime()
-  openTime: string;
+  openTime1: string;
 
   @ApiProperty({
     type: 'string',
@@ -47,7 +48,47 @@ export class CreateFacilityDto {
   @IsMilitaryTime()
   @IsString()
   @IsNotEmpty()
-  closeTime: string;
+  closeTime1: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '6:00',
+    nullable: true,
+  })
+  @IsString()
+  @IsOptional()
+  @IsMilitaryTime()
+  openTime2?: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '22:00',
+    nullable: true,
+  })
+  @IsMilitaryTime()
+  @IsString()
+  @IsOptional()
+  closeTime2?: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '6:00',
+    nullable: true,
+  })
+  @IsString()
+  @IsOptional()
+  @IsMilitaryTime()
+  openTime3?: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '22:00',
+    nullable: true,
+  })
+  @IsMilitaryTime()
+  @IsString()
+  @IsOptional()
+  closeTime3?: string;
 
   @ApiProperty({
     type: 'string',
@@ -58,23 +99,10 @@ export class CreateFacilityDto {
   location: string;
 
   @ApiProperty({
-    type: 'array',
-    example: [
-      {
-        name: 'Field group name',
-        dimension: '120x240',
-        surface: 'mặt cỏ',
-        basePrice: 100000,
-        peakStartTime: '18:00',
-        peakEndTime: '21:00',
-        priceIncrease: 50000,
-        sportIds: [1, 2],
-        fieldsData: [{ name: 'field name' }],
-      },
-    ],
+    type: [CreateFieldGroupDto],
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateFieldGroupDto)
-  fieldGroupsData: CreateFieldGroupDto[];
+  fieldGroups: CreateFieldGroupDto[];
 }

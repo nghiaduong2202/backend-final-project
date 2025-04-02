@@ -1,12 +1,13 @@
 import { UUID } from 'crypto';
+import { isBefore } from 'src/common/utils/is-before';
 import { Facility } from 'src/facilities/facility.entity';
 import { Field } from 'src/fields/field.entity';
 import { Sport } from 'src/sports/sport.entity';
 import {
-  Check,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -17,7 +18,6 @@ import {
 
 @Entity()
 @Unique(['name', 'facility'])
-@Check('"peakStartTime" < "peakEndTime"')
 export class FieldGroup {
   @PrimaryGeneratedColumn('uuid')
   id: UUID;
@@ -53,34 +53,104 @@ export class FieldGroup {
     type: 'time',
     nullable: true,
   })
-  peakStartTime?: string;
+  peakStartTime1?: string;
 
   @Column({
     type: 'time',
     nullable: true,
   })
-  peakEndTime?: string;
+  peakEndTime1?: string;
 
   @Column({
     type: 'integer',
     nullable: true,
   })
-  priceIncrease?: number;
+  priceIncrease1?: number;
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakStartTime2?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakEndTime2?: string;
+
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  priceIncrease2?: number;
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakStartTime3?: string;
+
+  @Column({
+    type: 'time',
+    nullable: true,
+  })
+  peakEndTime3?: string;
+
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  priceIncrease3?: number;
+
+  @Column({
+    type: 'integer',
+    nullable: false,
+    default: 0,
+  })
+  numberOfPeaks: number;
+
+  @OneToMany(() => Field, (field) => field.fieldGroup)
+  fields: Field[];
 
   @ManyToOne(() => Facility, (facility) => facility.fieldGroups, {
-    cascade: true,
-    nullable: false,
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
   facility: Facility;
 
-  @ManyToMany(() => Sport, (sports) => sports.fieldGroups)
-  @JoinTable({
-    name: 'field-group-sport',
-  })
+  @ManyToMany(() => Sport)
+  @JoinTable()
   sports: Sport[];
 
-  @OneToMany(() => Field, (fields) => fields.fieldGroup)
-  fields: Field[];
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeInsertAndUpdate() {
+    if (this.peakEndTime1 && this.peakStartTime1) {
+      isBefore(
+        this.peakStartTime1,
+        this.peakEndTime1,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 1;
+    }
+
+    if (this.peakEndTime2 && this.peakStartTime2) {
+      isBefore(
+        this.peakStartTime2,
+        this.peakEndTime2,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 2;
+    }
+
+    if (this.peakEndTime3 && this.peakStartTime3) {
+      isBefore(
+        this.peakStartTime3,
+        this.peakEndTime3,
+        'Peak start time must be before peak end time',
+      );
+
+      this.numberOfPeaks = 3;
+    }
+  }
 }

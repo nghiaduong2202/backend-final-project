@@ -3,14 +3,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HashProvider } from './providers/hash.provider';
 import { BcryptProvider } from './providers/bcrypt.provider';
-import { PeopleModule } from 'src/people/people.module';
+import { PersonModule } from 'src/people/person.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TokenProvider } from './providers/token.provider';
 
 @Module({
   imports: [
-    PeopleModule,
+    PersonModule,
     ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

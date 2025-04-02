@@ -18,7 +18,6 @@ export class BookingScheduleProvider {
   @Cron(CronExpression.EVERY_5_MINUTES)
   public async handleCron() {
     try {
-      console.log('check draft booking');
       const fiveMinutes = new Date(Date.now() - 5 * 60 * 1000);
       const draftBookingOverTime = await this.bookingRepository.find({
         where: {
@@ -27,14 +26,10 @@ export class BookingScheduleProvider {
         },
       });
       for (const booking of draftBookingOverTime) {
-        console.log(
-          '🚀 ~ BookingScheduleProvider ~ handleCron ~ booking:',
-          booking,
-        );
         // const res = await this.bookingRepository.delete(booking);
-        booking.status = BookingStatusEnum.CANCELLED;
-        const res = await this.bookingRepository.save(booking);
-        console.log('🚀 ~ BookingScheduleProvider ~ handleCron ~ res:', res);
+        // booking.status = BookingStatusEnum.CANCELLED;
+        // await this.bookingRepository.save(booking);
+        console.log(booking);
       }
     } catch (error) {
       console.log(String(error));

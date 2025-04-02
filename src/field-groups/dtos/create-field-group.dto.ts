@@ -57,29 +57,92 @@ export class CreateFieldGroupDto {
   @ApiPropertyOptional({
     type: 'string',
     example: '18:00',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
   @IsMilitaryTime()
-  peakStartTime?: string;
+  peakStartTime1?: string;
 
   @ApiPropertyOptional({
     type: 'string',
     example: '21:00',
+    nullable: true,
   })
   @IsOptional()
   @IsString()
   @IsMilitaryTime()
-  peakEndTime?: string;
+  peakEndTime1?: string;
 
   @ApiPropertyOptional({
     type: 'number',
     example: 50000,
+    nullable: true,
   })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  priceIncrease?: number;
+  priceIncrease1?: number;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '18:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakStartTime2?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '21:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakEndTime2?: string;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    example: 50000,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  priceIncrease2?: number;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '18:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakStartTime3?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    example: '21:00',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @IsMilitaryTime()
+  peakEndTime3?: string;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    example: 50000,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  priceIncrease3?: number;
 
   @ApiProperty({
     type: 'array',
@@ -97,5 +160,5 @@ export class CreateFieldGroupDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateFieldDto)
-  fieldsData: CreateFieldDto[];
+  fields: CreateFieldDto[];
 }
