@@ -53,12 +53,10 @@ export class CertificateService {
     facility: Facility,
     queryRunner: QueryRunner,
   ) {
-    console.log('certificate: ', typeof certificate);
     // check certificate memimetype
     if (!certificate.mimetype.includes('image')) {
       throw new BadRequestException('Certificate must be image');
     }
-    console.log('certificate');
 
     // upload certificate
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

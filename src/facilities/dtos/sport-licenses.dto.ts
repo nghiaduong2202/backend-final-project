@@ -9,5 +9,5 @@ export class sportLicensesDto {
   @IsArray()
   @IsNumber({}, { each: true })
   @IsOptional()
-  sportIds: number[];
+  sportIds?: number[];
 }

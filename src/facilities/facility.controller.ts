@@ -79,8 +79,8 @@ export class FacilityController {
       certificate: Express.Multer.File[];
       licenses?: Express.Multer.File[];
     },
+    @Body('sportLicenses') sportLicensesDto: sportLicensesDto,
     @ActivePerson('sub') ownerId: UUID,
-    @Body('sportLicenses') sportLicensesDto?: sportLicensesDto,
   ) {
     return this.facilityService.create(
       createFacilityDto,

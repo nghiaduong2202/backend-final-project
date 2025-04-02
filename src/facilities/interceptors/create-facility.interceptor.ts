@@ -22,8 +22,6 @@ export class CreateFacilityInterceptor implements NestInterceptor {
         facilityInfo: { ...JSON.parse(request.body.facilityInfo) },
         sportLicenses: { ...JSON.parse(request.body.sportLicenses) },
       };
-
-      console.log(request.body);
     } catch (error) {
       throw new BadRequestException('Invalid data', {
         description: String(error),
