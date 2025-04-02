@@ -292,14 +292,16 @@ export class FacilityService {
     };
   }
 
-  public async getDropDownInfor(facilityId: UUID) {
+  public async getDropDownInfor(ownerId: UUID) {
     return await this.facilityRepository.find({
       select: {
         id: true,
         name: true,
       },
       where: {
-        id: facilityId,
+        owner: {
+          id: ownerId,
+        },
       },
       order: {
         name: 'ASC',

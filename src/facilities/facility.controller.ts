@@ -48,14 +48,12 @@ export class FacilityController {
   }
 
   @ApiOperation({
-    summary: 'get facility by id (role: none)',
+    summary: 'get facility by id (role: owner)',
   })
-  @Get(':facilityId/drop-down')
-  @AuthRoles(AuthRoleEnum.NONE)
-  public getDropDownInfor(
-    @Param('facilityId', ParseUUIDPipe) facilityId: UUID,
-  ) {
-    return this.facilityService.getDropDownInfor(facilityId);
+  @Get('drop-down')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public getDropDownInfor(@ActivePerson('sub') ownerId: UUID) {
+    return this.facilityService.getDropDownInfor(ownerId);
   }
 
   @ApiOperation({
