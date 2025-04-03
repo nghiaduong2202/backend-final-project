@@ -107,5 +107,11 @@ export class CertificateService {
 
   public async approve(facilityId: UUID) {
     const certificate = await this.findOneById(facilityId);
+
+    certificate.verified = certificate.temporary;
+
+    delete certificate.temporary;
+
+    return await this.certificateRepository.save(certificate);
   }
 }

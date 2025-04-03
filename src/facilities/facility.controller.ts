@@ -159,4 +159,22 @@ export class FacilityController {
       'certificate',
     ]);
   }
+
+  @ApiOperation({
+    summary: 'approve facility (role: admin)',
+  })
+  @Patch(':facilityId/approve')
+  @AuthRoles(AuthRoleEnum.ADMIN)
+  public approve(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.facilityService.approve(facilityId);
+  }
+
+  @ApiOperation({
+    summary: 'reject facility (role: admin)',
+  })
+  @Patch(':facilityId/reject')
+  @AuthRoles(AuthRoleEnum.ADMIN)
+  public reject(@Param('facilityId', ParseUUIDPipe) facilityId: UUID) {
+    return this.facilityService.reject(facilityId);
+  }
 }

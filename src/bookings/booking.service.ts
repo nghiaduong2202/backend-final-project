@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UUID } from 'crypto';
 import { CreateDraftBookingDto } from './dtos/create-draft-booking.dto';
 import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
@@ -282,142 +287,6 @@ export class BookingService {
     }
   }
 
-  // public async deleteDraft(bookingId: UUID, playerId: UUID) {
-  //   const booking = await this.getById(bookingId);
-  //   if (booking.player.id !== playerId) {
-  //     throw new BadRequestException(
-  //       'You do not have permission to delete this booking',
-  //     );
-  //   }
-  //   if (booking.status !== BookingStatusEnum.DRAFT) {
-  //     throw new BadRequestException('You can only delete draft booking');
-  //   }
-  //   // await this.bookingRepository.delete(booking);
-  //   return {
-  //     message: 'Delete draft booking successfully',
-  //   };
-  // }
-  // public async getById(bookingId: UUID) {
-  //   const booking = await this.bookingRepository.findOne({
-  //     where: {
-  //       id: bookingId,
-  //     },
-  //     relations: {
-  //       // bookingServices: true,
-  //       player: true,
-  //       // field: {
-  //       //   fieldGroup: true,
-  //       // },
-  //     },
-  //   });
-  //   if (!booking) {
-  //     throw new NotFoundException('Booking not found');
-  //   }
-  //   return booking;
-  // }
-  // public async findOneWithTransaction(
-  //   bookingId: UUID,
-  //   queryRunner: QueryRunner,
-  //   relations?: string[],
-  // ) {
-  //   const booking = await queryRunner.manager.findOne(Booking, {
-  //     where: {
-  //       id: bookingId,
-  //     },
-  //     relations: relations,
-  //   });
-  //   if (!booking) {
-  //     throw new NotFoundException('Booking not found');
-  //   }
-  //   return booking;
-  // }
-  // public async updateField(
-  //   updateFieldBookingDto: UpdateFieldBookingDto,
-  //   bookingId: UUID,
-  //   playerId: UUID,
-  // ) {
-  //   return this.transactionManagerProvider.transaction(
-  //     async (queryRunner: QueryRunner) => {
-  //       const booking = await this.findOneWithTransaction(
-  //         bookingId,
-  //         queryRunner,
-  //         [
-  //           'player',
-  //           'field',
-  //           'field.fieldGroup.facility',
-  //           'bookingServices',
-  //           'sport',
-  //         ],
-  //       );
-  //       // booking change only with status is draft
-  //       if (booking.status !== BookingStatusEnum.DRAFT) {
-  //         throw new BadRequestException('You can only update draft booking');
-  //       }
-  //       // check player have permission to update field
-  //       if (booking.player.id !== playerId) {
-  //         throw new BadRequestException(
-  //           'You do not have permission to update this booking',
-  //         );
-  //       }
-  //       // if (booking.field.id === updateFieldBookingDto.fieldId) {
-  //       //   return {
-  //       //     message: 'Same field, no need to update',
-  //       //   };
-  //       // }
-  //       // await this.checkOverlapBookings(
-  //       //   updateFieldBookingDto.fieldId,
-  //       //   booking.date,
-  //       //   booking.startTime,
-  //       //   booking.endTime,
-  //       //   queryRunner,
-  //       // );
-  //       // get new field
-  //       const newField = await this.fieldService.getByIdWithTransaction(
-  //         updateFieldBookingDto.fieldId,
-  //         queryRunner,
-  //       );
-  //       // check new field have same facility with old field
-  //       // if (
-  //       //   newField.fieldGroup.facility.id !==
-  //       //   booking.field.fieldGroup.facility.id
-  //       // ) {
-  //       //   throw new BadRequestException(
-  //       //     'New field must have same facility with old field',
-  //       //   );
-  //       // }
-  //       // check field have spoprt
-  //       if (
-  //         !newField.fieldGroup.sports.find(
-  //           (sport) => sport.id === booking.sport.id,
-  //         )
-  //       ) {
-  //         throw new BadRequestException(
-  //           'New field does not have same sport with old field',
-  //         );
-  //       }
-  //       // calculate field price
-  //       // const playTime = duration(booking.startTime, booking.endTime);
-  //       // const newFieldPrice = playTime * newField.fieldGroup.basePrice;
-  //       // if (
-  //       //   newField.fieldGroup.peakStartTime &&
-  //       //   newField.fieldGroup.peakEndTime &&
-  //       //   newField.fieldGroup.priceIncrease
-  //       // ) {
-  //       //   const overlapPeak = durationOverlapTime(
-  //       //     newField.fieldGroup.peakStartTime,
-  //       //     newField.fieldGroup.peakEndTime,
-  //       //     booking.startTime,
-  //       //     booking.endTime,
-  //       //   );
-  //       //   newFieldPrice += overlapPeak * newField.fieldGroup.priceIncrease;
-  //       // }
-  //       // update field
-  //       // booking.field = newField;
-  //       // booking.fieldPrice = newFieldPrice;
-  //       return await queryRunner.manager.save(booking);
-  //     },
-  //   );
-  // }
   // public async updateService(
   //   createAdditionalServiceDto: CreateAdditionalServiceDto[],
   //   bookingId: UUID,
@@ -429,20 +298,16 @@ export class BookingService {
   //       const booking = await this.findOneWithTransaction(
   //         bookingId,
   //         queryRunner,
-  //         [
-  //           'player',
-  //           'field',
-  //           'bookingServices',
-  //           'sport',
-  //           'field.fieldGroup.facility',
-  //         ],
+  //         ['player', 'sport'],
   //       );
+
   //       // check permission
   //       if (booking.player.id !== playerId) {
   //         throw new NotAcceptableException(
   //           'You do not have permission to update this booking',
   //         );
   //       }
+
   //       if (booking.bookingServices) {
   //         for (const oldService of booking.bookingServices) {
   //           await queryRunner.manager.delete(BookingServiceEntity, oldService);
@@ -534,6 +399,145 @@ export class BookingService {
   //       await queryRunner.manager.save(booking);
   //       booking.bookingServices = newBookingServices;
   //       return booking;
+  //     },
+  //   );
+  // }
+
+  public async findOneWithTransaction(
+    bookingId: UUID,
+    queryRunner: QueryRunner,
+    relations?: string[],
+  ) {
+    const booking = await queryRunner.manager.findOne(Booking, {
+      where: {
+        id: bookingId,
+      },
+      relations: relations,
+    });
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+    return booking;
+  }
+
+  // public async deleteDraft(bookingId: UUID, playerId: UUID) {
+  //   const booking = await this.getById(bookingId);
+  //   if (booking.player.id !== playerId) {
+  //     throw new BadRequestException(
+  //       'You do not have permission to delete this booking',
+  //     );
+  //   }
+  //   if (booking.status !== BookingStatusEnum.DRAFT) {
+  //     throw new BadRequestException('You can only delete draft booking');
+  //   }
+  //   // await this.bookingRepository.delete(booking);
+  //   return {
+  //     message: 'Delete draft booking successfully',
+  //   };
+  // }
+  // public async getById(bookingId: UUID) {
+  //   const booking = await this.bookingRepository.findOne({
+  //     where: {
+  //       id: bookingId,
+  //     },
+  //     relations: {
+  //       // bookingServices: true,
+  //       player: true,
+  //       // field: {
+  //       //   fieldGroup: true,
+  //       // },
+  //     },
+  //   });
+  //   if (!booking) {
+  //     throw new NotFoundException('Booking not found');
+  //   }
+  //   return booking;
+  // }
+
+  // public async updateField(
+  //   updateFieldBookingDto: UpdateFieldBookingDto,
+  //   bookingId: UUID,
+  //   playerId: UUID,
+  // ) {
+  //   return this.transactionManagerProvider.transaction(
+  //     async (queryRunner: QueryRunner) => {
+  //       const booking = await this.findOneWithTransaction(
+  //         bookingId,
+  //         queryRunner,
+  //         [
+  //           'player',
+  //           'field',
+  //           'field.fieldGroup.facility',
+  //           'bookingServices',
+  //           'sport',
+  //         ],
+  //       );
+  //       // booking change only with status is draft
+  //       if (booking.status !== BookingStatusEnum.DRAFT) {
+  //         throw new BadRequestException('You can only update draft booking');
+  //       }
+  //       // check player have permission to update field
+  //       if (booking.player.id !== playerId) {
+  //         throw new BadRequestException(
+  //           'You do not have permission to update this booking',
+  //         );
+  //       }
+  //       // if (booking.field.id === updateFieldBookingDto.fieldId) {
+  //       //   return {
+  //       //     message: 'Same field, no need to update',
+  //       //   };
+  //       // }
+  //       // await this.checkOverlapBookings(
+  //       //   updateFieldBookingDto.fieldId,
+  //       //   booking.date,
+  //       //   booking.startTime,
+  //       //   booking.endTime,
+  //       //   queryRunner,
+  //       // );
+  //       // get new field
+  //       const newField = await this.fieldService.getByIdWithTransaction(
+  //         updateFieldBookingDto.fieldId,
+  //         queryRunner,
+  //       );
+  //       // check new field have same facility with old field
+  //       // if (
+  //       //   newField.fieldGroup.facility.id !==
+  //       //   booking.field.fieldGroup.facility.id
+  //       // ) {
+  //       //   throw new BadRequestException(
+  //       //     'New field must have same facility with old field',
+  //       //   );
+  //       // }
+  //       // check field have spoprt
+  //       if (
+  //         !newField.fieldGroup.sports.find(
+  //           (sport) => sport.id === booking.sport.id,
+  //         )
+  //       ) {
+  //         throw new BadRequestException(
+  //           'New field does not have same sport with old field',
+  //         );
+  //       }
+  //       // calculate field price
+  //       // const playTime = duration(booking.startTime, booking.endTime);
+  //       // const newFieldPrice = playTime * newField.fieldGroup.basePrice;
+  //       // if (
+  //       //   newField.fieldGroup.peakStartTime &&
+  //       //   newField.fieldGroup.peakEndTime &&
+  //       //   newField.fieldGroup.priceIncrease
+  //       // ) {
+  //       //   const overlapPeak = durationOverlapTime(
+  //       //     newField.fieldGroup.peakStartTime,
+  //       //     newField.fieldGroup.peakEndTime,
+  //       //     booking.startTime,
+  //       //     booking.endTime,
+  //       //   );
+  //       //   newFieldPrice += overlapPeak * newField.fieldGroup.priceIncrease;
+  //       // }
+  //       // update field
+  //       // booking.field = newField;
+  //       // booking.fieldPrice = newFieldPrice;
+  //       return await queryRunner.manager.save(booking);
   //     },
   //   );
   // }
