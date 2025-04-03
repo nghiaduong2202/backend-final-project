@@ -4,7 +4,6 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
-  Put,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CertificateService } from './certificate.service';

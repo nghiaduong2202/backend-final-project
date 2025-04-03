@@ -151,4 +151,14 @@ export class LicenseService {
       message: 'Delete license successfull',
     };
   }
+
+  public async approve(facilityId: UUID, sportId: number) {
+    const license = await this.findOneById(facilityId, sportId);
+
+    license.verified = license.temporary;
+
+    delete license.temporary;
+
+    return await this.licenseRepository.save(license);
+  }
 }

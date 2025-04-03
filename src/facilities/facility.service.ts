@@ -19,6 +19,7 @@ import { PersonService } from 'src/people/person.service';
 import { FieldGroupService } from 'src/field-groups/field-group.service';
 import { CertificateService } from 'src/certificates/certificate.service';
 import { LicenseService } from 'src/licenses/license.service';
+import { FacilityStatusEnum } from './enums/facility-status.enum';
 
 @Injectable()
 export class FacilityService {
@@ -356,5 +357,45 @@ export class FacilityService {
         ...fieldGroups.map((fieldGroup) => fieldGroup.basePrice),
       ),
     }));
+  }
+
+  public async approve(facilityId: UUID) {
+    const facility = await this.findOneById(facilityId, [
+      'certificate',
+      'licenses',
+    ]);
+
+    if (facility.status !== FacilityStatusEnum.PENDING) {
+      throw new BadRequestException('Facility is not pending');
+    }
+
+    const certificate = facility.certificate;
+    const licenses = facility.licenses;
+
+    if (!certificate.verified) {
+      throw new BadRequestException('You must approve certificate first');
+    }
+
+    for (const license of licenses) {
+      if (!license.verified) {
+        throw new BadRequestException('You must approve licenses first');
+      }
+    }
+
+    facility.status = FacilityStatusEnum.ACTIVE;
+
+    return await this.facilityRepository.save(facility);
+  }
+
+  public async reject(facilityId: UUID) {
+    const facility = await this.findOneById(facilityId);
+
+    if (facility.status !== FacilityStatusEnum.PENDING) {
+      throw new BadRequestException('Facility is not pending');
+    }
+
+    facility.status = FacilityStatusEnum.UNACTIVE;
+
+    return await this.facilityRepository.save(facility);
   }
 }
