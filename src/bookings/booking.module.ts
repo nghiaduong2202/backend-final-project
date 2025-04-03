@@ -11,6 +11,8 @@ import { FieldModule } from 'src/fields/field.module';
 import { SportModule } from 'src/sports/sport.module';
 import { CommonModule } from 'src/common/common.module';
 import { ServiceModule } from 'src/services/service.module';
+import { BookingSlotModule } from 'src/booking-slots/booking-slot.module';
+import { PaymentModule } from 'src/payments/payment.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { ServiceModule } from 'src/services/service.module';
     SportModule,
     CommonModule,
     ServiceModule,
+    BookingSlotModule,
+    PaymentModule,
   ],
   controllers: [BookingController],
   providers: [BookingService, VnpayIpnProvider, BookingScheduleProvider],

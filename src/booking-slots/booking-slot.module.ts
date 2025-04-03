@@ -8,5 +8,6 @@ import { BookingSlot } from './booking-slot.entity';
   imports: [TypeOrmModule.forFeature([BookingSlot])],
   controllers: [BookingSlotController],
   providers: [BookingSlotService],
+  exports: [BookingSlotService],
 })
 export class BookingSlotModule {}

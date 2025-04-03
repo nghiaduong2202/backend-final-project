@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -15,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SportService } from 'src/sports/sport.service';
 import { FacilityService } from 'src/facilities/facility.service';
 import { TransactionManagerProvider } from 'src/common/providers/transaction-manager.provider';
+import { LicenseService } from 'src/licenses/license.service';
 
 @Injectable()
 export class ServiceService {
@@ -36,6 +39,11 @@ export class ServiceService {
      * inject transactionManagerProvider
      */
     private readonly transactionManagerProvider: TransactionManagerProvider,
+    /**
+     * inject licenseService
+     */
+    @Inject(forwardRef(() => LicenseService))
+    private readonly licenseService: LicenseService,
   ) {}
 
   public async findOneById(serviceId: number, relations?: string[]) {
@@ -113,6 +121,19 @@ export class ServiceService {
       queryRunner,
     );
 
+    // check facility have license for this sport
+    const license = await this.licenseService.findOneWithTransaction(
+      facility.id,
+      createServiceDto.sportId,
+      queryRunner,
+    );
+
+    if (!license.verified) {
+      throw new BadRequestException(
+        `You must update your license for the ${sport.name} sport first`,
+      );
+    }
+
     const service = queryRunner.manager.create(Service, {
       ...createServiceDto,
       sport,
@@ -150,6 +171,8 @@ export class ServiceService {
         service.sport = sport;
       }
 
+      if (updateServiceDto.unit) service.unit = updateServiceDto.unit;
+
       await this.serviceRepository.save(service);
     } catch (error) {
       throw new BadRequestException(String(error));
@@ -161,19 +184,36 @@ export class ServiceService {
   }
 
   public async getByFacility(facilityId: UUID) {
-    return await this.serviceRepository.find({
+    const services = await this.serviceRepository.find({
       where: {
         facility: {
           id: facilityId,
         },
+        additionalServices: {
+          booking: {
+            bookingSlots: {
+              date: new Date(),
+            },
+          },
+        },
       },
       relations: {
         sport: true,
+        additionalServices: {
+          booking: {
+            bookingSlots: true,
+          },
+        },
       },
       order: {
         name: 'DESC',
       },
     });
+
+    return services.map(({ additionalServices, ...service }) => ({
+      ...service,
+      bookedCountOnDate: additionalServices.length,
+    }));
   }
 
   public async delete(serviceId: number, ownerId: UUID) {

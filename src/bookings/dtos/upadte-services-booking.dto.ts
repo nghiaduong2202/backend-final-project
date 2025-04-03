@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BookingServiceDto } from './booking-service.dto';
+import { CreateAdditionalServiceDto } from 'src/additional-serrvices/dto/create-additional-service.dto';
 
 export class UpdateServiceBookingDto {
   @ApiProperty({
@@ -16,6 +16,6 @@ export class UpdateServiceBookingDto {
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => BookingServiceDto)
-  bookingServicesData: BookingServiceDto[];
+  @Type(() => CreateAdditionalServiceDto)
+  additionalServices: CreateAdditionalServiceDto[];
 }
