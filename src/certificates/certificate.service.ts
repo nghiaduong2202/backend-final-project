@@ -33,7 +33,7 @@ export class CertificateService {
     private readonly certificateRepository: Repository<Certificate>,
   ) {}
 
-  public async findOneBy(facilityId: UUID, relations?: string[]) {
+  public async findOneById(facilityId: UUID, relations?: string[]) {
     const certificate = await this.certificateRepository.findOne({
       where: {
         facilityId,
@@ -92,7 +92,7 @@ export class CertificateService {
     const { secure_url } =
       await this.cloudinaryService.uploadImage(updateCertificate);
 
-    const certificate = await this.findOneBy(facilityId);
+    const certificate = await this.findOneById(facilityId);
 
     certificate.temporary = String(secure_url);
 
@@ -103,5 +103,9 @@ export class CertificateService {
     return {
       message: 'Certificate updated successfully',
     };
+  }
+
+  public async approve(facilityId: UUID) {
+    const certificate = await this.findOneById(facilityId);
   }
 }

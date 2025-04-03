@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 import { UUID } from 'crypto';
 import { AuthRoles } from 'src/auths/decorators/auth-role.decorator';
 import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
@@ -54,11 +54,6 @@ export class ServiceController {
 
   @ApiOperation({
     summary: 'Get services by facility (role: none)',
-  })
-  @ApiQuery({
-    name: 'sportId',
-    required: false,
-    type: Number,
   })
   @Get(':facilityId')
   @AuthRoles(AuthRoleEnum.NONE)

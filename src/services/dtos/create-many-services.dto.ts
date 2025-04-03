@@ -14,7 +14,7 @@ export class CreateManyServicesDto {
   facilityId: UUID;
 
   @ApiProperty({
-    type: CreateServiceDto,
+    type: [CreateServiceDto],
   })
   @IsArray()
   @ValidateNested({ each: true })

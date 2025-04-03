@@ -189,13 +189,6 @@ export class ServiceService {
         facility: {
           id: facilityId,
         },
-        additionalServices: {
-          booking: {
-            bookingSlots: {
-              date: new Date(),
-            },
-          },
-        },
       },
       relations: {
         sport: true,
@@ -210,9 +203,15 @@ export class ServiceService {
       },
     });
 
+    const now = new Date(new Date().toString().split('T')[0]);
+
     return services.map(({ additionalServices, ...service }) => ({
       ...service,
-      bookedCountOnDate: additionalServices.length,
+      bookedCountOnDate: additionalServices.filter((additionalService) =>
+        additionalService.booking.bookingSlots
+          .flat()
+          .filter((bookingSlot) => bookingSlot.date === now),
+      ).length,
     }));
   }
 
