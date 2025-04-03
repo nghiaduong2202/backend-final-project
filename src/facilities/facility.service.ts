@@ -294,21 +294,19 @@ export class FacilityService {
 
   public async getDropDownInfor(ownerId: UUID) {
     const facilities = await this.facilityRepository.find({
-      select: {
-        id: true,
-        name: true,
+      relations: {
         fieldGroups: {
           sports: true,
         },
+      },
+      select: {
+        id: true,
+        name: true,
+        fieldGroups: true,
       },
       where: {
         owner: {
           id: ownerId,
-        },
-      },
-      relations: {
-        fieldGroups: {
-          sports: true,
         },
       },
       order: {
