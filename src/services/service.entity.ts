@@ -8,11 +8,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { ServiceTypeEnum } from './enums/service-type.enum';
+import { AdditionalService } from 'src/additional-serrvices/additional-service.entity';
 
 @Entity()
 @Unique(['name', 'facility'])
@@ -60,6 +62,13 @@ export class Service {
   })
   bookedCount: number;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+  })
+  unit: string;
+
   @OneToOne(() => Sport, {
     onDelete: 'RESTRICT',
     nullable: false,
@@ -73,6 +82,12 @@ export class Service {
   })
   @JoinColumn()
   facility: Facility;
+
+  @OneToMany(
+    () => AdditionalService,
+    (additionalService) => additionalService.service,
+  )
+  additionalServices: AdditionalService[];
 
   @BeforeUpdate()
   @BeforeInsert()

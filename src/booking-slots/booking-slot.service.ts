@@ -1,11 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBookingSlotDto } from './dto/create-booking-slot.dto';
 import { UpdateBookingSlotDto } from './dto/update-booking-slot.dto';
+import { QueryRunner } from 'typeorm';
+import { BookingSlot } from './booking-slot.entity';
+import { Booking } from 'src/bookings/booking.entity';
+import { Field } from 'src/fields/field.entity';
 
 @Injectable()
 export class BookingSlotService {
-  create(createBookingSlotDto: CreateBookingSlotDto) {
-    return 'This action adds a new bookingSlot';
+  public async createWithTransaction(
+    field: Field,
+    date: Date,
+    booking: Booking,
+    queryRunner: QueryRunner,
+  ) {
+    const bookingSlot = queryRunner.manager.create(BookingSlot, {
+      field,
+      date,
+      booking,
+    });
+
+    return await queryRunner.manager.save(bookingSlot);
   }
 
   findAll() {

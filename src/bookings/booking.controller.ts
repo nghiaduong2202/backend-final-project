@@ -24,23 +24,25 @@ import { Request } from 'express';
 
 @Controller('booking')
 export class BookingController {
-  // constructor(
-  //   /**
-  //    * inject booking service
-  //    */
-  //   private readonly bookingService: BookingService,
-  // ) {}
-  // @ApiOperation({
-  //   summary: 'Create booking (role: player)',
-  // })
-  // @Post()
-  // @AuthRoles(AuthRoleEnum.PLAYER)
-  // public createDraft(
-  //   @Body() createDraftBookingDto: CreateDraftBookingDto,
-  //   @ActivePerson('sub') playerId: UUID,
-  // ) {
-  //   return this.bookingService.createDraft(createDraftBookingDto, playerId);
-  // }
+  constructor(
+    /**
+     * inject booking service
+     */
+    private readonly bookingService: BookingService,
+  ) {}
+
+  @ApiOperation({
+    summary: 'Create booking (role: player)',
+  })
+  @Post()
+  @AuthRoles(AuthRoleEnum.PLAYER)
+  public createDraft(
+    @Body() createDraftBookingDto: CreateDraftBookingDto,
+    @ActivePerson('sub') playerId: UUID,
+  ) {
+    return this.bookingService.createDraft(createDraftBookingDto, playerId);
+  }
+
   // @ApiOperation({
   //   summary: 'Delete draft booking (role: player)',
   // })
@@ -68,6 +70,7 @@ export class BookingController {
   //     playerId,
   //   );
   // }
+
   // @Put(':bookingId/service')
   // @AuthRoles(AuthRoleEnum.PLAYER)
   // public updateService(
@@ -76,11 +79,12 @@ export class BookingController {
   //   @ActivePerson('sub') playerId: UUID,
   // ) {
   //   return this.bookingService.updateService(
-  //     updateServiceBookingDto,
+  //     updateServiceBookingDto.additionalServices,
   //     bookingId,
   //     playerId,
   //   );
   // }
+
   // @ApiOperation({
   //   summary: 'Payment (role: player)',
   // })

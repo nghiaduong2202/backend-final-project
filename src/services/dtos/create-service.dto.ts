@@ -59,6 +59,15 @@ export class CreateServiceDto {
 
   @ApiProperty({
     type: 'string',
+    example: 'date',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  unit: string;
+
+  @ApiProperty({
+    type: 'string',
     enum: ServiceTypeEnum,
     example: ServiceTypeEnum.OTHER,
   })

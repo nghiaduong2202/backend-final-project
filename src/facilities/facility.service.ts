@@ -293,20 +293,39 @@ export class FacilityService {
   }
 
   public async getDropDownInfor(ownerId: UUID) {
-    return await this.facilityRepository.find({
+    const facilities = await this.facilityRepository.find({
       select: {
         id: true,
         name: true,
+        fieldGroups: {
+          sports: true,
+        },
       },
       where: {
         owner: {
           id: ownerId,
         },
       },
+      relations: {
+        fieldGroups: {
+          sports: true,
+        },
+      },
       order: {
         name: 'ASC',
       },
     });
+
+    return facilities.map(({ fieldGroups, ...facility }) => ({
+      ...facility,
+      sports: fieldGroups
+        .map((fieldGroup) => fieldGroup.sports)
+        .flat()
+        .filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        ),
+    }));
   }
 
   public async getByOwner(ownerId: UUID) {

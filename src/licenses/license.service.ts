@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -18,6 +20,7 @@ export class LicenseService {
     /**
      * inject sportService
      */
+    @Inject(forwardRef(() => SportService))
     private readonly sportService: SportService,
     /**
      * inject cloudinaryService
@@ -36,6 +39,27 @@ export class LicenseService {
     relations?: string[],
   ) {
     const license = await this.licenseRepository.findOne({
+      where: {
+        sportId,
+        facilityId,
+      },
+      relations,
+    });
+
+    if (!license) {
+      throw new NotFoundException('License not found');
+    }
+
+    return license;
+  }
+
+  public async findOneWithTransaction(
+    facilityId: UUID,
+    sportId: number,
+    queryRunner: QueryRunner,
+    relations?: string[],
+  ) {
+    const license = await queryRunner.manager.findOne(License, {
       where: {
         sportId,
         facilityId,

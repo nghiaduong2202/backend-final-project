@@ -18,7 +18,7 @@ export class AdditionalService {
   })
   quantity: number;
 
-  @ManyToOne(() => Service, {
+  @ManyToOne(() => Service, (service) => service.additionalServices, {
     nullable: false,
   })
   service: Service;

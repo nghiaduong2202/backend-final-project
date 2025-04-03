@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
+  IsArray,
   IsMilitaryTime,
   IsNotEmpty,
   IsNumber,
   IsPositive,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CreateBookingSlotDto } from 'src/booking-slots/dto/create-booking-slot.dto';
 
 export class CreateDraftBookingDto {
   @ApiProperty({
@@ -26,21 +28,13 @@ export class CreateDraftBookingDto {
   endTime: string;
 
   @ApiProperty({
-    type: 'string',
-    example: '2025-03-12T00:00:00.000Z',
+    type: CreateBookingSlotDto,
   })
   @IsNotEmpty()
-  @IsDate()
-  @Type(() => Date)
-  date: Date;
-
-  @ApiProperty({
-    type: 'number',
-    example: 1,
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  fieldId: number;
+  @IsArray()
+  @Type(() => CreateBookingSlotDto)
+  @ValidateNested()
+  bookingSlots: CreateBookingSlotDto[];
 
   @ApiProperty({
     type: 'number',
