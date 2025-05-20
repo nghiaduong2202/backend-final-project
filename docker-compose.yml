@@ -16,6 +16,8 @@ services:
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=260708102001
       - DATABASE_NAME=sport-booking
+      - DATABASE_AUTOLOAD=true
+      - DATABASE_SYNC=true
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
     depends_on:
       postgres:
@@ -74,18 +76,6 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # kibana:
-  #   container_name: kibana
-  #   image: docker.elastic.co/kibana/kibana:8.13.1
-  #   environment:
-  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-  #   ports:
-  #     - "5601:5601"
-  #   depends_on:
-  #     - elasticsearch
-  #   networks:
-  #     - app_network
-  #   restart: unless-stopped
 
 networks:
   app_network:
