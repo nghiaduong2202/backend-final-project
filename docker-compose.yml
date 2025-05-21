@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3001"
     environment:
       - PORT=3001
       - NODE_ENV=production
@@ -19,6 +19,21 @@ services:
       - DATABASE_AUTOLOAD=true
       - DATABASE_SYNC=true
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - JWT_SECRET=Z7Ne80XZ8UCJ8eZ3FZTmKH7+KqO31y3XD1BIoPXq6b15EWH2xDJw0d5jSOz3PRy6
+      - JWT_TOKEN_AUDIENCE=localhost:3001
+      - JWT_TOKEN_ISSUER=localhost:3001
+      - JWT_EXPIRE=10h
+      - JWT_SECRET_REFRESH=fMqrIGpYGN5aeyjM1woxxMbKwEr+/bkpolWVyvDaJ+g/PsJSTYyrnTRo4x/FWQsz
+      - JWT_EXPIRE_REFRESH=15d
+
+      - CLOUDINARY_NAME=db3dx1dos
+      - CLOUDINARY_API_KEY=245765724114412
+      - CLOUDINARY_API_SECRET=-SLrHYVV_40p5GEZk6xT2xzjKp0
+
+      - TMN_CODE=IWI63R4W
+      - SECURE_SECRET=T6PE9FUTZCB8VT2XPYDYO0LWH8FWZJET
+
+      - VNPAY_RETURN_URL=https://capstoneprojectclient.vercel.app/user/booking/result-booking-vnpay
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,6 +43,19 @@ services:
       - app_network
     restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx_ssl
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/self-signed:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: unless-stopped
   postgres:
     container_name: postgres-db
     image: postgres:latest
