@@ -43,6 +43,18 @@ export class PaymentController {
   }
 
   @ApiOperation({
+    summary: 'owner payment for booking (role: owner)',
+  })
+  @Put(':paymentId/owner')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public ownerPayment(
+    @Param('paymentId', ParseUUIDPipe) paymentId: UUID,
+    @ActivePerson('sub') ownerId: UUID,
+  ) {
+    return this.paymentService.ownerPayment(paymentId, ownerId);
+  }
+
+  @ApiOperation({
     summary: 'verify ipn response',
   })
   @Get('ipn')

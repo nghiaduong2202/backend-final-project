@@ -316,4 +316,52 @@ export class PaymentService implements IPaymentService {
       prevMonthTopPlayer,
     };
   }
+
+  public async ownerPayment(
+    paymentId: UUID,
+    ownerId: UUID,
+  ): Promise<{ message: string }> {
+    console.log('ownerId: ', ownerId);
+    const payment = await this.paymentRepository
+      .findOneOrFail({
+        relations: {
+          booking: true,
+        },
+        where: {
+          id: paymentId,
+          booking: {
+            bookingSlots: {
+              field: {
+                fieldGroup: {
+                  facility: {
+                    owner: {
+                      id: ownerId,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch(() => {
+        throw new NotFoundException('Not found the payment');
+      });
+
+    if (payment.booking.status !== BookingStatusEnum.INCOMPLETE) {
+      throw new BadRequestException('The booking must be incomplete');
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      const booking = payment.booking;
+
+      booking.status = BookingStatusEnum.COMPLETED;
+
+      await manager.save(booking);
+    });
+
+    return {
+      message: 'Owner payment successful',
+    };
+  }
 }

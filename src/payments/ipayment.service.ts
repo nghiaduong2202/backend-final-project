@@ -27,4 +27,6 @@ export interface IPaymentService {
     ownerId: UUID,
     facilityId?: UUID,
   ): Promise<any>;
+
+  ownerPayment(paymentId: UUID, ownerId: UUID): Promise<{ message: string }>;
 }
