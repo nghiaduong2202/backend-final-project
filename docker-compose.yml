@@ -33,7 +33,7 @@ services:
       - TMN_CODE=IWI63R4W
       - SECURE_SECRET=T6PE9FUTZCB8VT2XPYDYO0LWH8FWZJET
 
-      - VNPAY_RETURN_URL=http://localhost:5173/user/booking/result-booking-vnpay
+      - VNPAY_RETURN_URL=https://capstoneprojectclient.vercel.app/user/booking/result-booking-vnpay
     depends_on:
       postgres:
         condition: service_healthy
