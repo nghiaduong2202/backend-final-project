@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Playmate } from './entities/playmate.entity';
 import { PlaymateParticipant } from './entities/playmate-participant.entity';
 import { BookingSlotModule } from 'src/booking-slots/booking-slot.module';
+import { PlaymateGateway } from './playmate.gateway';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { BookingSlotModule } from 'src/booking-slots/booking-slot.module';
     BookingSlotModule,
   ],
   controllers: [PlaymateController],
-  providers: [PlaymateService],
+  providers: [PlaymateService, PlaymateGateway],
   exports: [PlaymateService],
 })
 export class PlaymateModule {}
