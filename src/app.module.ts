@@ -31,6 +31,7 @@ import { FavortiteFacilityModule } from './favorite-facilities/favortite-facilit
 import { SearchModule } from './search/search.module';
 import { ChatModule } from './chats/chat.module';
 import { PlaymateModule } from './playmates/playmate.module';
+import { EventModule } from './events/event.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { PlaymateModule } from './playmates/playmate.module';
     SearchModule,
     ChatModule,
     PlaymateModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [

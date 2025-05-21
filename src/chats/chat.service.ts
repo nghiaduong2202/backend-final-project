@@ -151,8 +151,10 @@ export class ChatService implements IChatService {
       const participants: Participant[] = [];
 
       for (const member of createGroupConversationDto.members) {
+        const person = await this.personService.findOneById(member);
+
         const participant = manager.create(Participant, {
-          personId: member,
+          person,
           conversation: conversation,
         });
 
@@ -160,8 +162,10 @@ export class ChatService implements IChatService {
         participants.push(participant);
       }
 
+      const person = await this.personService.findOneById(personId);
+
       const adminConversation = manager.create(Participant, {
-        personId: personId,
+        person,
         conversation,
         isAdmin: true,
       });
