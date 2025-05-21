@@ -53,6 +53,8 @@ services:
       - ./nginx/self-signed:/etc/nginx/ssl
     depends_on:
       - backend
+    networks:
+      - app_network
     restart: unless-stopped
   postgres:
     container_name: postgres-db
