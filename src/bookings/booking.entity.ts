@@ -81,6 +81,20 @@ export class Booking {
   )
   additionalServices: AdditionalService[];
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  guestName: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  guestPhone: string;
+
   @OneToOne(() => Review, (review) => review.booking)
   review: Review;
 

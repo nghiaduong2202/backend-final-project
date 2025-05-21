@@ -19,6 +19,7 @@ import { AuthRoleEnum } from 'src/auths/enums/auth-role.enum';
 import { UpdateBookingSlotDto } from './dtos/requests/update-booking-slot.dto';
 import { UpdateAdditionalServicesDto } from './dtos/requests/update-additional-services.dto';
 import { GetScheduleDto } from './dtos/requests/get-schedule.dto';
+import { CreateDraftBookingByOwnerDto } from './dtos/requests/create-draft-booking-by-owner.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -149,5 +150,35 @@ export class BookingController {
     @ActivePerson('sub') playerId: UUID,
   ) {
     return this.bookingService.cancelBooking(bookingId, playerId);
+  }
+
+  @ApiOperation({
+    summary: 'create draft booking by owner (role: owner)',
+  })
+  @Post('create-draft-owner')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public createDraftByOwner(
+    @Body() createDraftBookingByOnwerDto: CreateDraftBookingByOwnerDto,
+    @ActivePerson('sub') ownerId: UUID,
+  ) {
+    return this.bookingService.createDraftByOwner(
+      createDraftBookingByOnwerDto,
+      ownerId,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'update addition services by owner (role: owner)',
+  })
+  @Put(':bookingId/update-additional-services-by-owner')
+  @AuthRoles(AuthRoleEnum.OWNER)
+  public updateAdditionalServicesByOwner(
+    @Param('bookingId', ParseUUIDPipe) bookingId: UUID,
+    @Body() updateAdditionalServiceDto: UpdateAdditionalServicesDto,
+  ) {
+    return this.bookingService.updateAdditionalServices(
+      bookingId,
+      updateAdditionalServiceDto,
+    );
   }
 }

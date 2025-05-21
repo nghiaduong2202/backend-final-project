@@ -4,6 +4,7 @@ import { CreateDraftBookingDto } from './dtos/requests/create-draft-booking.dto'
 import { UpdateBookingSlotDto } from './dtos/requests/update-booking-slot.dto';
 import { UpdateAdditionalServicesDto } from './dtos/requests/update-additional-services.dto';
 import { GetScheduleDto } from './dtos/requests/get-schedule.dto';
+import { CreateDraftBookingByOwnerDto } from './dtos/requests/create-draft-booking-by-owner.dto';
 
 export interface IBookingService {
   createDraft(
@@ -26,7 +27,7 @@ export interface IBookingService {
   updateAdditionalServices(
     bookingId: UUID,
     updateAdditionalServiceDto: UpdateAdditionalServicesDto,
-    playerId: UUID,
+    playerId?: UUID,
   ): Promise<Booking>;
 
   findOneById(bookingId: UUID, relations?: string[]): Promise<Booking>;
@@ -44,4 +45,9 @@ export interface IBookingService {
   save(booking: Booking): Promise<any>;
 
   cancelBooking(bookingId: UUID, playerId: UUID): Promise<{ message: string }>;
+
+  createDraftByOwner(
+    createDraftBookingByOnwerDto: CreateDraftBookingByOwnerDto,
+    ownerId: UUID,
+  ): Promise<Booking>;
 }

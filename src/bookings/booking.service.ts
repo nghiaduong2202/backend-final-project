@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { IBookingService } from './ibooking.service';
@@ -40,6 +41,7 @@ import { FieldStatusEnum } from 'src/fields/enums/field-status.enum';
 import { FacilityService } from 'src/facilities/facility.service';
 import { GetScheduleDto } from './dtos/requests/get-schedule.dto';
 import { BookingSlotStatusEnum } from 'src/booking-slots/enums/booking-slot-status.enum';
+import { CreateDraftBookingByOwnerDto } from './dtos/requests/create-draft-booking-by-owner.dto';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -452,7 +454,7 @@ export class BookingService implements IBookingService {
 
   public async findOneByIdAndPlayer(
     bookingId: UUID,
-    playerId: UUID,
+    playerId?: UUID,
     relations?: string[],
   ): Promise<Booking> {
     return this.bookingRepository
@@ -475,7 +477,7 @@ export class BookingService implements IBookingService {
   public async updateAdditionalServices(
     bookingId: UUID,
     updateAdditionalServiceDto: UpdateAdditionalServicesDto,
-    playerId: UUID,
+    playerId?: UUID,
   ): Promise<Booking> {
     const booking = await this.findOneByIdAndPlayer(bookingId, playerId, [
       'sport',
@@ -882,5 +884,154 @@ export class BookingService implements IBookingService {
     return {
       message: 'Cancel booking successful',
     };
+  }
+
+  public async createDraftByOwner(
+    createDraftBookingByOnwerDto: CreateDraftBookingByOwnerDto,
+    ownerId: UUID,
+  ): Promise<Booking> {
+    const field = await this.fieldService.findOneById(
+      createDraftBookingByOnwerDto.bookingSlot.fieldId,
+      ['fieldGroup.facility.owner', 'fieldGroup.sports'],
+    );
+
+    if (field.fieldGroup.facility.status !== FacilityStatusEnum.ACTIVE) {
+      throw new BadRequestException('The facility of field must be active');
+    }
+
+    console.log('owner facility: ', field.fieldGroup.facility.owner.id);
+    console.log('ownerId: ', ownerId);
+
+    if (field.fieldGroup.facility.owner.id !== ownerId) {
+      throw new NotAcceptableException('You must be owner of this facility');
+    }
+
+    const facility = field.fieldGroup.facility;
+
+    // check startTime and endTime between active time of facility
+    if (
+      isBetweenTime(
+        createDraftBookingByOnwerDto.startTime,
+        createDraftBookingByOnwerDto.endTime,
+        facility.openTime1,
+        facility.closeTime1,
+      ) &&
+      facility.openTime2 &&
+      facility.closeTime2 &&
+      isBetweenTime(
+        createDraftBookingByOnwerDto.startTime,
+        createDraftBookingByOnwerDto.endTime,
+        facility.openTime2,
+        facility.closeTime2,
+      ) &&
+      facility.openTime3 &&
+      facility.closeTime3 &&
+      isBetweenTime(
+        createDraftBookingByOnwerDto.startTime,
+        createDraftBookingByOnwerDto.endTime,
+        facility.openTime3,
+        facility.closeTime3,
+      )
+    ) {
+      throw new BadRequestException(
+        'Booking time not between open time and close time',
+      );
+    }
+
+    return await this.dataSource.transaction<Booking>(async (manager) => {
+      // get sport by id
+      const sport = await this.sportService.findOneByIdWithTransaction(
+        createDraftBookingByOnwerDto.sportId,
+        manager,
+      );
+
+      // create booking
+      const booking = manager.create(Booking, {
+        ...createDraftBookingByOnwerDto,
+        sport,
+      });
+
+      await manager.save(booking);
+
+      if (field.status === FieldStatusEnum.CLOSED) {
+        throw new BadRequestException('The field is closed');
+      }
+
+      if (
+        !field.fieldGroup.sports.find(
+          (sport) => sport.id === createDraftBookingByOnwerDto.sportId,
+        )
+      ) {
+        throw new BadRequestException('The field does not include this sport');
+      }
+
+      await this.checkOverlapBookingsWithTransaction(
+        createDraftBookingByOnwerDto.bookingSlot.fieldId,
+        createDraftBookingByOnwerDto.bookingSlot.date,
+        createDraftBookingByOnwerDto.startTime,
+        createDraftBookingByOnwerDto.endTime,
+        manager,
+      );
+
+      const newBookingSlot =
+        await this.bookingSlotService.createWithTransaction(
+          field,
+          createDraftBookingByOnwerDto.bookingSlot.date,
+          booking,
+          manager,
+        );
+
+      const playTime = duration(
+        createDraftBookingByOnwerDto.endTime,
+        createDraftBookingByOnwerDto.startTime,
+      );
+
+      let fieldPrice = field.fieldGroup.basePrice * playTime;
+
+      if (field.fieldGroup.numberOfPeaks > 0) {
+        const overlapPeak = durationOverlapTime(
+          field.fieldGroup.peakStartTime1!,
+          field.fieldGroup.peakEndTime1!,
+          createDraftBookingByOnwerDto.startTime,
+          createDraftBookingByOnwerDto.endTime,
+        );
+
+        fieldPrice += overlapPeak * field.fieldGroup.priceIncrease1!;
+      }
+
+      if (field.fieldGroup.numberOfPeaks > 1) {
+        const overlapPeak = durationOverlapTime(
+          field.fieldGroup.peakStartTime2!,
+          field.fieldGroup.peakEndTime2!,
+          createDraftBookingByOnwerDto.startTime,
+          createDraftBookingByOnwerDto.endTime,
+        );
+
+        fieldPrice += overlapPeak * field.fieldGroup.priceIncrease2!;
+      }
+
+      if (field.fieldGroup.numberOfPeaks > 2) {
+        const overlapPeak = durationOverlapTime(
+          field.fieldGroup.peakStartTime3!,
+          field.fieldGroup.peakEndTime3!,
+          createDraftBookingByOnwerDto.startTime,
+          createDraftBookingByOnwerDto.endTime,
+        );
+
+        fieldPrice += overlapPeak * field.fieldGroup.priceIncrease3!;
+      }
+
+      // create payment
+      const payment = await this.paymentService.createWithTransaction(
+        fieldPrice,
+        booking,
+        manager,
+      );
+
+      booking.payment = payment;
+      booking.bookingSlots = [newBookingSlot];
+
+      return booking;
+    });
   }
 }
