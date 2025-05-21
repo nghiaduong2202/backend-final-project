@@ -34,11 +34,16 @@ services:
       - SECURE_SECRET=T6PE9FUTZCB8VT2XPYDYO0LWH8FWZJET
 
       - VNPAY_RETURN_URL=https://capstoneprojectclient.vercel.app/user/booking/result-booking-vnpay
+
+      - TZ=Asia/Ho_Chi_Minh
     depends_on:
       postgres:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - app_network
     restart: unless-stopped
