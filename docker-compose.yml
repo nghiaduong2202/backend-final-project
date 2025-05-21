@@ -51,7 +51,6 @@ services:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/self-signed:/etc/nginx/ssl
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       - backend
