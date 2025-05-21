@@ -17,6 +17,7 @@ import { RegisterPlaymateDto } from './dtos/register-playmate.dto';
 import { ParticipantDto } from './dtos/participant.dto';
 import { ParticipantStatusEnum } from './enums/participant-status.enum';
 import { BookingStatusEnum } from 'src/bookings/enums/booking-status.enum';
+import { PlaymateGateway } from './playmate.gateway';
 
 @Injectable()
 export class PlaymateService implements IPlaymateService {
@@ -35,6 +36,10 @@ export class PlaymateService implements IPlaymateService {
      */
     @InjectRepository(PlaymateParticipant)
     private readonly playmateParticipantRepository: Repository<PlaymateParticipant>,
+    /**
+     * inject SocketGateway
+     */
+    private readonly playmateGateway: PlaymateGateway,
   ) {}
 
   private async isBookingSlotCreated(bookingSlotId: number): Promise<boolean> {
@@ -56,7 +61,12 @@ export class PlaymateService implements IPlaymateService {
     const bookingSlot = await this.bookingSlotService.findOneByIdAndPlayer(
       bookingSlotId,
       playerId,
-      ['booking.payment'],
+      [
+        'booking.payment',
+        'booking.player',
+        'booking.sport',
+        'field.fieldGroup.facility',
+      ],
     );
 
     if (bookingSlot.booking.status !== BookingStatusEnum.COMPLETED) {
@@ -84,7 +94,17 @@ export class PlaymateService implements IPlaymateService {
       bookingSlot,
     });
 
-    await this.playmateRepository.save(playmate);
+    console.log(playmate);
+
+    try {
+      await this.playmateRepository.save(playmate);
+
+      this.playmateGateway.emitNewPlaymante(playmate);
+    } catch {
+      throw new BadRequestException(
+        'An error occurred when create new playmate',
+      );
+    }
 
     return {
       message: 'Create playmate successful',
@@ -97,6 +117,22 @@ export class PlaymateService implements IPlaymateService {
   ): Promise<{ message: string }> {
     const playmate = await this.playmateRepository
       .findOneOrFail({
+        relations: {
+          bookingSlot: {
+            booking: {
+              player: true,
+              sport: true,
+            },
+            field: {
+              fieldGroup: {
+                facility: true,
+              },
+            },
+          },
+          participants: {
+            player: true,
+          },
+        },
         where: {
           id: updatePlaymateDto.playmateId,
           bookingSlot: {
@@ -163,6 +199,8 @@ export class PlaymateService implements IPlaymateService {
         playmate.skillLevel = updatePlaymateDto.skillLevel;
 
       await this.playmateRepository.save(playmate);
+
+      this.playmateGateway.emitUpdatePlaymate(playmate);
     } catch (error) {
       throw new BadRequestException(String(error));
     }
