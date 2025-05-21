@@ -71,6 +71,10 @@ export class VnpayProvider {
       throw new BadRequestException('Total price must be more than 0');
     }
 
+    const expireDate = new Date(Date.now() + 15 * 60 * 1000);
+
+    console.log(expireDate);
+
     const paymentUrl = vnpay.buildPaymentUrl({
       vnp_Amount: totalPrice,
       vnp_IpAddr: `${
@@ -82,14 +86,14 @@ export class VnpayProvider {
       vnp_TxnRef: payment.id,
       vnp_OrderInfo: `Thanh toan don hang ${payment.id}`,
       vnp_OrderType: ProductCode.Other,
-      vnp_ExpireDate: dateFormat(
-        new Date(Date.now() + 7 * 60 * 60 * 1000 + 15 * 60 * 1000),
-      ),
+      vnp_ExpireDate: dateFormat(expireDate),
       vnp_ReturnUrl:
         this.configService.get<string>('VNPAY_RETURN_URL') ||
         'http://localhost:3000/payment/inp',
       vnp_Locale: VnpLocale.VN,
     });
+
+    console.log(new Date());
 
     return {
       paymentUrl,
