@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3001"
     environment:
       - PORT=3001
       - NODE_ENV=production
@@ -51,6 +51,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/self-signed:/etc/nginx/ssl
+    depends_on:
+      - backend
     restart: unless-stopped
   postgres:
     container_name: postgres-db
