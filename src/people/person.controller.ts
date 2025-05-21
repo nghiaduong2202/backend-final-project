@@ -28,7 +28,11 @@ export class PersonController {
   })
   @Get('all')
   @AuthRoles(AuthRoleEnum.ADMIN)
-  public getAll() {}
+  public getAll() {
+    return {
+      message: 'Hello admin',
+    };
+  }
 
   @ApiOperation({
     summary: 'Get my information (role: admin, owner, player)',
