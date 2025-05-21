@@ -20,8 +20,8 @@ services:
       - DATABASE_SYNC=true
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - JWT_SECRET=Z7Ne80XZ8UCJ8eZ3FZTmKH7+KqO31y3XD1BIoPXq6b15EWH2xDJw0d5jSOz3PRy6
-      - JWT_TOKEN_AUDIENCE=localhost:3000
-      - JWT_TOKEN_ISSUER=localhost:3000
+      - JWT_TOKEN_AUDIENCE=localhost:3001
+      - JWT_TOKEN_ISSUER=localhost:3001
       - JWT_EXPIRE=10h
       - JWT_SECRET_REFRESH=fMqrIGpYGN5aeyjM1woxxMbKwEr+/bkpolWVyvDaJ+g/PsJSTYyrnTRo4x/FWQsz
       - JWT_EXPIRE_REFRESH=15d
@@ -43,6 +43,19 @@ services:
       - app_network
     restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx_https
+    depends_on:
+      - nestjs
+      - certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/self-signed:/etc/nginx/ssl
+    restart: unless-stopped
   postgres:
     container_name: postgres-db
     image: postgres:latest
