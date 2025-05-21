@@ -25,7 +25,17 @@ async function bootstrap() {
 
   SwaggerModule.setup('swagger-ui', app, document);
 
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'https://capstoneprojectclient.vercel.app',
+      'https://capstoneprojectadmin.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
