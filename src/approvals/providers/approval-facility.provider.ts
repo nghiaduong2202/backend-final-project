@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { ApprovalAbstract } from './approval.abstract';
 import { UUID } from 'crypto';
@@ -15,9 +16,15 @@ import { ApprovalStatusEnum } from '../enums/approval-status.enum';
 import { RejectNoteDto } from '../dtos/reject-note.dto';
 import { ApprovalTypeEnum } from '../enums/approval-type.enum';
 import { FacilityStatusEnum } from 'src/facilities/enums/facility-status.enum';
+import { ElasticsearchService } from 'src/search/elasticsearch.service';
 
 @Injectable()
 export class ApprovalFacilityProvider implements ApprovalAbstract {
+  /**
+   * inject Logger
+   */
+  private readonly logger = new Logger(ApprovalFacilityProvider.name);
+
   constructor(
     /**
      * inject ApproveRopsitory
@@ -33,6 +40,11 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
      * inject DataSource
      */
     private readonly dataSource: DataSource,
+    /**
+     * inject ElasticsearchService
+     */
+    @Inject(forwardRef(() => ElasticsearchService))
+    private readonly elasticsearchService: ElasticsearchService,
   ) {}
 
   public async createWithTransaction(
@@ -56,6 +68,9 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
   }
 
   public async approve(approve: Approval): Promise<{ message: string }> {
+    // get facility id
+    let facilityId: UUID = approve.facility.id;
+
     await this.dataSource.transaction(async (manager) => {
       approve.status = ApprovalStatusEnum.APPROVED;
 
@@ -63,6 +78,8 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
         approve.facility.id,
         manager,
       );
+
+      facilityId = facility.id;
 
       if (facility.status !== FacilityStatusEnum.PENDING) {
         throw new BadRequestException('The facility status must be pending');
@@ -72,9 +89,35 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
 
       try {
         await manager.save(approve);
-
         await manager.save(facility);
-      } catch {
+
+        // Đẩy việc cập nhật Elasticsearch ra khỏi transaction chính để tăng tốc độ
+        setTimeout(() => {
+          // Không sử dụng async trong hàm setTimeout để tránh lỗi lint
+          this.facilityService.getByFacility(facilityId)
+            .then((facilityWithRelations) => {
+              // Index facility đã load đầy đủ relations vào Elasticsearch
+              this.elasticsearchService
+                .indexFacility(facilityWithRelations)
+                .catch((error: Error) => {
+                  this.logger.error(
+                    `Background elasticsearch indexing failed: ${error.message}`,
+                    error.stack,
+                  );
+                });
+            })
+            .catch((err: Error) => {
+              this.logger.error(
+                `Failed to get facility with relations for indexing: ${err.message}`,
+                err.stack,
+              );
+            });
+        }, 0);
+      } catch (error) {
+        this.logger.error(
+          'Failed to index approved facility to Elasticsearch:',
+          error,
+        );
         throw new BadRequestException(
           'An error occurred when approve the facility',
         );
@@ -90,6 +133,9 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
     approval: Approval,
     rejectNoteDto: RejectNoteDto,
   ): Promise<{ message: string }> {
+    // get facility id
+    let facilityId: UUID = approval.facility.id;
+
     await this.dataSource.transaction(async (manager) => {
       approval.status = ApprovalStatusEnum.REJECTED;
 
@@ -102,6 +148,8 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
         manager,
       );
 
+      facilityId = facility.id;
+
       if (facility.status !== FacilityStatusEnum.PENDING) {
         throw new BadRequestException('The facility status must be pending');
       }
@@ -110,9 +158,24 @@ export class ApprovalFacilityProvider implements ApprovalAbstract {
 
       try {
         await manager.save(approval);
-
         await manager.save(facility);
-      } catch {
+
+        // Đẩy việc cập nhật Elasticsearch ra khỏi transaction chính để tăng tốc độ
+        setTimeout(() => {
+          this.elasticsearchService
+            .delete(this.elasticsearchService.getFacilitiesIndex(), facilityId)
+            .catch((error: Error) => {
+              this.logger.error(
+                `Background elasticsearch deletion failed: ${error.message}`,
+                error.stack,
+              );
+            });
+        }, 0);
+      } catch (error) {
+        this.logger.error(
+          'Failed to remove rejected facility from Elasticsearch:',
+          error,
+        );
         throw new BadRequestException(
           'An error occurred when reject the facility',
         );

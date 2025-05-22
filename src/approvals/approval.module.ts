@@ -10,6 +10,7 @@ import { ApprovalLicenseProvider } from './providers/approval-license.provider';
 import { FacilityModule } from 'src/facilities/facility.module';
 import { SportModule } from 'src/sports/sport.module';
 import { LicenseModule } from 'src/licenses/license.module';
+import { SearchModule } from 'src/search/search.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LicenseModule } from 'src/licenses/license.module';
     forwardRef(() => FacilityModule),
     SportModule,
     LicenseModule,
+    SearchModule,
   ],
   controllers: [ApprovalController],
   providers: [

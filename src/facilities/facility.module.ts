@@ -11,6 +11,7 @@ import { CloudUploaderModule } from 'src/cloud-uploader/cloud-uploader.module';
 import { ApprovalModule } from 'src/approvals/approval.module';
 import { SportModule } from 'src/sports/sport.module';
 import { FavortiteFacilityModule } from 'src/favorite-facilities/favortite-facility.module';
+import { SearchModule } from 'src/search/search.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FavortiteFacilityModule } from 'src/favorite-facilities/favortite-facil
     forwardRef(() => ApprovalModule),
     SportModule,
     FavortiteFacilityModule,
+    forwardRef(() => SearchModule),
   ],
   providers: [FacilityService],
   controllers: [FacilityController],

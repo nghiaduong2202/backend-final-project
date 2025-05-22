@@ -19,6 +19,7 @@ export class CloudUploaderController {
   ) {}
 
   @Post()
+  @AuthRoles(AuthRoleEnum.NONE)
   @UseInterceptors(FileInterceptor('image'))
   @AuthRoles(AuthRoleEnum.ADMIN, AuthRoleEnum.OWNER, AuthRoleEnum.PLAYER)
   public upload(@UploadedFile() image: Express.Multer.File) {

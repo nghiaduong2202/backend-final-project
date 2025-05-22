@@ -30,7 +30,14 @@ import { Participant } from './entities/participant.entity';
 @WebSocketGateway({
   namespace: 'ws/message',
   cors: {
-    origin: '*',
+    origin: [
+      'https://capstoneprojectclient.vercel.app',
+      'https://capstoneprojectadmin.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5174',
+    ],
+    credentials: true,
   },
 })
 @UseFilters(BadRequestFilter, UnauthorizedFilter)

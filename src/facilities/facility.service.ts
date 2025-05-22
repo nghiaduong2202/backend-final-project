@@ -23,9 +23,13 @@ import { SportService } from 'src/sports/sport.service';
 import { DeleteImageDto } from './dtos/requests/delete-image.dto';
 import { UpdateBaseInfo } from './dtos/requests/update-base-info.dto';
 import { FavoriteFacilityService } from 'src/favorite-facilities/favorite-facility.service';
+import { ElasticsearchService } from 'src/search/elasticsearch.service';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class FacilityService implements IFacilityService {
+  private readonly logger = new Logger(FacilityService.name);
+
   constructor(
     /**
      * inject FacilityRepository
@@ -72,6 +76,11 @@ export class FacilityService implements IFacilityService {
      * inject FavoriteFacilitytService
      */
     private readonly favoriteFacilityService: FavoriteFacilityService,
+    /**
+     * inject ElasticsearchService
+     */
+    @Inject(forwardRef(() => ElasticsearchService))
+    private readonly elasticsearchService: ElasticsearchService,
   ) {}
 
   public async findOneByIdAndOwnerId(
@@ -102,6 +111,9 @@ export class FacilityService implements IFacilityService {
     licenses?: Express.Multer.File[],
     sportIds?: number[],
   ): Promise<{ message: string }> {
+    // Khai báo biến createdFacility trước
+    let createdFacility: Facility | null = null;
+
     await this.dataSource.transaction(async (manager) => {
       const owner = await this.personService.findOneByIdWithTransaction(
         ownerId,
@@ -185,7 +197,19 @@ export class FacilityService implements IFacilityService {
         {},
         manager,
       );
+
+      // Lưu thông tin facility đã tạo để đồng bộ với Elasticsearch
+      createdFacility = newFacility;
     });
+
+    // Đồng bộ dữ liệu với Elasticsearch
+    try {
+      if (createdFacility) {
+        await this.indexFacilityToElasticsearch(createdFacility);
+      }
+    } catch (error) {
+      console.error('Failed to index facility to Elasticsearch', error);
+    }
 
     return {
       message: 'Create facility successful',
@@ -377,6 +401,8 @@ export class FacilityService implements IFacilityService {
     certificate: Express.Multer.File,
     ownerId: UUID,
   ): Promise<{ message: string }> {
+    let updatedFacility: Facility;
+
     await this.dataSource.transaction(async (manager) => {
       const facility = await this.findOneByIdAndOwnerWithTransaction(
         facilityId,
@@ -399,6 +425,14 @@ export class FacilityService implements IFacilityService {
         manager,
       );
     });
+
+    try {
+      // Lấy facility đã cập nhật để đồng bộ với Elasticsearch
+      updatedFacility = await this.findOneById(facilityId);
+      await this.updateFacilityInElasticsearch(updatedFacility);
+    } catch (error) {
+      console.error('Failed to update facility in Elasticsearch', error);
+    }
 
     return {
       message: 'Update name successful',
@@ -593,8 +627,16 @@ export class FacilityService implements IFacilityService {
       throw new BadRequestException(String(error));
     }
 
+    try {
+      // Lấy facility đã cập nhật để đồng bộ với Elasticsearch
+      const updatedFacility = await this.findOneById(facilityId);
+      await this.updateFacilityInElasticsearch(updatedFacility);
+    } catch (error) {
+      console.error('Failed to update facility in Elasticsearch', error);
+    }
+
     return {
-      message: 'Update info facility successful',
+      message: 'Update base info successful',
     };
   }
 
@@ -697,6 +739,14 @@ export class FacilityService implements IFacilityService {
       console.log('Loi khi add rating');
     }
 
+    try {
+      // Lấy facility đã cập nhật để đồng bộ với Elasticsearch
+      const updatedFacility = await this.findOneByField(fieldId);
+      await this.updateFacilityInElasticsearch(updatedFacility);
+    } catch (error) {
+      console.error('Failed to update facility rating in Elasticsearch', error);
+    }
+
     return facility!;
   }
 
@@ -747,59 +797,130 @@ export class FacilityService implements IFacilityService {
     }));
   }
 
-  // private async monthlyRevenue(month: number, year: number, facilityId?: UUID) {
-  //   const firstDate = new Date(year, month, 1, 7);
-  //   const lastDate = new Date(year, month + 1, 0, 7);
+  /**
+   * Phương thức đồng bộ dữ liệu facility mới lên Elasticsearch
+   */
+  private async indexFacilityToElasticsearch(
+    facility: Facility,
+  ): Promise<void> {
+    try {
+      await this.elasticsearchService.indexFacility(facility);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to index facility: ${error.message}`);
+      }
+      throw new Error('Failed to index facility');
+    }
+  }
 
-  //   const facilities = await this.facilityRepository.find({
-  //     relations: {
-  //       fieldGroups: {
-  //         fields: {
-  //           bookingSlots: {
-  //             booking: {
-  //               bookingSlots: true,
-  //               payment: true,
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //     where: {
-  //       id: facilityId,
-  //       fieldGroups: {
-  //         fields: {
-  //           bookingSlots: {
-  //             date: Between(firstDate, lastDate),
-  //             booking: {
-  //               status: Not(BookingStatusEnum.INCOMPLETE),
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
+  /**
+   * Phương thức cập nhật dữ liệu facility trên Elasticsearch
+   */
+  private async updateFacilityInElasticsearch(
+    facility: Facility,
+  ): Promise<void> {
+    try {
+      await this.elasticsearchService.indexFacility(facility);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `Failed to update facility in Elasticsearch: ${error.message}`,
+        );
+      }
+      throw new Error('Failed to update facility in Elasticsearch');
+    }
+  }
 
-  //   let revenue = 0;
+  /**
+   * Phương thức xóa dữ liệu facility khỏi Elasticsearch
+   */
+  private async deleteFacilityFromElasticsearch(
+    facilityId: UUID,
+  ): Promise<void> {
+    try {
+      await this.elasticsearchService.delete(
+        this.elasticsearchService.getFacilitiesIndex(),
+        facilityId.toString(),
+      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `Failed to delete facility from Elasticsearch: ${error.message}`,
+        );
+      }
+      throw new Error('Failed to delete facility from Elasticsearch');
+    }
+  }
 
-  //   for (const facility of facilities) {
-  //     for (const fieldGroup of facility.fieldGroups) {
-  //       for (const field of fieldGroup.fields) {
-  //         for (const bookingSlot of field.bookingSlots) {
-  //           const payment = bookingSlot.booking.payment;
-  //           const totalPrice =
-  //             payment.fieldPrice +
-  //             (payment.servicePrice ? payment.servicePrice : 0) -
-  //             (payment.discount ? payment.discount : 0) -
-  //             (payment.refund ? payment.refund : 0);
+  /**
+   * Phương thức đồng bộ tất cả facility lên Elasticsearch
+   */
+  public async syncAllFacilitiesToElasticsearch(): Promise<void> {
+    this.logger.log('Synchronizing facilities to Elasticsearch');
+    
+    // Load facilities with all relations needed for complete data
+    const facilities = await this.facilityRepository.find({
+      relations: {
+        fieldGroups: {
+          fields: true,
+          sports: true,
+        },
+        owner: true,
+        licenses: {
+          sport: true,
+        },
+        certificate: true,
+        services: true,
+        vouchers: true,
+      },
+      order: {
+        name: 'ASC',
+      },
+    });
 
-  //           if (bookingSlot.status !== BookingSlotStatusEnum.UPCOMING) {
-  //             revenue += totalPrice / bookingSlot.booking.bookingSlots.length;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
+    if (facilities.length === 0) {
+      this.logger.log('No facilities found to synchronize');
+      return;
+    }
 
-  //   return revenue;
-  // }
+    // Transform facilities to include minPrice and maxPrice like getByFacility does
+    const processedFacilities = facilities.map((facility) => ({
+      ...facility,
+      minPrice: facility.fieldGroups.length > 0 
+        ? Math.min(...facility.fieldGroups.map((fieldGroup) => fieldGroup.basePrice))
+        : 0,
+      maxPrice: facility.fieldGroups.length > 0
+        ? Math.max(...facility.fieldGroups.map((fieldGroup) => fieldGroup.basePrice))
+        : 0,
+    }));
+    
+    try {
+      await this.elasticsearchService.bulkIndex(
+        this.elasticsearchService.getFacilitiesIndex(),
+        processedFacilities,
+      );
+      this.logger.log(`Synchronized ${facilities.length} facilities to Elasticsearch`);
+    } catch (error: unknown) {
+      this.logger.error('Failed to sync facilities to Elasticsearch', error);
+      if (error instanceof Error) {
+        throw new Error(
+          `Failed to sync facilities to Elasticsearch: ${error.message}`,
+        );
+      }
+      throw new Error('Failed to sync facilities to Elasticsearch');
+    }
+  }
+
+  // Sau mỗi lần cập nhật thông tin của facility, đồng bộ dữ liệu vào Elasticsearch
+  private async syncFacilityToElasticsearch(facilityId: UUID) {
+    try {
+      const facility = await this.findOneById(facilityId);
+      if (facility) {
+        await this.elasticsearchService.indexFacility(facility);
+        console.log(`Synchronized facility ${facilityId} to Elasticsearch`);
+      }
+    } catch (error) {
+      console.error(`Failed to sync facility ${facilityId} to Elasticsearch:`, error);
+    }
+  }
 }

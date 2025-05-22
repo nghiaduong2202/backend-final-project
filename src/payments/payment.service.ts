@@ -258,18 +258,23 @@ export class PaymentService implements IPaymentService {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
 
-    return {
-      revenue,
-      bookingCount: payments.length,
-      playerCount: playerMap.size,
-      topPlayer: topPlayer.map(async (player) => {
+    const resultTopPlayer = await Promise.all(
+      topPlayer.map(async (player) => {
         const playerInfo = await this.personService.findOneById(player[0]);
-
         return {
           player: playerInfo,
           amount: player[1],
         };
       }),
+    );
+
+    console.log(resultTopPlayer);
+
+    return {
+      revenue,
+      bookingCount: payments.length,
+      playerCount: playerMap.size,
+      topPlayer: resultTopPlayer,
     };
   }
 
@@ -287,6 +292,8 @@ export class PaymentService implements IPaymentService {
         ownerId,
         facilityId,
       );
+
+    console.log(topPlayer);
 
     const {
       revenue: prevMonthRevenue,

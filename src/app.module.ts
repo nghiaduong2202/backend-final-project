@@ -28,6 +28,7 @@ import { PaymentModule } from './payments/payment.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReviewModule } from './reviews/review.module';
 import { FavortiteFacilityModule } from './favorite-facilities/favortite-facility.module';
+import { SearchModule } from './search/search.module';
 import { ChatModule } from './chats/chat.module';
 import { PlaymateModule } from './playmates/playmate.module';
 import { EventModule } from './events/event.module';
@@ -49,7 +50,15 @@ import { EventModule } from './events/event.module';
         password: configService.get<string>('DATABASE_PASSWORD'),
         host: configService.get<string>('DATABASE_HOST'),
         database: configService.get<string>('DATABASE_NAME'),
-        logging: true,
+        logging: [
+          'error',
+          'warn',
+          'schema',
+          'query',
+          'info',
+          'log',
+          'migration',
+        ],
       }),
     }),
     AuthModule,
@@ -71,6 +80,7 @@ import { EventModule } from './events/event.module';
     ScheduleModule.forRoot(),
     ReviewModule,
     FavortiteFacilityModule,
+    SearchModule,
     ChatModule,
     PlaymateModule,
     EventModule,
