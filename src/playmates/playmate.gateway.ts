@@ -7,14 +7,9 @@ import { Playmate } from './entities/playmate.entity';
 @WebSocketGateway({
   namespace: 'ws/playmate',
   cors: {
-    origin: [
-      'https://capstoneprojectclient.vercel.app',
-      'https://capstoneprojectadmin.vercel.app',
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:5174',
-    ],
-    credentials: true,
+    origin: '*', // Allows all origins
+    methods: ['GET', 'POST'],
+    credentials: true, 
   },
 })
 @UseFilters(BadRequestFilter)
