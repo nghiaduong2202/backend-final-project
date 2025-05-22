@@ -44,7 +44,7 @@ export class Event {
     array: true,
     nullable: true,
   })
-  image?: string[];
+  images?: string[];
 
   @Column({
     type: 'varchar',

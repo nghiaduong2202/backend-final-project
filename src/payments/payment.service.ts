@@ -247,9 +247,11 @@ export class PaymentService implements IPaymentService {
       revenue +=
         totalPrice * (playNumber / payment.booking.bookingSlots.length);
 
-      const currentValue = playerMap.get(payment.booking.player.id) ?? 0;
+      if (payment.booking.player) {
+        const currentValue = playerMap.get(payment.booking.player.id) ?? 0;
 
-      playerMap.set(payment.booking.player.id, currentValue + 1);
+        playerMap.set(payment.booking.player.id, currentValue + 1);
+      }
     }
 
     const topPlayer = Array.from(playerMap.entries())
