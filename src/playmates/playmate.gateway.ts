@@ -7,7 +7,9 @@ import { Playmate } from './entities/playmate.entity';
 @WebSocketGateway({
   namespace: 'ws/playmate',
   cors: {
-    origin: *,
+    origin: '*', // Allows all origins
+    methods: ['GET', 'POST'],
+    credentials: true, 
   },
 })
 @UseFilters(BadRequestFilter)
