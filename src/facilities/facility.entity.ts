@@ -23,6 +23,7 @@ import { Service } from 'src/services/service.entity';
 import { Voucher } from 'src/vouchers/voucher.entity';
 import { Approval } from 'src/approvals/approval.entity';
 import { BadRequestException } from '@nestjs/common';
+import { Event } from 'src/events/entities/event.entity';
 
 @Entity()
 @Unique(['name', 'id'])
@@ -153,6 +154,9 @@ export class Facility {
 
   @OneToMany(() => Approval, (approvals) => approvals.facility)
   approvals: Approval[];
+
+  @OneToMany(() => Event, (events) => events.facility)
+  events: Event[];
 
   @BeforeInsert()
   @BeforeUpdate()
